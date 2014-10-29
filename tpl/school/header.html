@@ -1,0 +1,34 @@
+
+<!DOCTYPE html>
+<!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9"> <![endif]-->
+<!--[if !IE]><!--> <html lang="en"> <!--<![endif]-->
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=7" />
+<link href="<!--{$CSS}-->/school/reset.css" rel="stylesheet" type="text/css">
+<link href="<!--{$CSS}-->/school/style.css" rel="stylesheet" type="text/css">
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/jquery.js" charset="UTF-8"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/school/comm.js" charset="UTF-8"></script>
+<script>
+document.onkeydown=keyDown;
+function keyDown()
+{
+	var ieKey=event.keyCode;	
+	if (ieKey==116) //F5 key press;
+	{	
+		parent.right.location.reload();
+		
+		if(document.all) {
+			event.keyCode = 0;
+			event.returnValue = false;
+		}else {
+			event.cancelBubble = true;
+			event.preventDefault();
+		}		
+	}
+}
+</script>
+<body>
+

@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<head>
+<link href="<!--{$CSS}-->/school/reset.css" rel="stylesheet" type="text/css">
+<link href="<!--{$CSS}-->/school/style.css" rel="stylesheet" type="text/css">
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/jquery.js"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/school/comm.js"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+<body>
+<div class="ajaxStudentList">	
+	<ul id="dataList">
+		<!--{foreach from=$result key=key item=item}-->
+			<li sid="<!--{$item.id}-->"><i val="<!--{$item.id}-->"></i><img src="<!--{$item.avatar}-->" width="30"/><!--{$item.name}--></li>
+		<!--{foreachelse}-->
+			<li>没有记录</li>
+		<!--{/foreach}-->
+	</ul>
+	<div class="formItem" style="text-align:center">	
+	<div class="page" id="page"><!--{$paginator->getRender($curl, 0)}--></div>
+	</div>	
+	<div class="formItem" style="text-align:center">			
+		<button name="submit" id="formSubmit" onclick="toSelect('teacher', 0, 0)" class="dataBnt">添加</button>
+	</div>
+</div>
+<script type="text/javascript">
+var postData = {
+	action : 'teacher', 
+	handle : '<!--{$handle}-->',			
+	src : '',// 要处理的数据	
+};
+
+var ajaxUrl = '/manager/ajax';
+
+$(function(){ 	
+	$(".ajaxStudentList i").click(function(){		
+		postData.src = $(this).attr('val');
+		if(!postData.src) alert('错误的操作');		
+		$.post(ajaxUrl, postData, function(data){
+			if(data.state)
+			{
+				window.top.art.dialog({content : data.message, icon : 'succeed'}, function(){
+					window.top.right.location.reload();
+				});
+			}else{
+				art.dialog.alert(data.message);
+			}
+		}, 'json');
+	});	
+});
+
+function toSelect()
+{	
+	var selected = new Array();	
+	$("#dataList li").each(function(i, obj){
+		selected.push($(obj).attr('sid'));
+	});	
+	var query = {
+		id : selected.join(),
+		offset : 0,
+		group : 'hide',
+		selected : 'hide',
+		handle : 'add'
+	}	
+	art.dialog.open(('/teacher/select').url_build(query), {id: 'selectPanel',title: "选择老师", width : '90%', height: '90%', 'lock' : true, resize:false},function(){});	
+}
+
+function render(type, data, action, handle)
+{
+	$.post(ajaxUrl, postData, function(data){
+		if(data.state)
+		{	
+			window.top.art.dialog({content : data.message, icon : 'succeed'}, function(){
+				window.top.right.location.reload();
+			});
+			// window.location.reload();
+		}else{
+			art.dialog.alert(data.message);
+		}
+	}, 'json');	
+}
+</script>

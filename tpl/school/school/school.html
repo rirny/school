@@ -1,0 +1,183 @@
+<!--{include file="school/header.html"}-->
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+
+<body scroll="no" style="background:#292929">
+<div class="header">
+	<div class="top">
+		<div class="userStatus" style="float:right;color:#FFF;line-height:50px;padding-right:12px;">
+			<span><!--{$__USER__.name|default:$__USER__.account}--></span> <a href="/logout">退出</a>
+		</div>
+		<div class="logo" ><a><img src="<!--{$IMG}-->/school/logo.png" /></a></div>		
+	</div>
+</div>
+
+<div id="content" style="background:#F9F9F9;position:relative;">
+	<div style="position:relative;margin:0px 20px;" id="main">
+		<div style="margin:0px;position:absolute; top:20px;">
+			<div class="searchPanel" style="margin-top:10px;">
+				<form action="/school" method="get" name="searchForm" id="searchForm" >			
+					<div class="searchForm">
+						<input type="hidden" id="order" name="order[<!--{key($smarty.get.order)}-->]" value="<!--{current($smarty.get.order)}-->" />
+						关键字：<input name="keyword" type="text" class="input-text" value="<!--{$smarty.get.keyword|default:'机构名/机构号'}-->" def="机构名/机构号" />						
+						<select name="status"><option value="">机构状态</option><!--{html_options options=$statusArr selected=$smarty.get.status}--></select>						
+						<select name="valid"><option value="">审核状态</option><!--{html_options options=$validArr selected=$smarty.get.valid}--></select>
+						<select name="import"><option value="">导入机构</option><!--{html_options options=$creatorArr selected=$smarty.get.import}--></select>
+						<input name="search" type="submit" value="搜索" class="searchBnt" />
+					</div>
+				</form>
+			</div>			
+			<div class="dataTable">
+				<div class="dataHeader">			
+					<div class="page"><a>总：<!--{$record}--></a><!--{$paginator->getRender($curl, 0)}--></div>
+				</div>
+				<div class="dataSet">
+					<table width="100%" cellpadding="0" cellspacing="0" >
+						<thead>
+							<th width="20"><input type="checkbox" name="chkAll" value="1" onclick="checkAll(this)"/></th>
+							<th width="200" name="name" class="order" order="<!--{if key($smarty.get.order) == 'name' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">机构名称<i></i></th>
+							<th width="100" name="code" class="order" order="<!--{if key($smarty.get.order) == 'code' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">机构号<i></i></th>
+							<th width="80" name="">学生人数<i></i></th>
+							<th width="80" name="">教师人数<i></i></th>
+							<th width="80">联系人</th>
+							<th width="120">联系方式</th>
+							<th width="100" name="date" class="order" order="<!--{if key($smarty.get.order) == 'date' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">注册日期<i></i></th>
+							<th width="120">审核</th>
+							<th width="120">状态</th>
+							<th width="*">操作</th>
+						</thead>
+						<tbody>
+							<!--{foreach from=$result item=item key=key name=result}-->
+							<tr>
+								<td><input type="checkbox" name="checkbox" value="<!--{$item.id}-->" /></td>
+								<td><!--{$item.name}--></td>
+								<td><!--{$item.code}--></td>
+								<td><!--{$item.students}--></td>
+								<td><!--{$item.teachers}--></td>
+								<td><!--{$item.contact}--></td>
+								<td><!--{$item.phone}--></td>
+								<td><!--{$item.create_time}--></td>
+								<td><select name="validSelect" onchange="change('valid', <!--{$item.id}-->, this)"><!--{html_options options=$validSelect selected=$item.valid}--></select></td>
+								<td><select name="statusSelect" onchange="change('status', <!--{$item.id}-->, this)"><!--{html_options options=$statusSelect selected=$item.status}--></select></td>
+								<td>
+									【<a href="/school/change?id=<!--{$item.id}-->" class="high">进入</a>】
+									<!--{if $item.creator == 2}-->
+									【<a href="javascript:;" onclick="set(<!--{$item.id}-->)" class="high">指派</a>】
+									<!--{/if}-->
+								</td>
+							</tr>
+							<!--{foreachelse}-->
+							<tr>
+								<td class="high" colspan=8 height=60 align="center">暂无记录</td>						
+							</tr>
+							<!--{/foreach}-->
+						</tbody>
+					</table>
+				</div>		
+				<div class="dataFooter" style="margin-top:10px">
+					<div class="page" id="page"><a>总：<!--{$record}--></a><!--{$paginator->getRender($curl, 1)}--></div>
+				</div>
+			</div>
+		</div>
+	</div>	
+</div>
+
+<div id="addFrom" style="display:none">
+	<div class="dataForm" style="padding:10px 0px;">
+		<input type="hidden" name="handle" value="add"/>		
+		<label>用户</label>
+		<input type="text" name="account" id="account" value="" def="手机号|呼啦号" class="input-text" size="20" style="width:126px"/>
+		<!--<input type='button' name="submit" id="formSubmit" class="dataBnt" value="确定" onclick="add()" >-->	
+		<script type="text/javascript">
+		$(function(){
+			$("#account").focus(function(){var def=$(this).attr('def'); if($(this).val()== def){$(this).val(''); $(this).css('color', '#666');}});
+		});
+		</script>
+	</div>
+</div>
+
+<div id="footer" style="line-height:30px;color:#F1F1F1">2013-2014 Hulapai Co.ltd. All Rights</div>
+<script type="text/javascript">
+$(function(){
+	$(".dataSet tr:even").addClass('even');	
+	$(".dataSet tr").hover(function(){$(this).addClass('on');},function(){$(this).removeClass('on')});
+	$("#searchForm input[name='keyword']").focus(function(){var def=$(this).attr('def'); if($(this).val()== def){$(this).val(''); $(this).css('color', '#666');}});
+	$("#searchForm input[name='keyword']").blur(function(){var def=$(this).attr('def'); if($(this).val()== def || $(this).val()==''){$(this).val(def); $(this).css('color', '#DDD');}else{$(this).css('color', '#666');}});
+	$(".dataSet th.order").click(function(){
+		var name = $(this).attr('name');
+		var order = $(this).attr('order');		
+		$("#order").attr({'name' : 'order[' + name + ']', 'value' : order});
+		$("#searchForm").submit();
+	});
+
+	$("#searchForm").submit(function(){		
+		var def = $(this).find("input[name='keyword']").attr('def');
+		var keyword = $(this).find("input[name='keyword']").val();
+		if(def == keyword) $(this).find("input[name='keyword']").val('');
+		$(this).find("input[name='search']").attr('name', '');
+	});
+});
+
+
+function set(id)
+{
+	art.dialog({id : 'AdminSet', 'title' : '指派管理员', 'content' : $("#addFrom").html(), lock:true, resize: false}, function(){		
+		var account = $("#account").val();
+		if(!account) 
+		{
+			alert('用户不能为空！'); return false;
+		}
+		$.post('/school/set', {school : id, account : account}, function(data){
+			if(data.state) 
+			{
+				art.dialog({id: 'AdminSet'}).close();
+			}
+			art.dialog.alert(data.message);
+		}, 'json');
+		return false;
+	});	
+}
+
+function change(action, id, obj)
+{
+	$.post('/school/ajax', {school : id, action : action, value : obj.value}, function(data){
+		if(!data.state) alert('修改失败！');
+	}, 'json');
+}
+
+//clientHeight-0; 空白值 iframe自适应高度
+function windowW(){
+	if($(window).width()<980){
+		$('.header').css('width',980+'px');
+		$('#content').css('width',980+'px');
+		$('body').attr('scroll','');
+		$('body').css('overflow','');
+	}
+}
+windowW();
+
+$(window).resize(function(){
+	if($(window).width()<980){
+		windowW();
+	}else{
+		$('.header').css('width','auto');
+		$('#content').css('width','auto');
+		$('body').attr('scroll','no');
+		$('body').css('overflow','hidden');		
+	}
+});
+
+window.onresize = function(){
+	var clientHeight = document.documentElement.clientHeight;
+	if($.browser.mozilla)
+	{
+		clientHeight = window.innerHeight;
+	}
+	var heights = clientHeight - 90;
+	if(heights < 640) heights=640;
+	// document.getElementById('content').height = heights;
+	//alert(heights);
+	$("#main").css('height', heights);
+}
+window.onresize();
+</script>

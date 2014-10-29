@@ -1,0 +1,46 @@
+<!--{include file="../header.html"}-->
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/jscal2.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/border-radius.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/win2k.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/calendar.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/lang/en.js"></script>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/formValid/style/validator.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidator.min.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/jquery.form.js"></script>
+<div class="">
+	<div class="dataForm" style="padding:10px 0px">		
+		<form action="/remark/ajax" id="dataForm" name="dataForm" method="post">
+		<input type="hidden" name="id" value="<!--{$id}-->"/>
+		<input type="hidden" name="handle" value="add"/>
+		<input type="hidden" name="action" value="<!--{$action}-->"/>
+		<!--
+		<div class="formItem">
+			<label>类型：</label>
+			<select name="sorts" id="sorts"><!-{html_options options=$sources}-></select>			
+			<span id="sortsTip"></span>
+		</div>
+		-->
+
+		<div class="formItem">
+			<label style="margin-right:0px">备注：</label>
+			<textarea name="description" id="description" style="height:120px;width:400px;vertical-align:top"><!--{$reslut.description}--></textarea>
+			<span id="descrptionTip"></span>
+		</div>
+
+		<div class="formItem" style="padding-left:116px;">			
+			<input type="submit" name="submit" id="formSubmit" class="dataBnt" value="确定" />
+			<input type="button" id="cancel" name="cancel" class="cancelBnt" value="取消" />
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+	$.formValidator.initConfig({formID:"dataForm", submitButtonID: 'formSubmit', submitOnce:true, errorFocus:true,wideWord:true,
+		onError:function(msg, obj, errorlist){},
+		onSuccess:function(){}	
+	});
+	$("#cancel").click(function(){window.top.closeAllDialog();});
+
+});
+</script>

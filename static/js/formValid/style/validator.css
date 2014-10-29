@@ -1,0 +1,7 @@
+.onShow,.onFocus,.onError,.onCorrect,.onLoad,.onTime{ background:url(../images/msg_bg.png) no-repeat; padding-left:25px; font-size: 12px; line-height:22px; vertical-align:middle;}
+.onShow{background-position:3px -148px;color:#0066cc}
+.onFocus{background-position:3px -148px;}
+.onError{background-position:3px -47px;color:red}
+.onCorrect{background-position:3px -247px;color:green}
+.onLamp{background-position:3px -200px}
+.onTime{background-position:3px -1356px}

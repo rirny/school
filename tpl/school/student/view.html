@@ -1,0 +1,362 @@
+<!--{include file="../header.html"}-->
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/jscal2.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/border-radius.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/win2k.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$CSS}-->/school/tabs.css">
+
+<script type="text/javascript" src="<!--{$JS}-->/calendar/calendar.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/lang/en.js"></script>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/formValid/style/validator.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidator.min.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidatorRegex.js"></script>
+
+<script type="text/javascript" src="<!--{$JS}-->/jquery.form.js"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+<style type="text/css">
+	body { font-family:Arial, Helvetica, Sans-Serif; font-size:0.8em;}
+	#report { border-collapse:collapse;}
+	#report h4 { margin:0px; padding:0px;}
+	#report img { float:right;}
+	#report ul { margin:10px 0 10px 40px; padding:0px;}
+	#report th { background:#7CB8E2 url(/static/images/school/jExpand/header_bkg.png) repeat-x scroll center left; color:#fff; padding:7px 15px; text-align:left;}
+	#report td { background:#fff none repeat-x scroll center left; color:#000; padding:7px 15px; }
+	#report tr.odd td { background:#fff url(/static/images/school/jExpand/row_bkg.png) repeat-x scroll center left; cursor:pointer; }
+	#report div.arrow { background:transparent url(/static/images/school/jExpand/arrows.png) no-repeat scroll 0px -16px; width:16px; height:16px; display:block;}
+	#report div.up { background-position:0px 0px;}
+	#report div.info {border:1px solid #7CB8E2;width:15%;height:110px;float:left;text-align: center;margin-right:1px;margin-right:auto;margin-left: auto;margin-top: auto;margin-bottom: auto;}
+	.privChange i{width:12px;height:12px;display:inline-block; *zoom:1; *display:inline; vertical-align:middle; margin-left:10px;}
+	.privChange i.on{background:url('<!--{$IMG}-->/school/update.png') no-repeat; cursor:pointer;}
+</style>
+
+<div class="mainContent">
+<!--{$remark.student}-->
+	<div class="mbx">
+		<span><a href="javascript:;" onclick="window.history.go(-1);">返回</a> >></span>
+		<a href="javascript:;" onclick="window.top.menuOn('base', 1)">首页</a> > <a href="javascript:;" onclick="window.top.menuOn('student', 1)">学生管理</a> > <a>学生详情</a>		
+	</div>
+	<div class="dataForm" style="background:#F5F5F5;padding:10px 0px;overflow:hidden;height:auto;">
+		<div style="float:left; width:120px;text-align:center">
+			<p><img src="<!--{$student.avatar}-->" width="85" /></p>
+			<p><!--{$student.name}--></p>
+		</div>
+		<div style="float:left;">
+			<div class="formItem">
+				<label>性别：</label>
+				<!--{if $student.gender==1}-->男<!--{else}-->女<!--{/if}-->
+				<label style="padding-left:40px">生日：</label>
+				<!--{$student.birthday}-->
+				<label style="padding-left:40px">加入时间：</label>
+				<!--{$student.create_time|date_format:'%Y-%m-%d'}-->
+			</div>
+			<div class="formItem">
+				<label style="padding-left:20px">联系方式：</label>			
+				<!--{$student.account}-->
+			</div>
+		</div>
+	</div>
+	
+	<div class="dataForm" style="background:#F5F5F5;padding:5px 5px;overflow:hidden;height:auto;">
+		<ul id="tabs">
+			<li><a href="#" name="tab1">课程</a></li>
+			<li><a href="#" name="tab2">备注</a></li>
+		</ul>
+
+		<div id="content"> 
+			<div id="tab1">
+				<div><input type="button" value="排课" class="dataBnt" style="margin-top:10px;" onclick="window.location.href='/assign?assigner=<!--{$sid}-->&type=0';" /></div>
+				<div class="dataTable" style="padding:10px 0px;overflow:hidden;height:auto;">
+				   <table id="report" style="width:100%">
+						<tr>
+							<th width="15%">学生课程</th>
+							<th width="5%"></th>
+							<th width="50%"></th>
+							<th width="5%"></th>
+							<th width="10%"></th>
+							<th width="10%"></th>
+							<th width="5%"></th>
+						</tr>
+						<!--{foreach from=$schedule item=item key=key}-->
+						<tr>
+							<td><!--{$item.title}--></td>
+							<td></td>
+							<td><!--{$item.rule}--></td>
+							<td></td>
+							<td><a href="javascript:;" id="close" onclick="closeSchedule(<!--{$item.id}-->)">结课</a></td>
+							<td><a href="javascript:;" onclick="renewalSchedule(<!--{$item.id}-->)">续课</a></td>
+							<td><div class="arrow"></div></td>
+						</tr>
+						<tr>
+							<td colspan="7">
+							<div style="padding 3px 0px 3px 0px;">
+								<div style="padding 3px 0px 7px 0px;"><div  style="display:inline;padding:10px 50px;">总课次：<!--{$item.count.times}-->次</div>    <div style="display:inline;padding:10px 50px;">已上：<!--{$item.count.attend}-->次</div>  <div  style="display:inline;padding:10px 50px;">缺勤：<!--{$item.count.absence}-->次</div> <div style="display:inline;padding:10px 50px;">请假：<!--{$item.count.leave}-->次</div>  <div style="display:inline;padding:10px 50px;">剩余：<!--{$item.count.remain}-->次</div></div>
+							<!--{foreach from=$item.events item=rule}-->
+								<div class="info" style="padding:5px 0px 5px 0px;">
+	
+									<label><!--{$rule.date}-->	      <!--{$rule.week}--></label>
+									<input type="hidden" name="index" value="<!--{$rule.index}-->" />
+									<input type="hidden" name="sid" value="<!--{$item.id}-->" />
+									<input type="hidden" name="end" value="<!--{$rule.end}-->" />
+									<input type="hidden" name="times" value="<!--{$rule.times}-->" />
+									<!--{if $rule.attend==0}-->
+									<select name="attend">
+									<option value="0">出勤</option>
+									<option value="1">缺勤</option>
+									<option value="2">请假</option>
+									</select>
+									<!--{else if $rule.attend==1}-->
+									<select name="attend" style="color:red;">
+									<option value="1">缺勤</p></option>
+									<option value="0">出勤</option>
+									<option value="2">请假</option>
+									</select>
+									<!--{else if $rule.attend==2}-->
+									<select name="attend" style="color:blue;">
+									<option value="2">请假</option>
+									<option value="0">出勤</option>
+									<option value="1">缺勤</option>
+									</select>
+		
+									<!--{/if}-->
+									<!--{if $rule.remark==""}-->
+									<div class="privChange" style="border-top:1px solid #7CB8E2;padding-top:5px"><span style="padding:0px,5px,0px,5px;">备注</span><i></i></div>
+									<!--{else}-->
+									<div class="privChange" style="border-top:1px solid #7CB8E2;padding-top:5px"><span><!--{$rule.remark}--></span><i></i></div>
+									<!--{/if}-->
+								</div>
+							<!--{/foreach}--> 
+						<!--{foreachelse}-->
+								<tr>
+									<td class="high" colspan=7 height=60 align="center">暂无记录</td>						
+								</tr>
+							</td>
+						</tr>
+						<!--{/foreach}--> 
+					</table>
+				</div>
+			</div>
+			<div id="tab2">
+				<!--备注-->			
+				<div class="dataTable" style="border:1px solid #CCC;margin-top:12px;padding:0px 8px;">	
+					<h3 style="font-size:12px;height:30px;line-height:30px;padding:0px 12px;"><a href="javascript:;" id="add" style="float:right;"  class="high">创建</a>备注</h3>	
+					<!--{include file="../remark/list.html" result=$remark}-->
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<script type="text/javascript">
+	window.top.closeAllDialog();
+$(function(){
+	$("#add").click(function(){
+		art.dialog.open('/remark/ajax?handle=add&action=student&id=<!--{$sid}-->', {title : '创建备注', width : 600, lock:true, reisze:false});
+	});	
+	
+	$("#report tr:odd").addClass("odd");
+	$("#report tr:not(.odd)").hide();
+	$("#report tr:first-child").show();
+	
+	$("#report tr.odd").click(function(){
+		$(this).next("tr").toggle();
+		$(this).find(".arrow").toggleClass("up");
+	});
+
+	$(".privChange").hover(function(){$(this).find('i').addClass('on');},function(){$(this).find('i').removeClass('on')});
+	$(".privChange i").bind("click", function(){
+		$(".privChange span").each(function(i,obj){$(obj).html($(obj).find('input').val());});
+		var name = $(this).prev('span').text();
+		$(this).prev('span').html('<textarea  style="width: 92%;color:#666;resize:none;" name="remark" def="备注"></textarea><input name="save" type="button" value="保存" class="dataBnt" />');
+
+		//$(this).prev('span').find("textarea").focus();
+		$(this).prev('span').find("textarea").val(name);
+		$("#tab1 textarea[name='remark']").focus(function(){var def=$(this).attr('def');if($(this).val()== def){$(this).val('');$(this).css('color', '#666');}});
+		$("#tab1 textarea[name='remark']").blur(function(){
+			var def=$(this).attr('def'); 
+			if($(this).val()== def || $(this).val()=='')
+			{
+				$(this).val(def); $(this).css('color', '#DDD');
+			}else{
+				$(this).css('color', '#666');
+			}
+		});
+		$(".privChange").unbind("mouseenter").unbind("mouseleave");
+		$(this).removeClass('on');
+		$("input[name='save']").bind('click', function(){	
+			var text = $(this).prev('textarea').val();
+			var index = $(this).parents('.info').find(':hidden[name=index]').val();
+			var scheduleId = $(this).parents('.info').find(':hidden[name=sid]').val();
+			if(text.length > 30)
+			{
+				alert("备注不得超过30个字！");
+				return
+			}
+			$.ajax({
+				url: '/student/record',
+				data : {sid : scheduleId,assigner : "<!--{$sid}-->",value : text,index:index},
+				type : 'post',
+				dataType :'json',
+				success: function (data) {
+					alert(data.message);
+					//window.location.reload();
+				},
+				cache: false
+			}); 
+			$(this).parent('span').text(text);
+			$(".privChange").hover(function(){$(this).find('i').addClass('on');},function(){$(this).find('i').removeClass('on')});
+		});
+	});
+
+	$("select[name=attend]").change(function(){
+		var val = $(this).val();
+		var index = $(this).parents('.info').find(':hidden[name=index]').val();
+		var scheduleId = $(this).parents('.info').find(':hidden[name=sid]').val();
+		var end = $(this).parents('.info').find(':hidden[name=end]').val();
+		var times = $(this).parents('.info').find(':hidden[name=times]').val();
+		var d = window.top.art.dialog(
+		{
+			title: false, 
+			icon : 'warning', 
+			content:'确认修改考勤？', 
+			width:'200px',
+			resize:false,
+			lock:true, 
+			ok:function () {
+				$.ajax({
+					url: '/student/attend',
+					data : {sid : scheduleId,assigner : "<!--{$sid}-->",value : val,index:index,end:end,times:times},
+					type : 'post',
+					dataType :'json',
+					success: function (data) {
+						alert(data.message);
+						//window.location.reload();
+					},
+					cache: false
+				}); 
+				return true;
+			},
+			okValue: '确定',
+			canelValue:'取消',
+			canel:function () {}
+		});
+		d.showModal();		
+	});
+
+//tabs
+	$("#content").find("[id^='tab']").hide(); 
+    $("#tabs li:first").attr("id","current");
+    $("#content #tab1").fadeIn(); 
+    
+    $('#tabs a').click(function(e) {
+        e.preventDefault();
+        if ($(this).closest("li").attr("id") == "current"){
+         return;       
+        }
+        else{             
+          $("#content").find("[id^='tab']").hide();
+          $("#tabs li").attr("id",""); 
+          $(this).parent().attr("id","current"); 
+          $('#' + $(this).attr('name')).fadeIn();
+        }
+    });
+});
+
+
+function closeSchedule(scheduleId)
+{
+	var d = art.dialog({
+		title: false,
+		content: 	'<div class="searchForm">选择日期：<input name="start" id="start" type="text" value="<!--{$date}-->" class="dateSelect" /></div>',
+		ok: function () {
+			$.ajax({
+				url: '/student/close',
+				data : {sid : scheduleId,student : "<!--{$sid}-->" ,date: $("#start").val()},
+				type : 'post',
+				dataType :'json',
+				success: function (data) {
+					alert(data.message);
+					window.location.reload();
+				},
+				cache: false
+			}); 
+			return true;
+		},
+		cancelValue: '取消',
+		cancel : function(){}
+	});
+	var startCalendar = callCalendar({inputField : "start"});
+	d.show();
+}
+
+function renewalSchedule(scheduleId)
+{
+	var d = art.dialog({
+		title: false,
+		content: 	'填写续课次数：<input style="width:18px; height:16px;" id="times" name="times" value="" /></div>',
+		ok: function () {
+			$.ajax({
+				url: '/student/longer',
+				data : {sid : scheduleId,student : "<!--{$sid}-->" ,times: $("#times").val()},
+				type : 'post',
+				dataType :'json',
+				success: function (data) {
+					alert(data.message);
+					window.location.reload();
+				},
+				cache: false
+			}); 
+			return true;
+		},
+		cancelValue: '取消',
+		cancel : function(){}
+	});
+	var startCalendar = callCalendar({inputField : "start"});
+	d.show();
+}
+
+//显示错误提示
+function showLengthError(errorMsg) {
+    var msg = $("<div></div>").addClass("lenError");
+    $(msg).text(errorMsg);
+    return msg;
+}
+//进行textarea长度校验
+jQuery.fn.checkLength = function(parameters) {
+    defaults = {
+        min: 0
+		, max: 5
+		, message: {
+            minError: "请填写内容"
+            , maxError: "最大长度超出限制了"
+		}
+    }
+    jQuery.extend(defaults, parameters);
+    // 当前textarea 的值
+    var taValue = $(this).val();
+    var len = taValue.length;
+    if (len >= defaults.max) {
+        $(".lenError").remove();
+        $(this).parent().append(showLengthError(defaults.message.maxError)).show();
+        window.setTimeout(function() {
+            $(".lenError").hide();
+        }, 6000);
+        return false;
+    } else if (len <= defaults.min) {
+        $(".lenError").remove();
+        $(this).parent().append(showLengthError(defaults.message.minError)).show();
+        window.setTimeout(function() {
+            $(".lenError").hide();
+        }, 6000);
+        return false;
+    } else {
+        return true;
+    }
+    //todo: 当键盘输入在正确范围的时候，消除提示
+
+}
+</script>
+</body>
+</html>

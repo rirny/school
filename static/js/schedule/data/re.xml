@@ -1,0 +1,42 @@
+<data>
+<event>
+<id><![CDATA[1]]></id>
+<text><![CDATA[每周课程]]></text>
+<student>3,4</student>
+<teacher>7</teacher>
+<start_date><![CDATA[2013-04-04 00:00]]></start_date>
+<end_date><![CDATA[2013-06-04 00:00]]></end_date>
+<rec_type><![CDATA[week_1___2#no]]></rec_type>
+<event_length><![CDATA[300]]></event_length>
+<event_pid><![CDATA[]]></event_pid>
+</event>
+
+<event id="3">
+<text><![CDATA[每周课程2]]></text>
+<student>3,4</student>
+<teacher>7</teacher>
+<start_date><![CDATA[2013-04-19 21:00]]></start_date>
+<end_date><![CDATA[2013-04-19 22:00]]></end_date>
+<details><![CDATA[每周课程2]]></details>
+<event_pid><![CDATA[1]]></event_pid>
+</event>
+
+<event id="4">
+<start_date><![CDATA[2013-04-17 12:00:00]]></start_date>
+<end_date><![CDATA[2013-04-17 13:00:00]]></end_date>
+<text><![CDATA[单个课程]]></text>
+<student>3,4</student>
+<teacher>6</teacher>
+<details><![CDATA[单个课程]]></details>
+</event>
+
+<event id="5">
+<start_date><![CDATA[2013-04-14 12:00:00]]></start_date>
+<end_date><![CDATA[2013-04-20 13:00:00]]></end_date>
+<text><![CDATA[第二天课程]]></text>
+<student>1,2,3,4</student>
+<teacher>8</teacher>
+<details><![CDATA[第二天课程]]></details>
+</event>
+</data>
+

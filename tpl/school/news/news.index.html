@@ -1,0 +1,139 @@
+<!--{include file="../header.html"}-->
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/jscal2.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/border-radius.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/win2k.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/calendar.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/lang/en.js"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+<div class="mainContent">
+	<div class="mbx">
+		<a href="javascript:;" onclick="window.top.menuOn('base', 'on')">首页</a> > 
+		<a  href="javascript:;" onclick="window.top.menuOn('recruit', 'on')">招生管理</a> > <a href="/news">新闻资讯</a>
+	</div>
+
+	<div class="searchPanel">
+		<form action="/news" method="get" name="searchForm" id="searchForm" >			
+			<div class="searchForm">
+				<input type="hidden" id="order" name="order[<!--{key($smarty.get.order)|default:'time'}-->]" value="<!--{current($smarty.get.order)|default:1}-->" />
+				关键字：<input name="keyword" type="text" value="<!--{$smarty.get.keyword|default:'资讯内容'}-->" def="资讯内容" />					
+				<input name="search" type="submit" value="搜索" class="searchBnt" />
+			</div>
+		</form>
+	</div>
+
+	<div class="dataTable">
+		<div class="dataHeader">	
+			<div class="page"><a>总：<!--{$record}--></a><!--{$paginator->getRender($curl, 0)}--></div>
+			<input name="add" id="add" type="button" value="发布资讯" class="dataBnt"/>			
+		</div>
+		<div class="dataSet">
+			<table width="100%" cellpadding="0" cellspacing="0" >
+				<thead>
+					<th width="20"><input type="checkbox" name="chkAll" value="1" onclick="checkAll(this)"/></th>
+					<th width="">内容<i></i></th>
+					<th width="120">发送时间<i></i></th>	
+					<th width="120">状态<i></i></th>	
+					<th >操作<i></i></th>
+				</thead>
+				<tbody>
+					<!--{foreach from=$result item=item key=key name=result}-->
+					<tr>
+						<td><input type="checkbox" name="checkbox" value="<!--{$item.id}-->" /></td>						
+						<td title="<!--{$item.description}-->"><!--{$item.description|truncate:50:"..."}--></td>
+						<td><!--{$item.create_time|default:'-'}--></td>
+						<td><!--{if $item.status}-->显示<!--{else}-->不显示<!--{/if}--></td>
+						<td>
+							【<a class="high" href="javascript:;" onclick="handle('modify', <!--{$item.id}-->)">修改</a>】
+							【<a class="high" href="javascript:;" onclick="handle('delete', <!--{$item.id}-->)">删除</a>】
+						</td>
+					</tr>
+					<!--{foreachelse}-->
+					<tr>
+						<td class="high" colspan=7 height=60 align="center">暂无记录</td>						
+					</tr>
+					<!--{/foreach}-->
+				</tbody>
+			</table>
+		</div>		
+		<div class="dataFooter" style="margin-top:10px">			
+			<div class="page" id="page"><a>总：<!--{$record}--></a><!--{$paginator->getRender($curl, 1)}--></div>
+			<input name="delete" id="pass" onclick="handle('delete', 'all')" type="button" value="批量删除" class="dataBnt" />
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function()
+{
+	$("#searchForm input[name='keyword']").focus(function(){if($(this).val() == $(this).attr('def')) $(this).val('');});
+	$("#searchForm input[name='keyword']").blur(function(){if($(this).val() == '') $(this).val($(this).attr('def'));});	
+	$(".dataSet tr:even").addClass('even');	
+	$(".dataSet tr").hover(function(){$(this).addClass('on');},function(){$(this).removeClass('on')});
+	$(".dataSet th.order").click(function(){
+		var name = $(this).attr('name');
+		var order = $(this).attr('order');		
+		$("#order").attr({'name' : 'order[' + name + ']', 'value' : order});
+		$("#searchForm").submit();
+	});
+	$("#searchForm").submit(function(){
+		if($("#searchForm input[name='keyword']").val() == $("#searchForm input[name='keyword']").attr('def')) $("#searchForm input[name='keyword']").val('');		
+	});
+
+	$("#add").click(function(){
+		art.dialog.open('/news/add', {id: 'NewsAdd',title: "发布资讯", padding: '0px 0px', width:'680px', height:'286px', lock : true, resize:false}, function(){});		
+	});
+});
+
+function checkAll(o){
+	if( o.checked == true ){
+		$('input[name="checkbox"]').attr('checked','true');		
+	}else{
+		$('input[name="checkbox"]').removeAttr('checked');		
+	}
+}
+
+function getChecked() {
+	var idArr = new Array();
+	$.each($('.dataSet input[name="checkbox"]:checked'), function(i, n){
+		idArr.push( $(n).val() );
+	});
+	return idArr;
+}
+function render(content, status, id)
+{
+	window.top.closeAllDialog();
+	status = status ? 1 : 0;
+	$.post('/news/add', {id : id, status : status, description : content}, function(data){
+		if(data.state) {icon = 'succeed'; background='#fff0f0'}else{icon = 'error'; background='#E2FF7E';}
+		window.top.art.dialog({id: 'Success', title: false, icon : icon, content:data.message, width:400,resize:false, lock:true}, function(){window.top.right.location.reload();}).time(3);		
+	},'json');
+}
+
+function handle(action, id)
+{
+	if(action == 'delete')
+	{
+		if(id == 'all') id = getChecked();
+		if(!id) {art.dialog.alert('请选择要内容'); return false;}
+		window.top.art.dialog({'id':'NewsDelete', 'content' : '确定要删除吗？', 'lock':true, resize:false, ok:function (){
+			$.ajax({
+				url: '/news/ajax',
+				data : {'id' : id, action : action},
+				dataType :'json',
+				type : 'post',
+				success: function (data) {				
+					if(data.state) {icon = 'succeed'; background='#fff0f0'}else{icon = 'succeed'; background='#E2FF7E';}
+					window.top.art.dialog({id: 'Success', title: '资讯删除', icon : icon, content:data.message, width:'400px',resize:false, lock:true}, function(){
+						window.top.right.location.reload();
+					});//.time(3);
+				},
+				cache: false
+			}); 
+		},cancel: true});
+	}else{		
+		art.dialog.open('/news/add?id=' + id , {id: 'NewsAdd',title: "发布资讯", padding: '0px 0px', width:'680px', height:'286px', lock : true, resize:false}, function(){});		
+	}
+}
+</script>
+</body>
+</html>

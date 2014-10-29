@@ -1,0 +1,252 @@
+<!--{include file="../header.html"}-->
+<link href="<!--{$JS}-->/dialog/default.css" rel="stylesheet" type="text/css">
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+<style>.selected{display:block;}</style>
+<body>
+<div class="searchPanel" style="margin:10px 10px">
+	<form action="/student/select" method="get" name="searchForm" id="searchForm" >			
+		<div class="searchForm">			
+			<label>关键字：</label><input name="keyword" type="text" value="<!--{$smarty.get.keyword}-->" def="学生名" />
+			<input type="hidden" name="selected" value="<!--{$smarty.get.selected}-->">
+			<input type="hidden" name="id" value="<!--{$smarty.get.id}-->">
+			<input type="hidden" name="priv" value="<!--{$smarty.get.priv}-->">
+			<input type="hidden" name="privs" value="<!--{$smarty.get.privs}-->">
+			<input type="hidden" name="offset" value="<!--{$smarty.get.offset}-->">
+			<input type="hidden" name="group" value="<!--{$smarty.get.group}-->">
+			<input type="hidden" name="handle" value="<!--{$smarty.get.handle}-->">
+			<input name="search" type="submit" value="搜索" class="searchBnt" />
+		</div>			
+	</form>
+</div>
+<div class="dataPalne" style="margin:0px 10px">
+	
+	<div class="selected" <!--{if $selected_hide == 'hide'}-->style="display:none"<!--{/if}-->>
+		<h3>
+			<span style="float:right">
+			<input name="submit" type="button" value="确定" class="dataBnt"/>
+			<input name="reset" type="reset" value="取消" class="searchBnt" />
+			</span>
+			已选学生<span id="selecteCount"><!--{$selected|@count}--></span>人</h3>
+		<ul>
+			<!--{if $selected_hide != 'hide'}-->
+			<!--{foreach from=$selected item=item key=key}-->
+			<li id="select<!--{$item.id}-->"><i></i><input type="hidden" name="id" value="<!--{$item.id}-->" /><input type="hidden" name="name" value="<!--{$item.name}-->" /><input type="hidden" name="en" value="<!--{$item.en}-->" /><label><!--{$item.name}--></label></li>
+			<!--{/foreach}-->
+			<!--{/if}-->
+		</ul>
+	</div>
+	
+	<!--{if $groups && $group_show == 'show'}-->
+	<div class="groupSelect">
+		<h3><!--{if $count < $offset || $offset == 0}--><input type="checkbox" name="groupCheck" id="groupCheck" value=0 /><!--{/if}--><label>班级</label></h3>
+		<ul>
+			<!--{foreach from=$groups item=item key=key}-->
+			<li><input type="checkbox" name="group" value="<!--{$item.id}-->" /><label><!--{$item.name}--></label></li>
+			<!--{/foreach}-->
+		</ul>
+	</div>
+	<!--{/if}-->
+	<h3><!--{if $count < $offset || $offset == 0}--><input type="checkbox" name="allCheck" value=0 id="allCheck" /><!--{/if}--><label>所有学生</label></h3>
+</div>
+<div style="margin:0px 10px">
+	<div class="dataPalne">
+		<div class="dataSet dataSelect">
+			<!--{if $count > 20}-->
+				<!--{foreach from=$result key=key item=item}-->
+					<div style="overflow:hidden;width:100%">
+						<h4><!--{$key}--></h4>
+						<ul>
+							<!--{foreach from=$item item=val key=i}-->
+							<!--{if $val.name}-->
+							<!--{if ($selected_hide == 'hide' && $val.checked ==0) || $selected_hide == 'show'}-->
+							<li id="dataSelect<!--{$val.id}-->"><input type="checkbox" name="item" value="<!--{$val.id}-->" <!--{if $val.checked}-->checked=checked<!--{/if}--> /><label title="<!--{$val.name}-->" en="<!--{$val.en}-->"><!--{$val.name|truncate:4:''}--></label></li>
+							<!--{/if}-->
+							<!--{/if}-->
+							<!--{/foreach}-->
+						</ul>
+					</div>
+				<!--{/foreach}-->
+			<!--{else}-->
+				<div style="overflow:hidden;width:100%">					
+					<ul>
+						<!--{foreach from=$result item=val key=i}-->
+						<!--{if $val.name}-->
+						<!--{if ($selected_hide == 'hide' && $val.checked ==0) || $selected_hide == 'show'}-->
+						<li id="dataSelect<!--{$val.id}-->"><input type="checkbox" name="item" value="<!--{$val.id}-->" <!--{if $val.checked}-->checked=checked<!--{/if}--> /><label title="<!--{$val.name}-->" en="<!--{$val.en}-->"><!--{$val.name|truncate:4:''}--></label></li>
+						<!--{/if}-->
+						<!--{/if}-->
+						<!--{/foreach}-->
+					</ul>
+				</div>
+			<!--{/if}-->
+		</div>
+	</div>
+</div>
+<div class="formItem" style="margin:0px 10px">
+	<input id="submit" name="submit" type="button" value="确定" class="dataBnt"/>
+	<input name="reset" id="reset" type="reset" value="取消" class="searchBnt" />
+</div>
+<script type="text/javascript">
+var groupSource = <!--{$groupSource|default:'{}'}-->;
+var offset = <!--{$offset|default:0}-->;
+var action = '<!--{$action}-->';
+var eventID = '<!--{$event}-->';
+
+$(function(){
+	$(".selected li i").bind('click', function(){
+		var id = $(this).parents('li').find("input[name='id']").val();
+		$(this).parents('li').remove();
+		$("#dataSelect" + id).find('input').attr('checked', false);
+	}); // 已选绑定事件
+	$(".dataSelect input").click(function(){
+		var count = $(".selected li").length;		
+		var status = $(this).attr('checked');
+		var parentObj = $(this).parents('li');
+		var item = {
+			id		:	$(this).val(),		
+			name	:	$(parentObj).find('label').attr('title'),			
+			en		:	$(parentObj).find('label').attr('en')
+		}
+		var itemObj = $("#select" + item.id);
+		if(status)
+		{		
+			if(offset > 0 && count >= offset && $("#itemObj").length < 1)
+			{
+				window.top.art.dialog({id : 'Error', content : '学生人数不能超过' + offset + '人', width: 300, icon : 'Error'}, function(){art.dialog('Error').close();});
+				return false;
+			}			
+			addToselect(item);			
+			count++
+		}else{			
+			if($(itemObj).length > 0)
+			{
+				$(itemObj).remove();
+				count--;
+			}
+		}		
+		$("#selecteCount").text(count);
+	});
+	$("input[name='submit']").click(function(){
+		var source = getSelected();
+		if(offset > 0 && source.length > offset) {window.top.art.dialog.alert('学生人数不超过' + offset + '人'); return false};		
+		art.dialog.opener.render('student', source, '<!--{$src}-->', '<!--{$handle}-->');		
+		art.dialog.opener.art.dialog({id:'selectPanel'}).close();		
+		return true;
+	});
+	$("input[name='reset']").click(function(){
+		art.dialog.opener.art.dialog({id:'selectPanel'}).close();
+	});
+	$(".groupSelect li input").click(function(){
+		var status = $(this).attr('checked');
+		var count = $(".selected li").length;
+		var id = $(this).val();		
+		if(typeof groupSource[id] != 'object') return false;		
+		source = groupSource[id];		
+		for (key in source)
+		{
+			var obj = $("#dataSelect" + source[key]);
+			if(obj.length > 0)
+			{
+				var item = {
+					id		:	source[key],
+					name	:	$(obj).find('label').attr('title'),			
+					en		:	$(obj).find('label').attr('en')
+				};					
+				var itemObj = $("#select" + item.id);				
+				if(status)
+				{
+					if($(itemObj).length < 1 && count <= offset)
+					{
+						addToselect(item);
+						count++;
+					}else{
+						window.top.art.dialog({id : 'Error', content : '学生人数不能超过' + offset + '人', width: 300, icon : 'Error'}, function(){art.dialog('Error').close();});
+						return false;
+					}
+				}else{
+					if($(itemObj).length > 0)
+					{
+						$(itemObj).remove();
+						count--;
+					}
+				}										
+				$(obj).find(":checkbox").attr('checked', status);
+			}
+		}
+		$("#selecteCount").text(count);
+	});
+
+	$("#allCheck,#groupCheck").click(function(){
+		var status = $(this).attr('checked');
+		var count = $(".selected li").length;
+		var name = $(this).attr('name');	
+		$('.dataSet li').each(function(i,obj){		
+			var item = {
+				id		:	$(obj).find("input").val(),		
+				name	:	$(obj).find('label').attr('title'),			
+				en		:	$(obj).find('label').attr('en')
+			};
+			var itemObj = $("#select" + item.id);
+			if(status)
+			{
+				if($(itemObj).length < 1 && count <= offset)
+				{
+					addToselect(item);
+					count++;
+				}else{
+					window.top.art.dialog({id : 'Error', content : '学生人数不能超过' + offset + '人', width: 300, icon : 'Error'}, function(){art.dialog('Error').close();});
+					return false;
+				}
+			}else{			
+				if($(itemObj).length > 0)
+				{
+					$(itemObj).remove();
+					count--;
+				}
+			}										
+			$(obj).attr('checked', status);		
+			$(obj).find("input").attr('checked', status);
+		});
+		if(name == 'groupCheck')
+		{
+			$('.groupSelect li').each(function(i,obj){				
+				$(obj).find("input").attr('checked', status);
+			});
+		}		
+		$("#selecteCount").text(count);
+	});
+
+});
+
+function getSelected()
+{
+	var result = new Array();
+	$(".selected li").each(function(i, obj){
+		var checked = {
+			'id' : $(obj).find("input[name='id']").val(),
+			'name' : $(obj).find("input[name='name']").val(),
+			'en' : $(obj).find("input[name='en']").val()
+		};
+		result.push(checked);
+	});
+	return result;
+}
+
+function addToselect(source)
+{	
+	var li = '<li id="select' + source.id + '"><i></i><input type="hidden" name="id" value="' + source.id + '" />';
+	li+= '<input type="hidden" name="name" value="' + source.name + '" />';
+	li+= '<input type="hidden" name="en" value="' + source.en + '" />';		
+	li+= '<label>' + source.name + '</label></li>';	
+	$(".selected ul").append(li);	
+	$(".selected li i").bind('click', function(){
+		var id = $(this).parents('li').find("input[name='id']").val();
+		$(this).parents('li').remove();
+		$("#dataSelect" + id).find('input').attr('checked', false);
+	});
+}
+
+</script>
+</body>
+</html>

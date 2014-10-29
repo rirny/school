@@ -1,0 +1,488 @@
+<!--{include file="../header.html"}-->
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/jscal2.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/border-radius.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/win2k.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$CSS}-->/school/tabs.css">
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/formValid/style/validator.css"/>
+
+<script type="text/javascript" src="<!--{$JS}-->/calendar/calendar.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/lang/en.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidator.min.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/jquery.form.js"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+
+<div class="mainContent">
+	<div class="mbx">
+		<span><a href="javascript:;" onclick="window.history.go(-1);">返回</a> >></span>
+		<a href="javascript:;" onclick="window.top.menuOn('base', 1)">首页</a> > <a href="javascript:;" onclick="window.top.menuOn('teacher', 1)"><!--{if $type == 0}-->学生管理<!--{else}-->教师管理<!--{/if}--></a> > <a>排课</a>
+	</div>
+	<div style="padding:10px 0px 0px 0px;">
+		<label><!--{if $type == 0}-->已选学生：<!--{$name}--><!--{else}-->已选老师：<!--{$name}--><!--{/if}--></label>
+	</div>
+	<div class="searchPanel">
+		<form action="/assign" method="get" name="searchForm" id="searchForm" >			
+			<div class="searchForm">
+				<input type="hidden" id="order" name="order[<!--{key($smarty.get.order)}-->]" value="<!--{current($smarty.get.order)}-->" />
+				关键字：<input name="keyword" type="text" class="input-text" value="<!--{$smarty.get.keyword|default:'课程名'}-->" def="课程名" />						
+				<input name="reset" type="reset" value="清除筛选条件" class="searchBnt" />
+				<input name="search" type="submit" value="搜索" class="searchBnt" />
+				<!--input name="exportBnt" type="button" value="导出" class="searchBnt" /-->				
+				<input type="hidden" name="export" id="export" value="0" />
+			</div>
+			<!--div class="searchHandle">
+				<input name="reset" type="reset" value="清除筛选条件" class="searchBnt" />
+				<input name="search" type="submit" value="搜索" class="searchBnt" />
+				<input name="exportBnt" type="button" value="导出" class="searchBnt" />
+			</div-->
+		</form>
+	</div>
+	<div name="aid">
+			<!--{foreach from=$assigner  key=key item=item}-->
+			<input type="hidden" name="ids" value="<!--{$item.id}-->" />
+			<!--{/foreach}-->
+	</div>
+	<div style="padding:10px 0px 0px 0px;">
+		<ul id="tabs">
+			<li><a href="#" name="tab1">全部</a></li>
+			<li><a href="#" name="tab2">周一</a></li>
+			<li><a href="#" name="tab3">周二</a></li>
+			<li><a href="#" name="tab4">周三</a></li> 
+			<li><a href="#" name="tab5">周四</a></li>
+			<li><a href="#" name="tab6">周五</a></li>
+			<li><a href="#" name="tab7">周六</a></li>  
+			<li><a href="#" name="tab8">周日</a></li>
+		</ul>
+		<div id="content"> 
+			<div id="tab1">
+				<div class="dataTable">
+					<div class="dataHeader">
+						<div class="page"><a>总：<!--{$paginator->getItemCount()}--></a></div>	
+					</div>
+					<div class="dataSet">
+						<table width="100%" cellpadding="0" cellspacing="0" >
+							<thead>
+								<th width="2%"><input type="hidden" name="hRadio" value="1" /></th>
+								<th width="16%" name="title" class="order" order="<!--{if key($smarty.get.order) == 'title' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">课程名称<i></i></th>
+								<th width="16%" name="course" class="order" order="<!--{if key($smarty.get.order) == 'course' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">科目<i></i></th>
+								<th name="sort" class="order" order="<!--{if key($smarty.get.order) == 'sort' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">上课时间<i></i></th>
+							</thead>
+							<tbody>
+								<!--{foreach from=$series item=item key=key name=series}-->
+								<tr>
+									<td><input type="radio" name="radio" value="<!--{$item.id}-->" /></td>
+									<td><!--{$item.title}--></td>
+									<td><!--{$item.course}--></td>
+									<td><!--{$item.rule}--></td>
+								</tr>                                                 
+								<!--{foreachelse}-->
+								<tr>
+									<td class="high" colspan=8 height=60 align="center">暂无记录</td>						
+								</tr>
+								<!--{/foreach}-->
+							</tbody>
+						</table>
+					</div>		
+					<div class="dataFooter" style="margin-top:10px">
+						<div class="page" id="page"><a>总：<!--{$paginator->getItemCount()}--></a><!--{$paginator->getRender($curl, 1)}--></div>
+					</div>
+				</div>
+			</div>
+			<div id="tab2">
+				<div class="dataTable">
+					<div class="dataHeader">
+						<div class="page"><a>总：<!--{$record.mon}--></a></div>	
+					</div>
+					<div class="dataSet">
+						<table width="100%" cellpadding="0" cellspacing="0" >
+							<thead>
+								<th width="2%"><input type="hidden" name="hRadio" value="1" /></th>
+								<th width="16%" name="title" class="order" order="<!--{if key($smarty.get.order) == 'title' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">课程名称<i></i></th>
+								<th width="16%" name="course" class="order" order="<!--{if key($smarty.get.order) == 'course' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">科目<i></i></th>
+								<th name="sort" class="order" order="<!--{if key($smarty.get.order) == 'sort' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">上课时间<i></i></th>
+							</thead>
+							<tbody>
+								<!--{foreach from=$mon item=item key=key name=mon}-->
+								<tr>
+									<td><input type="radio" name="radio" value="<!--{$item.id}-->" /></td>
+									<td><!--{$item.title}--></td>
+									<td><!--{$item.course}--></td>
+									<td><!--{$item.rule}--></td>
+								</tr>                                                 
+								<!--{foreachelse}-->
+								<tr>
+									<td class="high" colspan=8 height=60 align="center">暂无记录</td>						
+								</tr>
+								<!--{/foreach}-->
+							</tbody>
+						</table>
+					</div>		
+					<div class="dataFooter" style="margin-top:10px">
+						<div class="page"><a>总：<!--{$record.tue}--></a></div>					
+					</div>
+				</div>
+			</div>
+			<div id="tab3">
+				<div class="dataTable">
+					<div class="dataHeader">
+						<div class="page"><a>总：<!--{$record.tue}--></a></div>
+					</div>
+					<div class="dataSet">
+						<table width="100%" cellpadding="0" cellspacing="0" >
+							<thead>
+								<th width="2%"><input type="hidden" name="hRadio" value="1" /></th>
+								<th width="16%" name="title" class="order" order="<!--{if key($smarty.get.order) == 'title' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">课程名称<i></i></th>
+								<th width="16%" name="course" class="order" order="<!--{if key($smarty.get.order) == 'course' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">科目<i></i></th>
+								<th name="sort" class="order" order="<!--{if key($smarty.get.order) == 'sort' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">上课时间<i></i></th>
+							</thead>
+							<tbody>
+								<!--{foreach from=$tue item=item key=key name=tue}-->
+								<tr>
+									<td><input type="radio" name="radio" value="<!--{$item.id}-->" /></td>
+									<td><!--{$item.title}--></td>
+									<td><!--{$item.course}--></td>
+									<td><!--{$item.rule}--></td>
+								</tr>                                                 
+								<!--{foreachelse}-->
+								<tr>
+									<td class="high" colspan=8 height=60 align="center">暂无记录</td>						
+								</tr>
+								<!--{/foreach}-->
+							</tbody>
+						</table>
+					</div>		
+					<div class="dataFooter" style="margin-top:10px">
+						<div class="page"><a>总：<!--{$record.tue}--></a></div>
+					</div>
+				</div>
+			</div>
+			<div id="tab4">
+				<div class="dataTable">
+					<div class="dataHeader">
+						<div class="page"><a>总：<!--{$record.wed}--></a></div>
+					</div>
+					<div class="dataSet">
+						<table width="100%" cellpadding="0" cellspacing="0" >
+							<thead>
+								<th width="2%"><input type="hidden" name="hRadio" value="1" /></th>
+								<th width="16%" name="title" class="order" order="<!--{if key($smarty.get.order) == 'title' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">课程名称<i></i></th>
+								<th width="16%" name="course" class="order" order="<!--{if key($smarty.get.order) == 'course' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">科目<i></i></th>
+								<th name="sort" class="order" order="<!--{if key($smarty.get.order) == 'sort' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">上课时间<i></i></th>
+							</thead>
+							<tbody>
+								<!--{foreach from=$wed item=item key=key name=wed}-->
+								<tr>
+									<td><input type="radio" name="radio" value="<!--{$item.id}-->" /></td>
+									<td><!--{$item.title}--></td>
+									<td><!--{$item.course}--></td>
+									<td><!--{$item.rule}--></td>
+								</tr>                                                 
+								<!--{foreachelse}-->
+								<tr>
+									<td class="high" colspan=8 height=60 align="center">暂无记录</td>						
+								</tr>
+								<!--{/foreach}-->
+							</tbody>
+						</table>
+					</div>		
+					<div class="dataFooter" style="margin-top:10px">
+						<div class="page"><a>总：<!--{$record.wed}--></a></div>
+					</div>
+				</div>
+			</div>
+			<div id="tab5">
+				<div class="dataTable">
+					<div class="dataHeader">
+						<div class="page"><a>总：<!--{$record.thu}--></a></div>
+					</div>
+					<div class="dataSet">
+						<table width="100%" cellpadding="0" cellspacing="0" >
+							<thead>
+								<th width="2%"><input type="hidden" name="hRadio" value="1" /></th>
+								<th width="16%" name="title" class="order" order="<!--{if key($smarty.get.order) == 'title' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">课程名称<i></i></th>
+								<th width="16%" name="course" class="order" order="<!--{if key($smarty.get.order) == 'course' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">科目<i></i></th>
+								<th name="sort" class="order" order="<!--{if key($smarty.get.order) == 'sort' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">上课时间<i></i></th>
+							</thead>
+							<tbody>
+								<!--{foreach from=$thu item=item key=key name=thu}-->
+								<tr>
+									<td><input type="radio" name="radio" value="<!--{$item.id}-->" /></td>
+									<td><!--{$item.title}--></td>
+									<td><!--{$item.course}--></td>
+									<td><!--{$item.rule}--></td>
+								</tr>                                                 
+								<!--{foreachelse}-->
+								<tr>
+									<td class="high" colspan=8 height=60 align="center">暂无记录</td>						
+								</tr>
+								<!--{/foreach}-->
+							</tbody>
+						</table>
+					</div>		
+					<div class="dataFooter" style="margin-top:10px">
+						<div class="page"><a>总：<!--{$record.thu}--></a></div>	
+					</div>
+				</div>
+			</div>
+			<div id="tab6">
+				<div class="dataTable">
+					<div class="dataHeader">
+						<div class="page"><a>总：<!--{$record.fri}--></a></div>
+					</div>
+					<div class="dataSet">
+						<table width="100%" cellpadding="0" cellspacing="0" >
+							<thead>
+								<th width="2%"><input type="hidden" name="hRadio" value="1" /></th>
+								<th width="16%" name="title" class="order" order="<!--{if key($smarty.get.order) == 'title' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">课程名称<i></i></th>
+								<th width="16%" name="course" class="order" order="<!--{if key($smarty.get.order) == 'course' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">科目<i></i></th>
+								<th name="sort" class="order" order="<!--{if key($smarty.get.order) == 'sort' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">上课时间<i></i></th>
+							</thead>
+							<tbody>
+								<!--{foreach from=$fri item=item key=key name=fri}-->
+								<tr>
+									<td><input type="radio" name="radio" value="<!--{$item.id}-->" /></td>
+									<td><!--{$item.title}--></td>
+									<td><!--{$item.course}--></td>
+									<td><!--{$item.rule}--></td>
+								</tr>                                                 
+								<!--{foreachelse}-->
+								<tr>
+									<td class="high" colspan=8 height=60 align="center">暂无记录</td>						
+								</tr>
+								<!--{/foreach}-->
+							</tbody>
+						</table>
+					</div>		
+					<div class="dataFooter" style="margin-top:10px">
+						<div class="page"><a>总：<!--{$record.fri}--></a></div>	
+					</div>
+				</div>
+			</div>
+			<div id="tab7">
+				<div class="dataTable">
+					<div class="dataHeader">
+						<div class="page"><a>总：<!--{$record.sat}--></a></div>	
+					</div>
+					<div class="dataSet">
+						<table width="100%" cellpadding="0" cellspacing="0" >
+							<thead>
+								<th width="2%"><input type="hidden" name="hRadio" value="1" /></th>
+								<th width="16%" name="title" class="order" order="<!--{if key($smarty.get.order) == 'title' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">课程名称<i></i></th>
+								<th width="16%" name="course" class="order" order="<!--{if key($smarty.get.order) == 'course' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">科目<i></i></th>
+								<th name="sort" class="order" order="<!--{if key($smarty.get.order) == 'sort' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">上课时间<i></i></th>
+							</thead>
+							<tbody>
+								<!--{foreach from=$sat item=item key=key name=sat}-->
+								<tr>
+									<td><input type="radio" name="radio" value="<!--{$item.id}-->" /></td>
+									<td><!--{$item.title}--></td>
+									<td><!--{$item.course}--></td>
+									<td><!--{$item.rule}--></td>
+								</tr>                                                 
+								<!--{foreachelse}-->
+								<tr>
+									<td class="high" colspan=8 height=60 align="center">暂无记录</td>						
+								</tr>
+								<!--{/foreach}-->
+							</tbody>
+						</table>
+					</div>		
+					<div class="dataFooter" style="margin-top:10px">
+						<div class="page"><a>总：<!--{$record.sat}--></a></div>
+					</div>
+				</div>  
+			</div>
+			<div id="tab8">
+				<div class="dataTable">
+					<div class="dataHeader">
+						<div class="page"><a>总：<!--{$record.sun}--></a></div>
+					</div>
+					<div class="dataSet">
+						<table width="100%" cellpadding="0" cellspacing="0" >
+							<thead>
+								<th width="2%"><input type="hidden" name="hRadio" value="1" /></th>
+								<th width="16%" name="title" class="order" order="<!--{if key($smarty.get.order) == 'title' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">课程名称<i></i></th>
+								<th width="16%" name="course" class="order" order="<!--{if key($smarty.get.order) == 'course' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">科目<i></i></th>
+								<th name="sort" class="order" order="<!--{if key($smarty.get.order) == 'sort' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">上课时间<i></i></th>
+							</thead>
+							<tbody>
+								<!--{foreach from=$sun item=item key=key name=sun}-->
+								<tr>
+									<td><input type="radio" name="radio" value="<!--{$item.id}-->" /></td>
+									<td><!--{$item.title}--></td>
+									<td><!--{$item.course}--></td>
+									<td><!--{$item.rule}--></td>
+								</tr>                                                 
+								<!--{foreachelse}-->
+								<tr>
+									<td class="high" colspan=8 height=60 align="center">暂无记录</td>						
+								</tr>
+								<!--{/foreach}-->
+							</tbody>
+						</table>
+					</div>		
+					<div class="dataFooter" style="margin-top:10px">
+						<div class="page"><a>总：<!--{$record.sun}--></a></div>
+					</div>
+				</div>
+			</div>
+			<!--{if $type == 1}-->
+			<div name="priv" id="priv" style="padding-bottom:10px;">
+				<label>手机端权限：</label>
+				<input type="checkbox" name="priv" checked="true" value="1" /><label> 点评 </label>
+				<input type="checkbox" name="priv" checked="true" value="2" /><label> 考勤 </label>
+				<input type="checkbox" name="priv" checked="true" value="4" /><label> 通知 </label>
+			</div>
+			<!--{/if}-->
+			<div class="searchForm" id='timeForm' name='timeForm'>
+				起始日期：<input name="start" id="start" type="text" value="<!--{$start}-->" class="dateSelect" />
+				<script type="text/javascript">var startCalendar = callCalendar({inputField : 'start',min:'20140101'});</script>
+				<span id="startTip"></span>
+				<!--{if $type == 0}-->
+				<label>  课次数：</label><input name="times" id="times" value="" style = "width:30px">
+				<span id="timesTip"></span>
+				<!--{/if}-->
+			</div>
+			<div class="formItem"  id="dataForm" style="padding-top:10px;">			
+				<input name="submit" style="padding-right:20px;" type="submit" id="Submit" class="dataBnt" value="确认" />
+				<input name="reset" type="button" name="reset" class="cancelBnt" onclick="window.history.go(-1);" value="取消"/>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+var TYPE = "<!--{$type}-->"
+$(function()
+{
+	window.top.closeAllDialog();
+	$(".dataSet tr:even").addClass('even');	
+	$(".dataSet tr").hover(function(){$(this).addClass('on');},function(){$(this).removeClass('on')});
+
+	$("input[name='exportBnt']").click(function(){
+		//$("#searchForm").attr('action', '/event/export');
+		$("#export").val(1);
+		$("#searchForm").submit();
+		$("#export").val(0);
+	});
+
+	$(".dataSet tr:even").addClass('even');	
+	$(".dataSet tr").hover(function(){$(this).addClass('on');},function(){$(this).removeClass('on')});
+	$("#searchForm input[name='keyword']").focus(function(){var def=$(this).attr('def'); if($(this).val()== def){$(this).val(''); $(this).css('color', '#666');}});
+	$("#searchForm input[name='keyword']").blur(function(){var def=$(this).attr('def'); if($(this).val()== def || $(this).val()==''){$(this).val(def); $(this).css('color', '#DDD');}else{$(this).css('color', '#666');}});
+
+	$.formValidator.initConfig({formID:"timeForm", submitButtonID: 'Submit', submitOnce:true, errorFocus:true,wideWord:true,
+		onError:function(msg, obj, errorlist){
+		},
+		onSuccess:function(){
+		}
+	});
+
+	$("#start").formValidator({onShow:"", onFocus:"起始日期为必选", defaultValue:"<!--{$curDate}-->"}).inputValidator({min:1,onError: "起始日期为必选!"});
+
+	$("#times").formValidator({onShow:"",onFocus:"请输入1-100之间的整数",defaultValue:1}).inputValidator({min:1,max:100,type:"number",onError:"只能输入1-100之间的整数"}).regexValidator({regExp:"^\\d+$"});
+
+
+	$(".dataSet th.order").click(function(){
+		var name = $(this).attr('name');
+		var order = $(this).attr('order');		
+		$("#order").attr({'name' : 'order[' + name + ']', 'value' : order});
+		$("#searchForm").submit();
+	});
+
+	$("#searchForm input[type='reset']").click(function(){		
+		$(this).find("input[name='keyword']").val('');
+		$("#order").attr({'name' : 'order[date]', 'value' : 1});
+	});
+
+	$("#searchForm").submit(function(){		
+		var def = $(this).find("input[name='keyword']").attr('def');
+		var keyword = $(this).find("input[name='keyword']").val();
+		if(def == keyword) $(this).find("input[name='keyword']").val('');
+		$(this).find("input[name='search']").attr('name', '');
+	});
+
+	//tabs
+	$("#content").find("[id^='tab']").hide(); 
+    $("#tabs li:first").attr("id","current"); 
+    $("#content #tab1").fadeIn(); 
+    
+    $('#tabs a').click(function(e) {
+        e.preventDefault();
+        if ($(this).closest("li").attr("id") == "current"){
+         return;       
+        }
+        else{             
+          $("#content").find("[id^='tab']").hide(); 
+          $("#tabs li").attr("id",""); 
+          $(this).parent().attr("id","current"); 
+          $('#' + $(this).attr('name')).fadeIn(); 
+        }
+    });
+});
+
+$("#Submit").click(function(){
+	var schedule = 	$(":checked").val();
+	var priv = 0;
+	$("input:checkbox:checked").each(function(i,obj){
+		priv += parseInt($(this).val());
+	});
+		
+	var times = 0
+	if(TYPE == 0)
+		times = $("#times").val();
+	var assigner = new Array();
+	$("input[name='ids']").each(function(i,obj){
+		assigner.push($(this).val());
+	});
+	var multi = 0;
+	if(assigner.length>1)
+		multi = 1;
+	if ($.formValidator.pageIsValid('1')==true) 
+	{
+		$.ajax({
+			url : '/assign/save',
+			data : {
+				start : $("#start").val(),
+				schedule : schedule,
+				priv : priv,
+				assigner : assigner,
+				times : times,
+				type : TYPE,
+				multi : multi
+			},
+			type : 'post',
+			dataType :'json',
+			success: function (data) {
+				alert(data.message);
+				if(TYPE ==1)
+					window.location.href='/teacher';
+				else
+					window.location.href= '/student';
+			},
+			cache: false
+		});
+	}
+});
+
+
+function checkAll(o){
+	if( o.checked == true ){
+		$('input[name="checkbox"]').attr('checked','true');		
+	}else{
+		$('input[name="checkbox"]').removeAttr('checked');		
+	}
+}
+
+function getChecked() {
+	var idArr = new Array();
+	$.each($('.dataSet input[name="checkbox"]:checked'), function(i, n){
+		idArr.push( $(n).val() );
+	});
+	return idArr;
+}
+
+</script>
+</body>
+</html>

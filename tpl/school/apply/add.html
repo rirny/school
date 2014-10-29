@@ -1,0 +1,49 @@
+<!--{include file="../header.html"}-->
+<script type="text/javascript" src="<!--{$JS}-->/jquery.form.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidatorRegex.js"></script>
+<style>
+	body{margin:0px;padding:0px}
+	li{width:<!--{if count($result) <= 8 }-->99%<!--{elseif count($result) <= 16}-->49%<!--{elseif count($result) <= 24}-->32%<!--{elseif count($result) <= 40}-->24%<!--{/if}-->; 
+		display:inline-block; *zoom:1; *display:inline; vertical-align: middle;line-height:24px;
+	}	
+	.formItem li label{text-align:left; width:auto; margin-left:8px;}
+	.notice {color:blue;padding:10px 0px 8px;}
+</style>
+
+<div class="dataForm" style="padding-top:10px;margin:20px 0px 0px 10px;">
+	<form action="" id="dataFrom" name="dataFrom" method="post">	
+		<div class="formItem">
+			<input type="text" class="input-text" name="account" id="account" value="手机号/呼啦号" style="width:160px;margin-right:8px;" def="手机号/呼啦号"/>
+			<input id="submit" type="submit" value="确定" class="dataBnt"/>
+			<input name="cancel" id="cancel" type="button" value="取消" class="cancelBnt"/>
+		</div>	
+		<!--{if $character=='teacher'}-->
+		<div class="notice">该老师已在呼啦派系统注册并创建了教师档案时允许本操作的执行</div>
+		<!--{else}-->
+		<div class="notice">该学生已在呼啦派系统注册并创建了学生档案时允许本操作的执行</div>
+		<!--{/if}-->
+	</form>
+</div>
+
+<script type="text/javascript">
+$(function(){
+	$("#cancel").click(function(){window.top.closeAllDialog();});
+
+	$("#account").focus(function(){var def=$(this).attr('def'); if($(this).val()== def){$(this).val(''); $(this).css('color', '#333');}});
+	$("#account").blur(function(){var def=$(this).attr('def'); if($(this).val()== def || $(this).val()==''){$(this).val(def); $(this).css('color', '#999');}else{$(this).css('color', '#333');}});
+
+	$("#dataFrom").submit(function(){
+		var account = $("#account").val();		
+		var mobileReg = new RegExp(regexEnum.mobile);
+		if(!account) {window.top.art.dialog.alert('请填写用户手机号或者呼啦号！'); return false;}	
+		$.post("/apply/do", {'character' : '<!--{$character}-->', 'account' : account, 'handler' : 'add'}, function(data){
+			var icon = data.state ? 'succeed' : 'error';
+			window.top.art.dialog({'content' : data.message, 'icon' : icon},function(){
+				if(data.state) window.top.closeAllDialog();
+			});							
+		},'json');
+		return false;
+	});
+
+});
+</script>

@@ -1,0 +1,130 @@
+<!--{include file="../header.html"}-->
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/jscal2.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/border-radius.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/win2k.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/calendar.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/lang/en.js"></script>
+<div class="mainContent">
+	<div class="mbx">
+		<a href="javascript:;" onclick="window.top.menuOn('base', 'on')">首页</a> > 
+		<a  href="javascript:;" onclick="window.top.menuOn('tool', 'on')">教学工具</a> > 
+		<a href="/comment/student">通知列表</a>
+	</div>
+
+	<div class="searchPanel">
+		<form action="/notice" method="get" name="searchForm" id="searchForm" >			
+			<div class="searchForm">
+				<input type="hidden" id="order" name="order[<!--{key($smarty.get.order)|default:'time'}-->]" value="<!--{current($smarty.get.order)|default:1}-->" />
+				关键字：<input name="keyword" type="text" value="<!--{$smarty.get.keyword|default:'内容/学生名'}-->" def="内容/学生名" />				
+				老师：<select name="teacher"><option value="">所有老师</option><!--{html_options options=$teachers selected=$smarty.get.teacher}--></select>
+				<input name="search" type="submit" value="搜索" class="searchBnt" />
+			</div>
+		</form>
+	</div>
+
+	<div class="dataTable">
+		<div class="dataHeader">	
+			<div class="page"><a>总：<!--{$record}--></a><!--{$paginator->getRender($curl, 0)}--></div>
+			<input name="add" id="add" type="button" value="发新通知" class="dataBnt" onclick="javascript:window.location.href='/notice/add'" />			
+		</div>
+		<div class="dataSet">
+			<table width="100%" cellpadding="0" cellspacing="0" >
+				<thead>
+					<th width="20"><input type="checkbox" name="chkAll" value="1" onclick="checkAll(this)"/></th>
+					<th width="120">接收老师<i></i></th>
+					<th width="120">接收学生<i></i></th>
+					<th width="120" name="time" class="order" order="<!--{if key($smarty.get.order) == 'time' && current($smarty.get.order)==1}-->0<!--{else}-->1<!--{/if}-->">发送时间<i></i></th>
+					<th width="316">内容<i></i></th>
+					<th width="80">状态</th>
+					<th >操作<i></i></th>
+				</thead>
+				<tbody>
+					<!--{foreach from=$result item=item key=key name=result}-->
+					<tr>
+						<td><input type="checkbox" name="checkbox" value="<!--{$item.id}-->" /></td>
+						<td title="<!--{$item.teacher_title}-->"><!--{$item.teacher|default:'-'}--></td>
+						<td title="<!--{$item.student_title}-->"><!--{$item.student|default:''}--></td>
+						<td><!--{$item.create_time|date_format:"%Y-%m-%d %H:%I"}--></td>	
+						<td title="<!--{$item.content}-->"><!--{$item.content|truncate:28:"..."}--></td>
+						<td><!--{if $item.status}-->已发送<!--{else}-->发送失败<!--{/if}--></td>
+						<td>
+							<a class="high" href="/notice/view?id=<!--{$item.id}-->">【查看】</a>
+							<a class="high" href="javascript:;" onclick="handle('delete', <!--{$item.id}-->)">【删除】</a>
+						</td>
+					</tr>
+					<!--{foreachelse}-->
+					<tr>
+						<td class="high" colspan=7 height=60 align="center">暂无记录</td>						
+					</tr>
+					<!--{/foreach}-->
+				</tbody>
+			</table>
+		</div>		
+		<div class="dataFooter" style="margin-top:10px">
+			<div class="page" id="page"><a>总：<!--{$record}--></a><!--{$paginator->getRender($curl, 1)}--></div>
+			<input name="delete" id="delete" type="button" value="批量删除" class="dataBnt" onclick="multi('delete')" />			
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function()
+{
+	$("#searchForm input[name='keyword']").focus(function(){if($(this).val() == $(this).attr('def')) $(this).val('');});
+	$("#searchForm input[name='keyword']").blur(function(){if($(this).val() == '') $(this).val($(this).attr('def'));});	
+	$(".dataSet tr:even").addClass('even');	
+	$(".dataSet tr").hover(function(){$(this).addClass('on');},function(){$(this).removeClass('on')});
+	$(".dataSet th.order").click(function(){
+		var name = $(this).attr('name');
+		var order = $(this).attr('order');		
+		$("#order").attr({'name' : 'order[' + name + ']', 'value' : order});
+		$("#searchForm").submit();
+	});
+	$("#searchForm").submit(function(){
+		if($("#searchForm input[name='keyword']").val() == $("#searchForm input[name='keyword']").attr('def')) $("#searchForm input[name='keyword']").val('');		
+	});
+});
+
+function checkAll(o){
+	if( o.checked == true ){
+		$('input[name="checkbox"]').attr('checked','true');		
+	}else{
+		$('input[name="checkbox"]').removeAttr('checked');		
+	}
+}
+
+function getChecked() {
+	var idArr = new Array();
+	$.each($('.dataSet input[name="checkbox"]:checked'), function(i, n){
+		idArr.push( $(n).val() );
+	});
+	return idArr;
+}
+
+function multi(action)
+{
+	var idArr = getChecked();
+	if(idArr.length < 1) {window.top.art.dialog({'icon' : 'error', 'content' : '请选择数据', resize:false, 'lock':true}); return false;}
+	handle(action, idArr);
+}
+
+function handle(action, id)
+{
+	window.top.art.dialog({'id':'EventDelete', 'content' : '确定要删除吗？', 'lock':true, resize:false, ok:function (){
+		$.ajax({
+			url: '/notice/ajax',
+			data : {'id' : id, action : action},
+			dataType :'json',
+			type : 'post',
+			success: function (data) {				
+				if(data.state) {icon = 'succeed'; background='#fff0f0'}else{icon = 'succeed'; background='#E2FF7E';}
+				window.top.art.dialog({id: 'Success', title: '课程删除', icon : icon, content:data.message, width:'400px',resize:false, lock:true}, function(){
+					window.top.right.location.reload();
+				});//.time(3);
+			},
+			cache: false
+		}); 
+    },cancel: true});
+}
+</script>
+</body>
+</html>

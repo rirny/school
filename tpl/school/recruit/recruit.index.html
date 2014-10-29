@@ -1,0 +1,163 @@
+<!--{include file="../header.html"}-->
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/jscal2.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/border-radius.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/win2k.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/calendar.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/lang/en.js"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+
+<div class="mainContent">
+	<div class="mbx">
+		<span><a href="javascript:;" onclick="window.history.go(-1);">返回</a> >></span>
+		<a href="javascript:;" onclick="window.top.menuOn('base', 1)">首页</a> > <a href="/event">教学管理</a> > <a>课程列表</a>		
+	</div>
+	<div class="searchPanel">
+		<form action="/recruit" method="get" name="searchForm" id="searchForm" >			
+			<div class="searchForm">
+				<input type="hidden" id="order" name="order[<!--{key($smarty.get.order)|default:'date'}-->]" value="<!--{current($smarty.get.order)|default:1}-->" />
+				关键字：<input name="keyword" type="text" class="input-text" value="<!--{$smarty.get.keyword|default:'课程名'}-->" def="课程名" />				
+				科目：<select name="course"><option value="">全部</option><!--{html_options options=$courses selected=$smarty.get.course}--></select>
+				起始日期：<input name="start" id="start" type="text" value="<!--{$dateStart}-->" class="dateSelect" />
+				<script type="text/javascript">var startCalendar = callCalendar({inputField : 'start'});</script>
+				结束日期：<input name="end" id="end" type="text" value="<!--{$dateEnd}-->" class="dateSelect" /><script type="text/javascript">var startCalendar = callCalendar({inputField : 'end'});</script>
+				上课老师：<select name="teacher"><option value="">所有</option><!--{html_options options=$teachers selected=$smarty.get.teacher}--></select>
+			</div>
+			<div class="searchHandle">
+				<input name="reset" type="reset" value="清除筛选条件" class="searchBnt" />
+				<input name="search" type="submit" value="搜索" class="searchBnt" />				
+			</div>
+		</form>
+	</div>
+	<div class="dataTable">
+		<div class="dataHeader">
+			<div class="page"><a>总：<!--{$record}--></a><!--{$paginator->getRender($curl, 0)}--></div>
+			<input name="eventAdd" type="button" value="招生" class="dataBnt" onclick="javascript:window.location.href='/recruit/add'"/>			
+		</div>
+		<div class="dataSet">
+			<table width="100%" cellpadding="0" cellspacing="0" >
+				<thead>
+					<th width="20"><input type="checkbox" name="chkAll" value="1" onclick="checkAll(this)"/></th>
+					<th width="180" name="name" class="order" order="<!--{if key($smarty.get.order) == 'name' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">课程名称<i></i></th>
+					<th width="100">上课老师</th>
+					<th width="200">课程日期</th>
+					<th width="100">授课对像</th>
+					<th width="100">授课形式</th>
+					<th width="120">上课时间</th>
+					<th width="120">课程总价</th>
+					<th>操作</th>
+				</thead>
+				<tbody>
+					<!--{foreach from=$result item=item key=key name=result}-->
+					<tr>
+						<td><input type="checkbox" name="checkbox" value="<!--{$item.id}-->" /></td>
+						<td><!--{$item.text}--></td>
+						<td><!--{foreach from=$item.teachers item=teacher}--><!--{$teacher.name}--><!--{/foreach}--></td>	
+						<td><!--{if $item.always == 1}-->长期<!--{else}--><!--{$item.start_date}-->-<!--{$item.end_date}--><!--{/if}--></td>
+						<td><!--{$item.target}--></td>
+						<td><!--{$item.form}--></td>
+						<td><!--{$item.start_time|truncate:5:''}-->-<!--{$item.end_time|truncate:5:''}--></td>
+						<td><!--{$item.price}--></td>						
+						<td><a href="/recruit/add?id=<!--{$item.id}-->" class="high">修改</a> 
+						<a href="javascript:;" onclick="handle('delete', <!--{$item.id}-->, 1)" class="high">删除</a></td>						
+					</tr>
+					<!--{foreachelse}-->
+					<tr>
+						<td class="high" colspan=8 height=60 align="center">暂无记录</td>					
+					</tr>
+					<!--{/foreach}-->
+				</tbody>
+			</table>
+		</div>		
+		<div class="dataFooter" style="margin-top:10px">
+			<div class="page" id="page"><a>总：<!--{$record}--></a><!--{$paginator->getRender($curl, 1)}--></div>
+			<!--{if !$sid}-->
+			<input name="multiDelete" type="button" value="批量删除" class="dataBnt" onclick="handle('delete', 'all', 1)"/>
+			<!--{/if}-->
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+$(function()
+{
+	window.top.closeAllDialog();
+	$(".dataSet tr:even").addClass('even');	
+	$(".dataSet tr").hover(function(){$(this).addClass('on');},function(){$(this).removeClass('on')});
+	$("#searchForm input[name='keyword']").focus(function(){var def=$(this).attr('def'); if($(this).val()== def){$(this).val(''); $(this).css('color', '#666');}});
+	$("#searchForm input[name='keyword']").blur(function(){var def=$(this).attr('def'); if($(this).val()== def || $(this).val()==''){$(this).val(def); $(this).css('color', '#DDD');}else{$(this).css('color', '#666');}});
+
+	$(".dataSet th.order").click(function(){
+		var name = $(this).attr('name');
+		var order = $(this).attr('order');		
+		$("#order").attr({'name' : 'order[' + name + ']', 'value' : order});
+		$("#searchForm").submit();
+	});
+
+	$("#searchForm input[type='reset']").click(function(){
+		var keyword = $("input[name='keyword']");
+		$(keyword).val($(keyword).attr('def'));
+		var student = $("input[name='student']");
+		$(student).val($(student).attr('def'));
+		$("select[name='course']").val('');
+		$("select[name='teacher']").val('');
+		$("input[name='start']").val('<!--{$dateStart}-->');
+		$("input[name='end']").val('<!--{$dateEnd}-->');
+		$("#order").attr({'name' : 'order[date]', 'value' : 1});
+		$("#searchForm").submit();
+	});
+	
+	$("#searchForm").submit(function(){		
+		var def = $(this).find("input[name='keyword']").attr('def');
+		var keyword = $(this).find("input[name='keyword']").val();
+		if(def == keyword) $(this).find("input[name='keyword']").val('');
+		var stu_def = $(this).find("input[name='student']").attr('def');
+		var student = $(this).find("input[name='student']").val();
+		if(stu_def == student) $(this).find("input[name='student']").val('');
+		$(this).find("input[name='search']").attr('name', '');
+	});	
+});
+
+function checkAll(o){
+	if( o.checked == true ){
+		$('input[name="checkbox"]').attr('checked','true');		
+	}else{
+		$('input[name="checkbox"]').removeAttr('checked');		
+	}
+}
+
+function getChecked() {
+	var idArr = new Array();
+	$.each($('.dataSet input[name="checkbox"]:checked'), function(i, n){
+		idArr.push( $(n).val() );
+	});
+	return idArr;
+}
+
+function handle(action, id, status)
+{
+	if(id == 'all')
+	{
+		id = getChecked();
+	}
+	if(id.length < 1) {window.top.art.dialog({'icon' : 'error', 'content' : '请选择要删除的信息', resize:false, 'lock':true}); return false;}
+
+	window.top.art.dialog({'id':'EventDelete', title : '信息处理', 'content' : '信息删除', 'lock':true, resize:false, ok:function (){
+		$.ajax({
+			url: '/recruit/ajax',
+			data : {action : action, 'id' : id, status : status},
+			dataType :'json',
+			type : 'post',
+			success: function (data) {				
+				if(data.state) {icon = 'succeed'; background='#fff0f0'}else{icon = 'succeed'; background='#E2FF7E';}
+				window.top.art.dialog({id: 'Success', title: '信息处理', icon : icon, content:data.message, width:'400px',resize:false, lock:true}, function(){
+					window.top.right.location.reload();
+				});//.time(3);
+			},
+			cache: false
+		}); 
+    },cancel: true});
+}
+</script>
+</body>
+</html>

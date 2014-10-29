@@ -1,0 +1,62 @@
+<!--{include file="../header.html"}-->
+<script type="text/javascript" src="<!--{$JS}-->/jquery.form.js"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+<style>
+	body{margin:0px;padding:0px}	
+	.formItem label{width:80px}
+</style>
+
+<div class="dataForm" style="padding:10px;margin:0px;">
+<form action="/teacher/recom" id="dataFrom" name="dataFrom" method="post">
+	<input type="hidden" value="<!--{$teacher}-->" name="teacher" />
+	<input type="hidden" value="<!--{$result.id}-->" name="id" />
+	<input type="hidden" value="recomm" name="action" />
+	<input type="hidden" value="1" name="status" />
+
+	<div class="formItem" style="position:relative">
+		<label style="margin-right:2px;vertical-align:top">推荐理由：</label>
+		<textarea name="description" id="description" rows="5" cols="60" class="input-text" style="width:300px;height:80px;resize:none"><!--{$result.description}--></textarea>
+		<span id="descriptionTip"></span>
+	</div>
+
+	<div class="formItem formSubmit">
+		<label style=""></label>		
+		<input name="submit" id="formSubmit" type="submit" value="<!--{if $result}-->修改<!--{else}-->确定<!--{/if}-->" class="dataBnt"/>
+		<!--{if $result}--><input name="removeRecomm" id="removeRecomm" type="button" value="取消推荐" class="cancelBnt"/><!--{/if}-->
+		<input name="cancel" id="cancel" type="button" value="取消" class="cancelBnt"/>
+	</div>
+</form>
+</div>
+
+<script type="text/javascript">
+$(function(){
+	$("#cancel").click(function(){window.top.closeAllDialog();});
+
+	$("#removeRecomm").click(function(){
+		$("input[name='status']").val(0);
+		$("#dataFrom").submit();
+	});
+
+	$("#dataFrom").submit(function(){
+		var teacher = $("input[name='teacher']").val();
+		if(!teacher)
+		{
+			alert('请选择要推荐的老师！');
+			return false;
+		}
+		$("#dataFrom").ajaxSubmit({ 
+			dataType:'json',
+			type: 'post',			
+			success: function(data){				
+				art.dialog.opener.recommRender(data);
+			},  
+			error: function(XmlHttpRequest, textStatus, errorThrown){  
+				alert(textStatus);  
+			}
+		});
+		return false;
+	});
+
+});
+</script>

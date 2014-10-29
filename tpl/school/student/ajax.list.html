@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<head>
+<link href="<!--{$CSS}-->/school/reset.css" rel="stylesheet" type="text/css">
+<link href="<!--{$CSS}-->/school/style.css" rel="stylesheet" type="text/css">
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/jquery.js"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/school/comm.js"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+
+<body>
+<div class="ajaxStudentList">	
+	<ul id="dataList">
+		<!--{foreach from=$result key=key item=item}-->
+			<li sid="<!--{$item.id}-->"><!--{if $handle}--><i val="<!--{$item.id}-->"><!--{/if}--></i><img src="<!--{$item.avatar}-->" width="30"/><!--{$item.name}--></li>
+		<!--{foreachelse}-->
+			<li>没有学生</li>
+		<!--{/foreach}-->
+	</ul>
+	<div class="formItem" style="text-align:center">	
+	<div class="page" id="page"><!--{$paginator->getRender($curl, 0)}--></div>
+	</div>	
+	<!--{if $handle}-->
+	<div class="formItem" style="text-align:center">			
+		<button name="submit" id="formSubmit" onclick="toSelect('student', 50, 0)" class="dataBnt">添加学生</button>
+	</div>
+	<!--{/if}-->
+</div>
+<script type="text/javascript">
+$(function(){ 	
+	$(".ajaxStudentList i").click(function(){
+		var id=$(this).attr('val');
+		var data = {
+			action : 'student', 
+			handle : 'remove',			
+			src : id
+		};
+		var url = '';
+		<!--{if $action == 'event'}-->
+		url = '/event/ajax';
+		data.id = '<!--{$event.id}-->';
+		<!--{else if $action == 'grade'}-->
+		url = '/grade/ajax';
+		data.id = '<!--{$grade.id}-->';
+		<!--{/if}-->
+		window.top.art.dialog({'title':'学生删除', content: '确定要删除此学生吗？', lock:true, rsize:false, drag : true}, function(){
+			$.post(url, data, function(data){
+				if(data.state)
+				{
+					window.top.art.dialog({content : data.message, icon : 'succeed'}, function(){
+						window.top.right.location.reload();
+					});
+				}else{
+					art.dialog.alert(data.message);
+				}
+			}, 'json');
+		},function(){});		
+	});	
+});
+
+function toSelect(type, offset, priv)
+{
+	type = type == 'teacher' ?  'teacher' : 'student';
+	var typeName = '老师';
+	if(type != 'teacher')
+	{
+		typeName = '学生'; type = 'student';
+	}
+	var selected = new Array();	
+	$("#dataList li").each(function(i, obj){
+		selected.push($(obj).attr('sid'));
+	});	
+	var ajaxUrl = '/' + type + '/select?';		
+	if(offset > 0 && selected.length > 0)
+	{
+		ajaxUrl += '&id=' +  selected.join() + "&offset=" + offset;
+		if(selected.length >= offset)
+		{
+			window.top.art.dialog({id : 'Error', content : typeName + '人数不能超过' + offset + '人', width: 300, icon : 'Error'}, function(){art.dialog('Error').close();});
+			return false;
+		}
+	}else if(offset){
+		ajaxUrl += "&offset=" + offset;
+	}
+	<!--{if $action == 'grade'}-->
+	ajaxUrl+= '&group=hide';
+	<!--{/if}-->
+	art.dialog.open(ajaxUrl + '&handle=add&selected=hide', {id: 'selectPanel',title: "选择" + typeName, width : '90%', height: '90%', 'lock' : true, resize:false},function(){});	
+}
+
+function render(type, data, action, handle)
+{	
+	var postData = {
+		action : 'student', 
+		handle : handle,			
+		src : data
+	};
+	var url = '';
+	<!--{if $action == 'event'}-->
+		url = '/event/ajax';
+		postData.id = '<!--{$event.id}-->';
+	<!--{else if $action == 'grade'}-->
+		var idArr = new Array();
+		for (key in data)
+		{
+			idArr.push(data[key].id);
+		}
+		postData.src = idArr.join();
+		url = '/grade/ajax';
+		postData.id = '<!--{$grade.id}-->';
+	<!--{/if}-->
+	$.post(url, postData, function(data){
+		if(data.state)
+		{	
+			window.top.art.dialog({content : data.message, icon : 'succeed'}, function(){
+				window.top.right.location.reload();
+			});
+			// window.location.reload();
+		}else{
+			art.dialog.alert(data.message);
+		}
+	}, 'json');	
+}
+</script>

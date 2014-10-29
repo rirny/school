@@ -1,0 +1,84 @@
+<!--{include file="../header.html"}-->
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/jscal2.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/border-radius.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/win2k.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/calendar.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/lang/en.js"></script>
+<div class="mainContent">
+	<div class="mbx">
+		<a href="javascript:;" onclick="window.top.menuOn('base', 1)">首页</a> > 
+		<a href="javascript:;" onclick="window.top.menuOn('tool', 1)">教学工具</a> > 
+		<a href="/vote" >问卷管理</a> > <a>查看问卷</a> > <!--{$vote.title|truncate:10:"..."}-->
+		<span><a href="<!--{if $refer}--><!--{$refer}--><!--{else}-->javascript:;<!--{/if}-->" onclick="<!--{if !$refer}-->window.history.go(-1);<!--{/if}-->">返回</a>>></span>
+	</div>
+
+	<form action="/vote/view" method="get" name="searchForm" id="searchForm" >	
+	<input type="hidden" name="id" value="<!--{$vote.id}-->" />				
+	<input type="hidden" id="order" name="order[<!--{key($smarty.get.order)}-->]" value="<!--{current($smarty.get.order)}-->" />				
+	</form>
+	
+	<div class="voteRresult">
+		<h3>投票结果（共<!--{$record}-->票）</h3>
+		<ul>
+			<!--{foreach from=$options key=key item=option}-->
+			<li>
+				<div class="voteOption" style="padding:10px;overflow:hidden;">
+					<a><!--{$option.title}--></a>
+					<div class="progressContainer">
+						<span><!--{$option.rate}-->% (<!--{$option.num}-->人)</span>
+						<div style="width:<!--{$option.rate}-->%;background:<!--{$option.color}-->;"></div>
+					</div>
+				</div>
+			</li>
+			<!--{/foreach}-->
+		</ul>
+	</div>
+
+	<div class="dataTable">		
+		<div class="dataSet">
+			<table width="100%" cellpadding="0" cellspacing="0" >
+				<thead>
+					<th width="200">接收人<i></i></th>
+					<th width="200">投票选项<i></i></th>
+					<th width="*" name="time" class="order" order="<!--{if key($smarty.get.order) == 'time' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">投票时间<i></i></th>				
+				</thead>
+				<tbody>
+					<!--{foreach from=$result item=item key=key name=result}-->
+					<tr>						
+						<td><!--{$item.sender}--></td>	
+						<td><!--{$item.option.title}--></td>
+						<td><!--{$item.create_time|date_format:"%Y-%m-%d %H:%I"}--></td>
+					</tr>
+					<!--{foreachelse}-->
+					<tr>
+						<td class="high" colspan=8 height=60 align="center">暂无记录</td>						
+					</tr>
+					<!--{/foreach}-->
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function()
+{	
+	$("#searchForm input[name='keyword']").focus(function(){if($(this).val() == $(this).attr('def')) $(this).val('');});
+	$("#searchForm input[name='keyword']").blur(function(){if($(this).val() == '') $(this).val($(this).attr('def'));});	
+	$(".dataSet tr:even").addClass('even');	
+	$(".dataSet tr").hover(function(){$(this).addClass('on');},function(){$(this).removeClass('on')});
+	$(".dataSet th.order").click(function(){
+		var name = $(this).attr('name');
+		var order = $(this).attr('order');		
+		$("#order").attr({'name' : 'order[' + name + ']', 'value' : order});
+		$("#searchForm").submit();
+	});
+
+	$("#searchForm").submit(function(){		
+		var def = $(this).find("input[name='keyword']").attr('def');
+		var keyword = $(this).find("input[name='keyword']").val();
+		if(def == keyword) $(this).find("input[name='keyword']").val('');
+	});
+});
+</script>
+</body>
+</html>

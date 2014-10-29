@@ -1,0 +1,36 @@
+<!--{include file="../header.html"}-->
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/formValid/style/validator.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidator.min.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/jquery.form.js"></script>
+
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+
+<div class="">
+	
+	<div class="dataForm" style="padding:10px 0px">		
+		<form action="/grade/add" id="dataForm" name="dataForm" method="post">
+		<div class="formItem">
+			<label>班级名称：</label>
+			<input type="text" name="name" id="name" value="<!--{$result.name}-->" class="input-text" size="20" style="width:126px"/>
+			<span id="nameTip"></span>
+		</div>		
+		<div class="formItem" style="padding-left:116px;">			
+			<input type="submit" name="submit" id="formSubmit" class="dataBnt" value="确定" />
+			<input type="button" name="cancel" id="cancel" class="cancelBnt" value="取消" />
+		</div>
+		</form>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+	$.formValidator.initConfig({formID:"dataForm", submitButtonID: 'formSubmit', submitOnce:false, errorFocus:true,wideWord:true,
+		onError:function(msg, obj, errorlist){},
+		onSuccess:function(){}
+	});	
+	$("#name").formValidator({onShow:"班级名称为必填", onFocus:"班级名称为必填", defaultValue:''}).inputValidator({min:2,max:20,onError:"班级名称为必填"});
+	$("#cancel").click(function(){window.top.closeAllDialog();});
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!--{include file="../header.html"}-->
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/jscal2.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/border-radius.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/win2k.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/calendar.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/lang/en.js"></script>
+<style>
+	.parent{position:relative; cursor:pointer;}
+	.parent span{margin-right:4px;}
+	.parent i{display: inline-block; width: 8px; height: 5px; background: url('<!--{$IMG}-->/school/order.png') no-repeat bottom; margin: 0px 4px; cursor:pointer;}
+	.parent ul{display:none; position:absolute; background:#fffff3; width: 120px;z-index: 999;height: auto; top: 26px; left: -4px; padding: 10px;}
+	.parent li{line-height:28px; padding:0px;margin:0px; height:28px;}
+</style>
+<div class="mainContent">
+	<div class="mbx">
+		<a href="javascript:;" onclick=";" onclick="window.top.menuOn('base', 1)">首页 > <a href="javascript:;" onclick=";" onclick="window.top.menuOn('student', 1)">学生管理</a> > <a>意向学生</a>
+	</div>
+	<div class="searchPanel">
+		<form action="/lead" method="get" name="searchForm" id="searchForm" >			
+			<div class="searchForm">
+				<input type="hidden" id="order" name="order[<!--{key($smarty.get.order)|default:'time'}-->]" value="<!--{current($smarty.get.order)|default:1}-->" />
+				关键字：<input name="keyword" type="text" class="input-text" value="<!--{$smarty.get.keyword|default:'学生名'}-->" def="学生名" />
+				<select name="gender" style="width:60px;"><option value="">性别</option><!--{html_options options=$genders selected=$smarty.get.gender}--></select>
+				<select name="age" style="width:80px;"><option value="">年龄</option><!--{html_options options=$ages selected=$smarty.get.age}--></select>
+				起始日期：<input name="start" id="start" type="text" value="<!--{$start}-->" class="dateSelect" />
+				<script type="text/javascript">var startCalendar = callCalendar({inputField : 'start'});</script>
+				结束日期：<input name="end" id="end" type="text" value="<!--{$end}-->" class="dateSelect" /><script type="text/javascript">var startCalendar = callCalendar({inputField : 'end'});</script>
+				<select name="status" style="width:90px;"><option value="">状态</option><!--{html_options options=$statues selected=$smarty.get.status}--></select>
+			</div>
+			<div class="searchHandle">
+				<input name="reset" id="reset" type="reset" value="清除筛选条件" class="searchBnt" />
+				<input name="search" type="submit" value="搜索" class="searchBnt" />
+				<input name="exportBnt" type="button" value="导出" class="searchBnt" />
+			</div>
+		</form>
+	</div>
+	<div class="dataTable">
+		<div class="dataHeader">	
+			<div class="page" id="page"><a>总：<!--{$record}--></a><!--{$paginator->getRender($curl, 0)}--></div>
+			<input name="add" type="button" value="创建学生" class="dataBnt" onclick="javascript:window.location.href='/lead/add'"/>			
+		</div>
+		<div class="dataSet">
+			<table width="100%" cellpadding="0" cellspacing="0" >
+				<thead>
+					<th width="20"><input type="checkbox" name="chkAll" value="1" onclick="checkAll(this)"/></th>
+					<th width="130" name="name" class="order" order="<!--{if key($smarty.get.order) == 'name' && current($smarty.get.order.name)==0}-->1<!--{else}-->0<!--{/if}-->">姓名<i></i></th>
+					<th width="80" name="gender" class="order" order="<!--{if key($smarty.get.order) == 'gender' && current($smarty.get.order.gender)==0}-->1<!--{else}-->0<!--{/if}-->">性别<i></i></th>
+					<th width="80" name="age" class="order" order="<!--{if key($smarty.get.order) == 'age' && current($smarty.get.order.age)==0}-->1<!--{else}-->0<!--{/if}-->">年龄<i></i></th>
+					<th width="160">联系方式</th>
+					<th width="80">状态</th>
+					<th width="160" name="time" class="order" order="<!--{if key($smarty.get.order) == 'time' && current($smarty.get.order)==1}-->0<!--{else}-->1<!--{/if}-->">更新时间<i></i></th>
+					<th>操作</th>
+				</thead>
+				<tbody>
+					<!--{foreach from=$result item=item key=key name=result}-->
+					<tr>
+						<td><input type="checkbox" name="checkbox" value="<!--{$item.id}-->" /></td>
+						<td><!--{$item.name}--></td>
+						<td><!--{$genders[$item.gender]}--></td>
+						<td><!--{$item.age}--></td>
+						<td class="parent">
+							<div><span><!--{$item.parents[0].phone}--></span><!--{$relations[$item.parents[0].relation]}--><!--{if $item.parents|count > 1}--><i></i><!--{/if}-->
+							<!--{if $item.parents|count > 1}-->
+							<ul>								
+								<!--{foreach from=$item.parents item=parent name="parent"}-->
+								<!--{if !$smarty.foreach.parent.first}-->
+									<li><span><!--{$parent.phone}--></span><!--{$relations[$parent.relation]}--><!--{if $item.parents|count > 1 && $smarty.foreach.parent.first}--><i></i><!--{/if}--></li>
+								<!--{/if}-->
+								<!--{/foreach}-->
+							</ul>
+							<!--{/if}-->
+							</div>
+						</td>
+						<td><!--{if $item.status}--><!--{$statues[$item.status]}--><!--{else}-->--<!--{/if}--></td>
+						<td><!--{$item.modify_time}--></td>
+						<td>
+						【<a href="/lead/add?id=<!--{$item.id}-->" class="high">修改</a>】
+						<!--{if $item.sign==0}-->【<a href="javascript:;" onclick="handle('sign', <!--{$item.id}-->)" class="high">签约</a>】<!--{/if}-->
+						【<a href="javascript:;" onclick="handle('delete', <!--{$item.id}-->, <!--{$item.sign|default:0}-->)" class="high">删除</a>】
+						</td>
+					</tr>
+					<!--{foreachelse}-->
+					<tr>
+						<td class="high" colspan=8 height=60 align="center">暂无记录</td>						
+					</tr>
+					<!--{/foreach}-->
+				</tbody>
+			</table>
+		</div>		
+		<div class="dataFooter" style="margin-top:10px">
+			<div class="page" id="page"><a>总：<!--{$record}--></a><!--{$paginator->getRender($curl, 1)}--></div>
+			<!--{if $result}-->
+			<input name="delete" id="pass" onclick="multi('sign')" type="button" value="批量签约" class="dataBnt" />			
+			<input name="group" id="refuse" onclick="multi('delete')" type="button" value="批量删除" class="dataBnt" />
+			<!--{/if}-->			
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function()
+{
+	// $("#searchForm input[name='keyword']").focus();
+	$(".dataSet tr:even").addClass('even');	
+	$(".dataSet tr").hover(function(){$(this).addClass('on');},function(){$(this).removeClass('on'); $(this).find('ul').hide();});
+	$("#searchForm input[name='keyword']").focus(function(){var def=$(this).attr('def'); if($(this).val()== def){$(this).val(''); $(this).css('color', '#666');}});
+	$("#searchForm input[name='keyword']").blur(function(){var def=$(this).attr('def'); if($(this).val()== def || $(this).val()==''){$(this).val(def); $(this).css('color', '#DDD');}else{$(this).css('color', '#666');}});
+
+	$(".dataSet th.order").click(function(){
+		var name = $(this).attr('name');
+		var order = $(this).attr('order');		
+		$("#order").attr({'name' : 'order[' + name + ']', 'value' : order});
+		$("#searchForm").submit();
+	});
+	
+	$(".parent div").hover(function(){
+		var u = $(this).parents("td").find("ul");
+		if($(u).css('display') == 'none')
+		{
+			$(u).show();
+		}else{
+			$(u).hide();
+		}
+	});
+	$("#searchForm input[type='reset']").click(function(){
+		var keyword = $("input[name='keyword']");
+		$(keyword).val($(keyword).attr('def'));
+		var student = $("input[name='student']");
+		$(student).val($(student).attr('def'));
+		$("select[name='age']").val('');
+		$("select[name='gender']").val('');
+		$("select[name='status']").val('');
+		$("input[name='start']").val('<!--{$dateStart}-->');
+		$("input[name='end']").val('<!--{$dateEnd}-->');
+		$("#order").attr({'name' : 'order[date]', 'value' : 1});
+		$("#searchForm").submit();
+	});
+	$("#reset").click(function(){		
+		$("input[name='keyword']").val('');
+		$("input[name='start']").val('');
+		$("input[name='end']").val('');
+		$("select[name='status']").val('');
+		$("select[name='age']").val('');
+		$("select[name='status']").val('');
+		$("#order").attr({'name' : 'order[time]', 'value' : 1});
+	});
+
+	$("#searchForm").submit(function(){		
+		var def = $(this).find("input[name='keyword']").attr('def');
+		var keyword = $(this).find("input[name='keyword']").val();
+		if(def == keyword) $(this).find("input[name='keyword']").val('');
+		$(this).find("input[name='search']").attr('name', '');
+	});
+
+	$("input[name='exportBnt']").click(function(){
+		//$("#searchForm").attr('action', '/event/export');		
+		$("#export").val(1);
+		$("#searchForm").submit();
+		$("#export").val(0);
+	});
+});
+
+function checkAll(o){
+	if( o.checked == true ){
+		$('input[name="checkbox"]').attr('checked','true');		
+	}else{
+		$('input[name="checkbox"]').removeAttr('checked');		
+	}
+}
+
+function getChecked() {
+	var idArr = new Array();
+	$.each($('.dataSet input[name="checkbox"]:checked'), function(i, n){
+		idArr.push( $(n).val() );
+	});
+	return idArr;
+}
+
+function multi(action)
+{
+	var idArr = getChecked();
+	if(idArr.length < 1) {window.top.art.dialog({'icon' : 'error', 'content' : '请选择学生', resize:false, 'lock':true}); return false;}
+	handle(action, idArr);
+}
+
+function handle(action, id, n, sign)
+{	
+	var message = action=='delete' ? '删除' : '签约';
+	if(n == 1)
+	{
+		content = "该学生档案已转入”在读学生列表”,此操作只是从”意向学生列表中”删除记录";
+	}else
+	{
+		content = '学生' + message + '，确定要' + message + '吗？';
+	}
+	window.top.art.dialog({'id':'LeadHandle', 'content' : content, 'lock':true, resize:false, ok:function (){
+		$.ajax({
+			url: '/lead/ajax',
+			data : {action : action, 'id' : id},
+			type : 'post',
+			dataType :'json',
+			success: function (data) {				
+				if(data.state) {icon = 'succeed'; background='#fff0f0'}else{icon = 'succeed'; background='#E2FF7E';}
+				window.top.art.dialog({id: 'Success', title: false, icon : icon, content:data.message, width:'400px',resize:false, lock:true, close : function(){
+					window.top.right.location.reload();
+				}}).time(3);
+			},
+			cache: false
+		}); 
+    },cancel: true});
+}
+</script>
+</body>
+</html>

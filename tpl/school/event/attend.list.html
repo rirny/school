@@ -1,0 +1,105 @@
+<!--{include file="../header.html"}-->
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/jscal2.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/border-radius.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/win2k.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/calendar.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/lang/en.js"></script>
+<div class="mainContent">
+	<div class="mbx">
+		<a href="javascript:;" onclick="window.top.menuOn('base', 1)">首页</a> > <a href="/event">教学管理</a> > <a>考勤</a>
+	</div>
+	<div class="searchPanel">
+		<form action="/attend" method="get" name="searchForm" id="searchForm" >			
+			<div class="searchForm">
+				<input type="hidden" id="order" name="order[<!--{key($smarty.get.order)}-->]" value="<!--{current($smarty.get.order)}-->" />
+				关键字：<input name="keyword" type="text" class="input-text" value="<!--{$smarty.get.keyword|default:'课程名/学生名'}-->" def="课程名/学生名" />
+				<select name="attend"><!--{html_options options=$attendStatuses selected=$attendStatus}--></select>
+				起始日期：<input name="start" id="start" type="text" value="<!--{$start}-->" class="dateSelect" />
+				<script type="text/javascript">var startCalendar = callCalendar({inputField : 'start'});</script>
+				结束日期：<input name="end" id="end" type="text" value="<!--{$end}-->" class="dateSelect" /><script type="text/javascript">var startCalendar = callCalendar({inputField : 'end', max: '<!--{$smarty.const.DAY}-->'});</script>
+				<select name="teacher"><option value="">所有老师</option><!--{html_options options=$teachers selected=$smarty.get.teacher}--></select>
+				<input name="search" type="submit" value="搜索" class="searchBnt" />
+			</div>		
+		</form>
+	</div>
+	<div class="dataTable">
+		<div class="dataHeader">			
+			<div class="page" id="page"><a>总：<!--{$record}--></a><!--{$paginator->getRender($curl, 0)}--></div>
+		</div>
+		<div class="dataSet">
+			<table width="100%" cellpadding="0" cellspacing="0" >
+				<thead>
+					<th width="180" name="name" class="order" order="<!--{if key($smarty.get.order) == 'name' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">课程名称<i></i></th>
+					<th width="120" name="course" class="order" order="<!--{if key($smarty.get.order) == 'course' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">课程<i></i></th>
+					<th width="120" name="date" class="order" order="<!--{if key($smarty.get.order) == 'date' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">上课日期<i></i></th>
+					<th width="120">上课时间</th>
+					<th width="160">上课老师</th>
+					<th width="100">学生人数</th>
+					<th width="100">考勤状态</th>
+					<th>操作</th>
+				</thead>
+				<tbody>
+					<!--{foreach from=$result item=item key=key name=result}-->
+					<tr>
+						<td><!--{$item.text}--></td>
+						<td><!--{$courses[$item.course]}--></td>
+						<td><!--{$item.date}--></td>
+						<td><!--{$item.time}--></td>
+						<td><!--{foreach from=$item.teachers key=tkey item=tval}--><!--{$tval.name}--> <!--{foreachelse}-->-<!--{/foreach}--></td>
+						<td><a href="javascript:;" onclick="javascript:StudentShow(<!--{$item.id}-->, <!--{$item.students|@count}-->)" id="tableItem<!--{$item.id}-->" class="high"><!--{$item.students|@count}--></a></td>
+						<td><!--{if $item.attended==1}-->已考勤<!--{else}-->未考勤<!--{/if}--></td>
+						<td ><a href="/attend/do?event=<!--{$item.id}-->" class="high"><!--{if $item.attended==1}-->查看<!--{else}-->考勤<!--{/if}--></a>
+					</tr>
+					<!--{foreachelse}-->
+					<tr>
+						<td class="high" colspan=8 height=60 align="center">暂无记录</td>						
+					</tr>
+					<!--{/foreach}-->
+				</tbody>
+			</table>
+		</div>		
+		<div class="dataFooter" style="margin-top:10px">
+			<div class="page" id="page"><a>总：<!--{$record}--></a><!--{$paginator->getRender($curl, 1)}--></div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function()
+{
+	window.top.closeAllDialog();
+	$("#searchForm input[name='order']").focus();
+	$(".dataSet tr:even").addClass('even');	
+	$(".dataSet tr").hover(function(){$(this).addClass('on');},function(){$(this).removeClass('on')});
+	$("#searchForm input[name='keyword']").focus(function(){var def=$(this).attr('def'); if($(this).val()== def){$(this).val(''); $(this).css('color', '#666');}});
+	$("#searchForm input[name='keyword']").blur(function(){var def=$(this).attr('def'); if($(this).val()== def || $(this).val()==''){$(this).val(def); $(this).css('color', '#DDD');}else{$(this).css('color', '#666');}});
+
+	$(".dataSet th.order").click(function(){
+		var name = $(this).attr('name');
+		var order = $(this).attr('order');		
+		$("#order").attr({'name' : 'order[' + name + ']', 'value' : order});
+		$("#searchForm").submit();
+	});
+
+	$("#searchForm input[type='reset']").click(function(){
+		$(this).find("input[name='keyword']").val('');
+		$(this).find("select[name='course']").val('');
+		$(this).find("select[name='teacher']").val('');
+		$("#order").attr({'name' : 'order[date]', 'value' : 1});
+	});
+
+	$("#searchForm").submit(function(){		
+		var def = $(this).find("input[name='keyword']").attr('def');
+		var keyword = $(this).find("input[name='keyword']").val();
+		if(def == keyword) $(this).find("input[name='keyword']").val('');
+		$(this).find("input[name='search']").attr('name', '');
+	});
+});
+
+
+function StudentShow(id, num)
+{	
+	window.top.art.dialog.open('/student/ajax?action=list&module=event&handle=0&event=' + id, {id: 'StudentList', title: '共' + num + '人', 'width' : '196px', 'lock' : true, resize:false, follow: document.getElementById("tableItem" + id)});	
+}
+</script>
+</body>
+</html>

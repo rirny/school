@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<head>
+<link href="<!--{$CSS}-->/school/reset.css" rel="stylesheet" type="text/css">
+<link href="<!--{$CSS}-->/school/style.css" rel="stylesheet" type="text/css">
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/jquery.js"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/school/comm.js"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+<body>
+<div class="ajaxCourseList">
+	<ul>
+		<!--{if $multi}-->
+		<!--{foreach from=$result key=key item=item}-->
+			<li class="courseItem"><input type="checkbox" name="course[]" class="courseSelect" value="<!--{$item.id}-->" title="<!--{$item.title}-->" <!--{if in_array($item.id, $selected)}-->checked=checked<!--{/if}-->/><!--{$item.title}--></li>
+		<!--{foreachelse}-->
+			<li>没有科目</li>
+		<!--{/foreach}-->
+		<!--{else}-->
+			<!--{foreach from=$result key=key item=item}-->
+			<li class="courseItem"><input type="checkbox" name="course[]" value="<!--{$item.id}-->" title="<!--{$item.title}-->" /><!--{$item.title}--></li>
+			<!--{foreachelse}-->
+				<li>没有科目</li>
+			<!--{/foreach}-->
+		<!--{/if}-->
+	</ul>
+	<div class="dataFooter" style="padding:10px 10px 4px;">
+		<input type="submit" name="submit" id="formSubmit" class="dataBnt" style="float:left;" value="确定" /> 
+		<div class="page" id="page"><!--{$paginator->getRender($curl, 0)}--></div>
+	</div>
+</div>
+<script>
+var multi = <!--{$multi|default:0}-->;
+$(function(){
+	<!--{if $multi}-->
+	$("#formSubmit").click(function(){		
+		var courses = Array();
+		$("input[name='course[]']:checked").each(function(i, obj){
+			courses.push({id : $(obj).val(), title : $(obj).attr('title')});
+		});
+		art.dialog.opener.render(courses);		
+		art.dialog.opener.art.dialog({id:'selectPanel'}).close();
+	});
+	<!--{else}-->
+		$(".courseItem").click(function(){		
+			var courses = Array();
+			courses.push({id : $(this).val(), title : $(this).attr('title')});
+			art.dialog.opener.render(courses);		
+			art.dialog.opener.art.dialog({id:'selectPanel'}).close();
+		});
+	<!--{/if}-->
+});
+</script>

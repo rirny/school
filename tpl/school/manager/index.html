@@ -1,0 +1,196 @@
+<!--{include file="../header.html"}-->
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+<style>
+#uploadify
+	.uploadify{height:26px; width:90px; margin-right:100px;}
+	.swfupload{width:90px; height:26px;}
+	.uploadify-button{background:url('<!--{$IMG}-->/school/dataBnt.png') repeat-x; color:#FFF; margin:0px; height:26px; padding:4px 14px;+padding-top:2px;border:1px solid #74B4C7; +border:0px;border-radius:3px; width:80px;}
+	#upfile-button{width:60px;}
+	.uploadify-queue{position:absolute;}
+</style>
+<div class="mainContent">
+	<div class="mbx">
+		<a href="javascript:;" onclick="window.top.menuOn('base', 1)">首页</a> > <a href="/purview">权限管理</a> > 管理员
+	</div>
+	
+	<div class="dataTable">
+		<div class="dataHeader">	
+			<div class="page"><a>总：<!--{$record}--></a><!--{$paginator->getRender($curl, 0)}--></div>
+			<input name="add" id="addUser" type="button" value="添加用户" class="dataBnt" />
+			<form action="/manager" method="get" name="searchForm" id="searchForm" style="display:inline-block; *zoom:1; *display:inline;">
+				<input type="hidden" id="order" name="order[<!--{key($smarty.get.order)|default:'name'}-->]" value="<!--{current($smarty.get.order)|default:0}-->" />
+				<!--关键字：<input name="keyword" type="text" value="<!-{$smarty.get.keyword|default:'用户名'}->" def="用户名" />-->
+				<select name="gid" onchange="$('#searchForm').submit();" style="width:120px;"><option value="">用户组</option><!--{html_options options=$groups selected=$smarty.get.gid}--></select>
+				<!--
+				<input name="search" type="submit" value="搜索" class="searchBnt" />
+				<input name="exportBnt" type="button" value="导出" class="searchBnt" />
+				-->	
+			</form>			
+		</div>
+		<div class="dataSet">
+			<table width="100%" cellpadding="0" cellspacing="0" >
+				<thead>
+					<th width="20"><input type="checkbox" name="chkAll" value="1" onclick="checkAll(this)"/></th>
+					<th width="120" name="name" class="order" order="<!--{if key($smarty.get.order) == 'name' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">用户<i></i></th>
+					<th width="180" name="group">分组<i></i></th>
+					<th>操作</th>
+				</thead>
+				<tbody>
+					<!--{foreach from=$result item=item key=key name=result}-->
+					<tr>
+						<td><!--{if $item.gid>2}--><input type="checkbox" name="checkbox" value="<!--{$item.id}-->" /><!--{/if}--></td>
+						<td><!--{$item.name}--></td>
+						<td><!--{$item.group|default:'--'}--></td>											
+						<td class="high">						
+						<!--{if $item.uid != $__USER__.id && ($item.gid > 2 || ($item.gid ==2 && $__SCHOOL__.creator == $__USER__.id))}--><!--不能删除自己，且机构管理员只能机构创建者才可以删除-->
+						【<a href="javascript:;" onclick="toGroup(<!--{$item.uid}-->, <!--{$item.gid}-->);">分组</a>】
+						【<a href="/purview/set?uid=<!--{$item.uid}-->">权限</a>】 
+						【<a href="javascript:;" onclick="toDelete(<!--{$item.uid}-->);" class="high">删除</a>】</td>
+						<!--{else}-->--<!--{/if}-->
+					</tr>
+					<!--{foreachelse}-->
+					<tr>
+						<td class="high" colspan=8 height=60 align="center">暂无记录</td>						
+					</tr>
+					<!--{/foreach}-->
+				</tbody>
+			</table>
+		</div>		
+		<div class="dataFooter" style="margin-top:10px">
+			<div class="page" id="page"><a>总：<!--{$record}--></a><!--{$paginator->getRender($curl, 1)}--></div>
+			<!--<input name="deleteHandle" id="deleteHandle" type="button" value="批量删除" class="dataBnt" onclick="multi('delete')" />-->	
+			<!--<input name="groupHandle" id="groupHandle" type="button" value="批量分组" class="dataBnt" onclick="multi('group')" />-->			
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function()
+{
+	// $("#searchForm input[name='keyword']").focus();
+	$(".dataSet tr:even").addClass('even');	
+	$(".dataSet tr").hover(function(){$(this).addClass('on');},function(){$(this).removeClass('on')});
+	$("#searchForm input[name='keyword']").focus(function(){var def=$(this).attr('def'); if($(this).val()== def){$(this).val(''); $(this).css('color', '#666');}});
+	$("#searchForm input[name='keyword']").blur(function(){var def=$(this).attr('def'); if($(this).val()== def || $(this).val()==''){$(this).val(def); $(this).css('color', '#DDD');}else{$(this).css('color', '#666');}});
+
+	$(".dataSet th.order").click(function(){
+		var name = $(this).attr('name');
+		var order = $(this).attr('order');		
+		$("#order").attr({'name' : 'order[' + name + ']', 'value' : order});
+		$("#searchForm").submit();
+	});
+
+	$("#searchForm input[type='reset']").click(function(){		
+		$(this).find("input[name='keyword']").val('');
+		$("#order").attr({'name' : 'order[date]', 'value' : 1});
+	});
+
+	$("#searchForm").submit(function(){		
+		//var def = $(this).find("input[name='keyword']").attr('def');
+		//var keyword = $(this).find("input[name='keyword']").val();
+		//if(def == keyword) $(this).find("input[name='keyword']").val('');
+		$(this).find("input[name='search']").attr('name', '');
+	});
+	
+	$("input[name='exportBnt']").click(function(){
+		//$("#searchForm").attr('action', '/event/export');
+		$("#export").val(1);
+		$("#searchForm").submit();
+		$("#export").val(0);
+	});	
+
+	$("#addUser").click(function(){
+		var selected = <!--{$selected|default:'{}'}-->;
+		var query = {
+			id : selected.join(),
+			offset : 0,
+			// group : 'hide',
+			selected : 'hide',
+			handle : 'add',
+			priv : 0
+		}	
+		art.dialog.open(('/teacher/select').url_build(query), {id: 'selectPanel',title: "选择老师", width : '90%', height: '90%', 'lock' : true, resize:false},function(){});
+	});
+
+});
+
+function render(type, data, action, handle)
+{
+	var postData = {		
+		handle : 'add',			
+		user : []
+	};	
+	for (key in data)
+	{
+		postData.user.push(data[key].id);
+	}
+	$.post('/manager/ajax', postData, function(data){		
+		if(data.state)
+		{	
+			/*
+			window.top.art.dialog({content : data.message, icon : 'succeed'}, function(){
+				window.top.right.location.reload();
+			});
+			*/
+			window.location.reload();
+		}else{
+			art.dialog.alert(data.message);
+		}		
+	}, 'json');	
+}
+
+function checkAll(o){ 
+	if( o.checked == true ){
+		$('input[name="checkbox"]').attr('checked','true');
+	}else{
+		$('input[name="checkbox"]').removeAttr('checked');		
+	}
+}
+
+function getChecked() {
+	var idArr = new Array();
+	$.each($('.dataSet input[name="checkbox"]:checked'), function(i, n){
+		idArr.push( $(n).val() );
+	});
+	return idArr;
+}
+
+function multi(action)
+{
+	var idArr = getChecked();	
+	if(idArr.length < 1) {window.top.art.dialog({'icon' : 'error', 'content' : '请选择用户', resize:false, 'lock':true, width:400, height:'auto'}); return false;}
+	if(action == 'delete')
+	{
+		toDelete(idArr);
+	}else if(action == 'group')
+	{
+		//toGroup(idArr);
+	}
+}
+
+function toDelete(uid)
+{
+	window.top.art.dialog({'id':'UserDelete', icon : 'question', 'content' : '确定要删除码?', 'lock':true, resize:false, width:400, height:'auto'}, function(){
+		$.ajax({
+			url: '/manager/ajax',
+			data : {'uid' : uid, handle : 'delete'},
+			dataType :'json',
+			type : 'post',
+			success: function (data) {							
+				if(!data.state)
+				window.top.art.dialog({id: 'Success', title: false, icon : 'error', background: '#E2FF7E', content:data.message, width:'400px',resize:false, lock:true, cancel : false}).time(2);
+				window.top.right.location.reload();
+			},
+			cache: false
+		});
+	},function(){});
+}
+
+function toGroup(idArr, gid)
+{
+	window.top.art.dialog.open('/purview/ajax?handle=select&uid=' + idArr + "&gid=" + gid, {id : 'userGroup', title: '用户分组', shadow:false,drag:true, resize:false, height:'auto'});
+}
+
+</script>
+</body>
+</html>

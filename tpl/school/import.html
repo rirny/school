@@ -1,0 +1,59 @@
+<!--{include file="school/header.html"}-->
+<style>
+	.formItem label{width:60px;}
+	.sucess {width:240px;}
+	.sucess h3, .sucess div{font-size:12px; line-height:24px;}
+	.sucess span{font-weight:bold;}
+</style>
+<div class="dataForm">		
+	<form action="" id="uploadForm" name="uploadForm" method="post" ENCTYPE="multipart/form-data">
+	<input type="hidden" name="school" id="school" value="<!--{$result.id}-->" class="input-text" size="20"/>
+	<div class="formItem">		
+		<label style="width:30px"></label>
+		<input type="text" id="file" type="text" class="input-text" /> <button id="view" name="view" class="">浏览</button>
+		<input id="upfile" name="upfile" type="file" type="file" multiple="false"  style="display:none"/> 		
+	</div>
+	<div class="formItem" style="padding-left:46px;">		
+		<input id="submit" type="submit" class="dataBnt" value="提交" />
+		<input id="cancel" type="reset" name="cancel" class="cancelBnt" value="取消" /> 		
+	</div>
+	</form>
+	<div class="formItem" style="padding-left:26px;">	
+		<a class="high" style="float:right" href="/public/excel?type=teacher">下载Excel</a> <span style="color:#ff0000;">导入用户初始密码为“000000”</span>
+	</div>
+</div>
+
+<script type="text/javascript">
+var result = <!--{$result|default:'{}'}-->;
+$(function(){
+
+	$("#view").click(function(){$("#upfile").click(); return false;});
+
+	$("#uploadForm").submit(function(){
+		var filepath= $("#upfile").val();
+        var extStart=filepath.lastIndexOf(".");
+        var ext=filepath.substring(extStart,filepath.length).toUpperCase();
+		if(ext != '.XLSX' && ext != 'XLS')
+		{
+			window.top.art.dialog({title:false, icon:'ERROR', lock:true, cancel : false, content:'错误的文件类型，请上传Excel标准文件或下载标准格式！'}, function(){
+				$("#upfile").val('');
+			});
+			return false;
+		}
+	});
+
+	$("#cancel").click(function(){window.top.art.dialog({id : 'importTeacher'}).close();});
+
+	// window.top.art.dialog({id : 'importTeacher'}).close();
+	<!--{if $post}-->
+		if(result.state)
+		{
+			var content = '<div id="sucess" class="sucess">' + result.message + "</div>";			
+			window.top.art.dialog({icon:'succeed', lock:true, resize:false, drag : false, content: content, width: 300}, function(){});
+		}else{
+			window.top.art.dialog({icon:'error', lock:true, resize:false, drag : false, content: result.message, width: 300}, function(){});
+		}
+		$("#upfile").val('');
+	<!--{/if}-->
+});
+</script>

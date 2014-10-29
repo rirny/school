@@ -1,0 +1,122 @@
+<!--{include file="../header.html"}-->
+
+<style>.attend input{margin-left:20px;margin-right:4px;}.attend label{vertical-align:-2px;cursor:pointer}</style>
+<div class="mainContent">
+	<div class="mbx">
+		<span><a href="<!--{if $refer}--><!--{$refer}--><!--{else}-->javascript:;<!--{/if}-->" <!--{if !$refer}-->onclick="window.history.go(-1);<!--{/if}-->">返回</a> >></span>
+		<a href="javascript:;" onclick="window.top.menuOn('base', 1)">首页 > <a href="/schedule">教学管理</a> > <a href="/schedule">考勤管理</a>
+	</div>
+	
+	<div class="dataTable">
+		<div class="dataHeader">
+			<div class="page" id="page"><a><!--{$result|count}--></a></div>
+		</div>
+		<form action="/schedule/attend" id="dataForm" name="dataForm" method="post">
+		<div class="dataSet">
+			<table width="100%" cellpadding="0" cellspacing="0" >
+				<thead>
+					<th width="20"><input type="checkbox" name="chkAll" value="1" onclick="checkAll(this)"/></th>
+					<th width="180">学生姓名<i></i></th>					
+					<th width="*">考勤</th>						
+				</thead>
+				<tbody>
+					<!--{foreach from=$result item=item key=key name=result}-->
+					<tr>
+						<td><input type="checkbox" name="ids[]" value="<!--{$item.id}-->"  <!--{if !$event.attended}-->checked="checked"<!--{/if}-->/></td>
+						<td><!--{$item.name}--></td>					
+						<td class="attend"><!--{html_radios values=array_keys($attendes) checked=$item.attend output=array_values($attendes) name="attend[<!--{$item.id}-->]" selected=$item.attend}--></a>
+					</tr>
+					<!--{foreachelse}-->
+					<tr>
+						<td class="high" colspan=8 height=60 align="center">暂无记录</td>						
+					</tr>
+					<!--{/foreach}-->
+				</tbody>
+			</table>
+		</div>
+		<input type="hidden" id="attends" name="attends" value="0" />
+		<input type="hidden" id="absences" name="absences" value="0" />
+		<input type="hidden" id="leaves" name="leaves" value="0" />
+		<input type="hidden" id="sid" name="sid" value="<!--{$sid}-->" />
+		<input type="hidden" id="index" name="index" value="<!--{$index}-->" />
+		<input type="hidden" id="end" name="end" value="<!--{$end}-->" />
+		<input type="hidden" id="times" name="times" value="<!--{$times}-->" />
+		<div class="dataFooter" style="margin-top:10px">
+			<input name="submit" id="formSubmit" type="submit" class="dataBnt" value="确定" />
+			<input type="button" name="reset"  class="dataBnt" value="取消" onclick="window.history.go(-1);" />
+		</div>
+		</form>
+	</div>
+</div>
+<script type="text/javascript">
+var attended = <!--{$event.attended|default:0}-->;
+$(function()
+{
+	$("#searchForm input[name='order']").focus();
+	$(".dataSet tr:even").addClass('even');	
+	$(".dataSet tr").hover(function(){$(this).addClass('on');},function(){$(this).removeClass('on')});	
+	$("#attendAction,#absenceAction,#leaveAction").click(function(){
+		var name = $(this).attr('name');
+		doAction(name);
+	});
+	$(".attend label, .attend :radio").click(function(){$(this).prev('input').click(); $(this).parents('tr').find(':checkbox').attr('checked', true);});	
+	$("#dataForm").submit(function(){		
+		var idArr = getChecked();		
+		if(idArr.length < 1) {			
+			window.top.art.dialog({'icon' : 'error', 'content' : '请选择要考勤的学生', resize:false, 'lock':true}, function(){}); 
+			return false;
+		}
+		var attends = absences = leaves = 0;
+		/*
+		if(attended)
+		{			
+			attends = $("input[name='ids[]']").parents('tr').find(":radio[value=1]:checked").length;
+			absences = $("input[name='ids[]']").parents('tr').find(":radio[value=2]:checked").length;
+			leaves = $("input[name='ids[]']").parents('tr').find(":radio[value=3]:checked").length;			
+		}else{
+			attends = $("input[name='ids[]']:checked").parents('tr').find(":radio[value=1]:checked").length;
+			absences = $("input[name='ids[]']:checked").parents('tr').find(":radio[value=2]:checked").length;
+			leaves = $("input[name='ids[]']:checked").parents('tr').find(":radio[value=3]:checked").length;
+		}
+		*/
+
+		attends = $("input[name='ids[]']").parents('tr').find(":radio[value=0]:checked").length;
+		absences = $("input[name='ids[]']").parents('tr').find(":radio[value=1]:checked").length;
+		leaves = $("input[name='ids[]']").parents('tr').find(":radio[value=2]:checked").length;
+
+		//$("input[name='ids[]']").parents('tr').find(":radio").attr('disabled', true);
+		//$("input[name='ids[]']:checked").parents('tr').find(":radio").attr('disabled', false);
+
+		$("#attends").val(attends);
+		$("#absences").val(absences);
+		$("#leaves").val(leaves);
+		// $("input[name='ids[]']:checked").parents('tr').find(":radio").removeAttr('disable');
+		// return false;
+	});
+});
+
+function doAction(action)
+{
+	var idArr = getChecked();
+	if(idArr.length < 1) {window.top.art.dialog({'icon' : 'error', 'content' : '请选择要考勤的学生', resize:false, 'lock':true}, function(){}); return false;}
+	var v = (action == 'attend' ? 1 : (action == 'leave' ? 3 : 2));	
+	$('input[name="ids[]"]:checked').parents('tr').find(".attend input[value='" + v + "']").attr('checked','true');
+}
+function checkAll(o){
+	if( o.checked == true ){
+		$('input[name="ids[]"]').attr('checked','true');		
+	}else{
+		$('input[name="ids[]"]').removeAttr('checked');		
+	}
+}
+
+function getChecked() {
+	var idArr = new Array();
+	$.each($('.dataSet input[type="checkbox"]:checked'), function(i, n){
+		idArr.push( $(n).val() );
+	});
+	return idArr;
+}
+</script>
+</body>
+</html>

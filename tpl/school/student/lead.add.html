@@ -1,0 +1,238 @@
+<!--{include file="../header.html"}-->
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/jscal2.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/border-radius.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/win2k.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/calendar.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/lang/en.js"></script>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/formValid/style/validator.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidator.min.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/jquery.form.js"></script>
+
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+
+<div class="mainContent">
+	<div class="mbx">
+		<span><a href="javascript:;" onclick="window.history.go(-1);">返回</a> >></span>
+		<a href="javascript:;" onclick="window.top.menuOn('base', 1)"> > <a href="/lead">意向学生</a> > <a>创建学生</a>		
+	</div>
+	<div class="dataForm" style="background:#F5F5F5;padding:10px 0px">		
+		<form action="/lead/add" id="dataForm" name="dataForm" method="post">
+		<input type="hidden" name="id" value="<!--{$result.id}-->" />
+		<div class="formItem">
+			<label>姓名：</label>
+			<input type="text" name="name" id="name" value="<!--{$result.name}-->" class="input-text" size="20" style="width:96px"/>
+			<span id="nameTip"></span>
+		</div>
+		<div class="formItem">
+			<label>性别：</label>
+			<!--{html_radios values=array_keys($genders) checked=$result.gender output=array_values($genders) name="gender" labels="" selected=$gender}-->
+			<span id="genderTip"></span>
+		</div>
+		
+		<div class="formItem">
+			<label>生日：</label>
+			<input type="text" name="birthday" id="birthday" value="<!--{$curDate}-->" class="input-text datePlug" style="width:96px" readonly/>
+			<script type="text/javascript">var startCalendar = callCalendar({inputField : 'birthday', max: '<!--{$curDate}-->', min : '1970-01-01'});</script>
+			<span id="birthdayTip"></span>
+		</div>
+
+		<div class="formItem">			
+			<label>联系方式：</label>
+			<div class="contact">
+				<input type="hidden" name="contactor" id="contactor" value="<!--{$result.name}-->" class="input-text" size="20"/>
+				<!--{foreach name="contact" from=$result.contactors item=item key=key}-->
+				<div class="contactor">				
+					<select name="contactor[relation][]"><option value="">与本人关系</option><!--{html_options options=$relations selected=$item.relation}--></select>
+					<input type="text" name="contactor[name][]" value="<!--{$item.name}-->" def="联系人姓名" class="input-text" style="width:60px;"/>
+					<input type="text" name="contactor[phone][]" value="<!--{$item.phone}-->" def="联系人手机" class="input-text" size="20"/>
+					<input type="button" name="deleteContactor" value="删除" class="bnt" />
+				</div>
+				<!--{foreachelse}-->
+				<div class="contactor">				
+					<select name="contactor[relation][]"><option value="">与学生关系</option><!--{html_options options=$relations}--></select>
+					<input type="text" name="contactor[name][]" value="联系人姓名"  def="联系人姓名" class="input-text" size="20" style="width:60px;"//>
+					<input type="text" name="contactor[phone][]" value="联系人手机"  def="联系人手机" class="input-text" size="20"/>
+					<input type="button" name="deleteContactor" value="删除" class="bnt" style="color:#333;margin-left:6px;height:30px;height:26px\0;+height:26px;line-height:24px;line-height:16px;"/>
+				</div>
+				<!--{/foreach}-->
+			</div>
+			<!--<button name="addContactor" id="addContactor" class="dataBnt">添加</button>-->
+			<input type="button" name="addContactor" id="addContactor" value="添加" class="bnt" style="margin-top:0px;+margin-top:1px;margin-left:4px;height:30px;height:26px\0;+height:26px;line-height:16px;" />
+			<span id="contactorTip"></span>
+		</div>
+
+		<div class="formItem">
+			<label>来源：</label>
+			<select name="source" id="source"><!--{html_options options=$sources selected=$result.source}--></select>
+			<span id="sourceTip"></span>
+		</div>
+
+		<div class="formItem">
+			<label>意向科目：</label>
+			<div class="courseSelected selected">
+			<ul>
+			<!--{foreach from=$result.course item=item key=key name=color}-->
+				<li><i></i>
+				<input type="hidden" name="course[id][]" value="<!--{$item.id}-->" />
+				<input type="hidden" name="course[title][]" value="<!--{$item.title}-->"  />
+				<span><!--{$item.title}--></span></li>
+			<!--{/foreach}-->		
+			</ul>
+			</div>
+			<button name="selectCourse" class="dataBnt" id="selectTeacher" style="margin-left:0px" onclick ="javascript:toSelect(1);return false;">请选择</button>
+			<span id="sourceTip"></span>
+		</div>
+		
+		<div class="formItem">
+			<label>状态：</label>
+			<select name="status" id="status"><!--{html_options options=$statues selected=$result.status}--></select>
+			<span id="sourceTip"></span>
+		</div>
+		
+		<div class="formItem" style="position:relative">
+			<label style="margin-right:2px;vertical-align:top">描述：</label>
+			<textarea name="desc" id="desc" rows="5" cols="60" class="input-text" style="width:400px;height:100px;resize:none"><!--{$result.desc}--></textarea>
+			<span id="wordCount" style="top:94px;left:490px;"><b>300</b>字</span>
+			<span id="descriptionTip"></span>
+		</div>
+
+		<div class="formItem" style="padding-left:116px;">			
+			<input type="submit" name="submit" id="formSubmit" class="dataBnt" value="确定" />
+			<input type="button" name="reset" class="cancelBnt" value="取消" onclick="window.history.go(-1);"/>
+		</div>
+		</form>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+
+	$.formValidator.initConfig({formID:"dataForm", submitButtonID: 'formSubmit', submitOnce:false, errorFocus:true,wideWord:true,
+		onError:function(msg, obj, errorlist){alert(msg);},
+		onSuccess:function(){}
+	});
+	
+	$("#name").formValidator({onShow:"姓名长度为2-20字符", onFocus:"学生姓名为必填，姓名长度需为2-20字符", defaultValue:''}).inputValidator({min:2,max:20,onError:"学生姓名为必填，姓名长度需为2-20字符"});	
+	$("#contactor").formValidator({autoModify:true,onShow:"联系方式必须是手机",onFocus:"联系方式必须是手机"}).functionValidator({fun : function(){
+		if($(".contactor").length < 1 || $(".contactor li").length > 4)
+		{			
+			return false;
+		}
+		var mobileReg = new RegExp(regexEnum.mobile);		
+		for (i=0;i< $(".contactor").length; i++)
+		{
+			var parent = $(".contactor").eq(i);
+			var relation = $(parent).find('select');
+			var _name = $(parent).find('input[name="contactor[name][]"]');
+			var phone = $(parent).find('input[name="contactor[phone][]"]');
+			if($(relation).val() < 1)
+			{
+				$(relation).focus(); 
+				this.onError = '关系为必选';
+				return false;
+			}
+			if($(_name).val().length < 2 || $(_name).val().length > 20)
+			{
+				$(_name).focus(); 
+				this.onError = '联系人为必填!';
+				return false;
+			}
+			if(!mobileReg.test($(phone).val()))
+			{
+				$(phone).focus(); 
+				this.onError = '联系方式必须是手机!';
+				return false;
+			}
+			continue;
+		}		
+		return true;
+	}, onError : '联系方式必须是手机'});//.unFormValidator(true);
+
+	$("#description").formValidator({onShow:"", onFocus:"描述内容须为5-300字符", defaultValue:''}).inputValidator({min:2,max:300, onErrorMin:"描述内容至少为5个字符", onErrorMax:'描述内容不可超过300个字符'});
+	$("button[name='reset']").click(function(){
+		//$("#dataForm").clearForm();
+		window.history.go(-1);
+	});
+
+	$(".selected").find("i").bind('click', function(){$(this).parent('li').remove()});
+	
+	$("#desc").keydown(function(){
+		var Len = $(this).val().length;
+		if(Len > 300) return false;
+		$("#wordCount").find("b").text(300-Len);
+	});
+	
+	$("#addContactor").click(function(){
+		if($(".contactor").length >= 4){alert("最多只能添加4个联系人！"); return false;}
+		var item = $(".contactor:first").clone();
+		$(item).find('select').val('');
+		$(item).find('input[name="contactor[name][]"]').val('');
+		$(item).find('input[name="contactor[phone][]"]').val('');
+		$(item).find('.bnt').bind('click', function(){
+			if($(".contactor").length <= 1) return false;
+			$(this).parents('.contactor').remove();
+		});
+		$(".contact").append($(item));		
+	});
+	$('input[name="contactor[name][]"],input[name="contactor[phone][]"]').focus(function(){
+		var name = $(this).val();
+		var def = $(this).attr('def');
+		$("#contactorTip").show();
+		if(name == def || name =='')
+		{
+			$(this).val('');
+			$(this).css('color','#000');
+		}else{
+			$(this).css('color','#000');
+		}	
+	});
+	$('input[name="contactor[name][]"],input[name="contactor[phone][]"]').blur(function(){
+		var name = $(this).val();
+		var def = $(this).attr('def');		
+		if(name == def || name =='')
+		{
+			$(this).val(def);
+			$(this).css('color','#999');
+		}else{
+			$(this).css('color','#000');
+		}		
+	});
+});
+
+
+function toSelect(multi)
+{
+	var selected = new Array();
+	$(".courseSelected li").each(function(i, obj){
+		selected.push($(obj).find("input[name='course[id][]']").val());
+	});
+	var ajaxUrl = '/course/select?multi=' + multi;
+	ajaxUrl += selected ? ('&id=' +  selected.join()) : '';
+	art.dialog.open(ajaxUrl, {id: 'selectPanel',title: "选择科目", width : '300', height: 'auto', 'lock' : true, resize:false});
+	return false;
+}
+
+function render(data)
+{
+	var panel = $(".courseSelected ul");
+	if(data.length < 1)
+	{
+		alert('没有选择科目！'); return false;
+	}
+	for(key in data)
+	{		
+		if($(panel).find("li input[name='course[id][]'][value='" + data[key].id + "']").length < 1)
+		{
+			var str = "<li><i></i>";
+			str += '<input type="hidden" name="course[id][]" value="' + data[key].id + '" />';
+			str += '<input type="hidden" name="course[title][]" value="' + data[key].title + '" />';		
+			str += '<span>' + data[key].title + '</span></li>';
+			$(panel).append(str);
+		}
+	}	
+	$(".courseSelected").find("i").bind('click', function(){$(this).parent('li').remove()});
+}
+</script>
+</body>
+</html>

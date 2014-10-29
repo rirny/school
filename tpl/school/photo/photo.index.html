@@ -1,0 +1,215 @@
+<!--{include file="../header.html"}-->
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/jquery.form.js"></script>
+<style>
+	.photo li{display:inline-block; *zoom:1; *display:inline; margin-right:8px;}
+	.photo li div{width:200px; height:200px;border:1px solid #EBEBEB;background:center center no-repeat #FFF;}
+	.photo li img{vertical-align:middle;}
+	.photo li div{cursor:pointer}
+	.dataSet p{line-height:30px;}
+	.dataSet label {margin-right:8px;}
+	.dataSet label input,.dataSet label img{margin-right:4px; vertical-align:-2px;cursor:pointer}
+
+	.check i{width:12px;height:12px;display:inline-block; *zoom:1; *display:inline; vertical-align:middle; margin-left:10px;}
+	.check i.on{background:url('<!--{$IMG}-->/school/update.png') no-repeat; cursor:pointer;}
+</style>
+<div class="mainContent">
+	<div class="mbx">
+		<a href="javascript:;" onclick="window.top.menuOn('base', 'on')">首页</a> > 
+		<a  href="javascript:;" onclick="window.top.menuOn('recruit', 'on')">招生管理</a> > <a href="/photo">机构相册</a>
+	</div>
+
+	<div id="phonoUpload" style="display:none">
+		<h3 style="font-size:14px;padding-left:10px">照片上传</h3>
+		<form method="post" action="/photo/ajax" name="phontUload" id="uploadForm" enctype="multipart/form-data">
+			<div class="formItem">
+				<input type="hidden" name="action" value="add" />
+				<label>图片路径：</label>
+				<input type="text" name="path" id="path" value="" class="input-text" style="padding: 4px;border: 1px solid #bbb;" readonly/>
+				<input id="upPhoto" name="upPhoto" type="file" type="file" multiple="false" style="width:0px;height:0px;"/>
+				<input name="view" id="view" type="button" value="浏览" class="dataBnt"/>
+			</div>
+			<div class="formItem">
+				<label>图片名称：</label>
+				<input type="text" name="title" value="" class="input-text" style="padding: 4px;border: 1px solid #bbb;" maxlength="20" />			
+			</div>
+			<div class="formItem">
+				<label style=""></label>
+				<input id="upload" type="submit" value="上传" class="dataBnt"/> <a href="javascript:;" id="cancel">取消</a><font color="red">（图片大请控制在8M以内）</font>
+			</div>
+		</form>
+	</div>
+
+	<div class="dataTable">
+		<div class="dataHeader">	
+			<div class="page"><a>总：<!--{$record}--></a><!--{$paginator->getRender($curl, 0)}--></div>			
+			<input name="add" id="add" type="button" value="上传图片" class="dataBnt"/>			
+		</div>
+		<div class="dataSet" style="padding:20px; background:#F5F5F5">	
+			<p>
+			<label class="checkAll"><input type="checkbox" name="chkAll" value="1" onclick="checkAll(this)"/>全选</label>			
+			<label class="deleteAll" onclick="handle('delete', 'all')"><img src="/static/images/del.png" /><a>删除</a></label>
+			</p>
+			<ul class="photo" >
+				<!--{foreach from=$result key=key item=item}-->
+				<li>					
+					<div class="image" style="background-image:url('<!--{$smarty.const.STATIC_PATH}-->/<!--{$item.attach_small}-->')" 
+					onclick="show('<!--{$smarty.const.STATIC_PATH}-->/<!--{$item.attach_url}-->', '<!--{$item.title}-->')"></div>
+					<p>
+					<label class="check" title="<!--{$item.title}-->"><input type="checkbox" name="checkbox" value="<!--{$item.attach_id}-->" /><span class="Change"><!--{$item.title|truncate:8:"..."}--></span><i></i></label>
+					<label class="delete" onclick="handle('delete', <!--{$item.attach_id}-->)"><img src="/static/images/del.png" />删除</a></label>
+					</p>
+				</li>
+				<!--{foreachelse}-->
+				<li>还没有照片</li>
+				<!--{/foreach}-->
+			</ul>
+		</div>
+		<div class="dataFooter" style="margin-top:10px">
+			<div class="page" id="page"><a>总：<!--{$record}--></a><!--{$paginator->getRender($curl, 1)}--></div>				
+		</div>
+	</div>
+</div>
+
+
+<script type="text/javascript">
+
+var isIE = /msie/i.test(navigator.userAgent) && !window.opera;
+$(function()
+{	
+	/*	
+	$("#searchForm").submit(function(){
+		if($("#searchForm input[name='keyword']").val() == $("#searchForm input[name='keyword']").attr('def')) $("#searchForm input[name='keyword']").val('');		
+	});
+	*/
+	$(".image").hover(function(){$(this).css('border','1px solid #ff9c84');},function(){$(this).css('border','1px solid #EBEBEB');});
+
+	$("#add").click(function(){
+		art.dialog({id: 'photoAdd',title: false, padding: '0px 0px', lock : false, padding:'4px 4px', width: '400px', content: $("#phonoUpload").html(), resize:false, follow : document.getElementById('add')});		
+		$("#view").bind('click', function(){$("#upPhoto").click();});
+		$("#cancel").click(function(){art.dialog({id : 'photoAdd'}).close();});
+		$("#uploadForm").submit(function(){			
+			var title = $(this).find("input[name='title']").val();
+			if(!title){alert('请填写照片名称！'); return false;}			
+			if(title.textLength() > 10){alert('照片名称不得超过10个字！'); return false;}			
+			var file = $(this).find("input[type='file']").val();			
+			var point = file.lastIndexOf(".");
+			var type = file.substr(point).toLowerCase();			
+			if(type != ".jpg" && type != ".gif" && type != ".png"){
+				alert('文件格式错误！');
+				return false;
+			}
+			$("#upload").attr('disabled', true);
+			$("#uploadForm").ajaxSubmit({ 
+				dataType:'json',
+				type: 'post',
+				success: function(data){	
+					$("#upload").attr('disabled', false);
+					if(!data.state)
+					{
+						window.top.art.dialog({'title' : false, 'icon': 'error','cancel' : false, 'content' : data.message}, function(){});
+					}else{					
+						window.top.right.location.reload();
+						window.top.closeAllDialog();
+					}
+				},  
+				error: function(XmlHttpRequest, textStatus, errorThrown){  
+					alert(textStatus);  
+				}
+			});
+			return false;
+		});
+
+		$("#upPhoto").change(function(){
+			$("#path").val($(this).val());
+		});
+
+		// $(".check").click();
+
+	});
+	
+	$(".check").hover(function(){$(this).find('i').addClass('on');},function(){$(this).find('i').removeClass('on')});
+	$(".check i").bind("click", function(){
+		$(".check span").each(function(i,obj){$(obj).html($(obj).find('input').val());});
+		var name = $(this).prev('span').text();
+		$(this).prev('span').html('<input type="text" class="input-text" name="name" value="' + name + '" style="width:60px" />');
+		$(this).prev('span').find("input").focus();
+		$(this).removeClass('on');		
+		$("input[type='text']").bind('blur', function(){			
+			var id = $(this).parents('li').find(':checkbox').val();
+			var name = $(this).val();
+			if(name.length  < 1){alert('组名不能为空'); $(this).focus(); return false;}
+			$.post("/photo/ajax",	{'action' : 'rename', title: name, id : id}, function(data){
+				// alert("Data Loaded: " + data);
+			});			
+			$(this).parents('span').html(name);
+		});
+	});
+	
+});
+
+function show(img, name)
+{
+	window.top.art.dialog({id : 'ImageShow', title : '图片浏览-' + name, content : '<img src="' + img + '">', width : '40%', height : 'auto', fixed : true, lock : true});
+}
+
+function checkAll(o){
+	if( o.checked == true ){
+		$('input[name="checkbox"]').attr('checked','true');		
+	}else{
+		$('input[name="checkbox"]').removeAttr('checked');		
+	}
+}
+
+function getChecked() {
+	var idArr = new Array();
+	$.each($('.dataSet input[name="checkbox"]:checked'), function(i, n){
+		idArr.push( $(n).val() );
+	});
+	return idArr;
+}
+
+function handle(action, id)
+{
+	if(id == 'all') id = getChecked();
+	if(!id || id.length < 1) {art.dialog.alert('请选择要删除的照片'); return false;}
+
+	window.top.art.dialog({'id':'PhotoDelete', 'content' : '确定要删除吗？', 'lock':true, resize:false, ok:function (){
+		$.ajax({
+			url: '/photo/ajax',
+			data : {'id' : id, action : action},
+			dataType :'json',
+			type : 'post',
+			success: function (data) {				
+				if(data.state) {icon = 'succeed'; background='#fff0f0'}else{icon = 'succeed'; background='#E2FF7E';}
+				window.top.art.dialog({id: 'Success', title: '照片删除', icon : icon, content:data.message, width:'400px',resize:false, lock:true}, function(){
+					window.top.right.location.reload();
+				});//.time(3);
+			},
+			cache: false
+		}); 
+    },cancel: true});
+}
+/*
+function getFile(id) {
+	var result = {};
+	var fileSize = 0;          
+	if (isIE && !obj.files) {      
+		var filePath = document.getElementById(id).value;      
+		var fileSystem = new ActiveXObject("Scripting.FileSystemObject");         
+		var file = fileSystem.GetFile(filePath);      
+		fileSize = file.Size;     
+		result.path = filePath;
+		result.size = fileSize;
+	} else {     
+		fileSize = target.files[0].size;
+	}    
+	var size = fileSize / 1024;     
+	if(size>10000){   
+	alert("附件不能大于10M");  
+}   
+*/
+</script>
+</body>
+</html>

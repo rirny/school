@@ -1,0 +1,186 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>机构登录 - 呼啦派</title>
+<link href="<!--{$CSS}-->/school/reset.css" rel="stylesheet" type="text/css">
+<link href="<!--{$CSS}-->/school/style.css" rel="stylesheet" type="text/css">
+<link href="<!--{$JS}-->/dialog/default.css" rel="stylesheet" type="text/css">
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/jquery.js"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/school/comm.js"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+
+<style>
+#slide{width:296px;height:360px;overflow:hidden;position:relative;font-size:12px;}
+#slide_list ul{}
+#slide_list li{position:absolute; left:0px; top:0px; text-align:center;width:300px;}
+#slide_list img{margin:0px auto;}
+#slide_bar{}
+#slide_bar li{float:left;
+	width: 26px;	height: 26px;	display: block; cursor:pointer;	text-indent: -9999px;
+	background: url('<!--{$IMG}-->/slide_icon.png') no-repeat -36px -110px
+}
+#slide_bar li.on{background-position:-12px -110px}
+#download pre{font-size:16px; line-height:30px; color:#666;font-family: "微软雅黑"}
+#download pre b{font-size:18px;  }
+#login{font-family: "微软雅黑"}
+.formItem {}
+input -webkit-autofill {
+	background-color: #F1F1F1;
+}
+.formItem .input-text{height:30px; line-height:30px; width:280px; font-size:14px; color:#999;}
+.formItem .label{font-size:14px;line-height:30px;}
+a.aui_close{font-size:30px;}
+.aui_state_noTitle .aui_close {font-size:34px;}
+h1 span a, label a{line-height:40px;}
+</style>
+
+<body scroll="no" style="background:#292929">
+<div class="header">
+	<div class="top">
+		<div class="userStatus" style="float:right;color:#FFF;line-height:50px;padding-right:12px;">
+			<a href="/guide" style="color:#FFF">帮助指南</a>
+		</div>
+		<div class="logo" ><a><img src="<!--{$IMG}-->/school/logo.png" /></a></div>
+	</div>
+</div>
+<div id="content" style="background:#F9F9F9;">
+	<div class="mainContent" id="main" style="position:relative;width:1000px;margin:0px auto;">		
+		<div class="dataForm" style="margin:0px;position:absolute; top:18%;">	
+			<div style="position:relative">
+			<div id="slide" style="position:absolute; width:300px; top:0px; left:0px;text-align:center">			
+				<ul id="slide_list" style="position:relative;">
+					<li><a href="#"><img src="<!--{$IMG}-->/product_1.png" alt="" /></a></li>
+					<li><a href="#"><img src="<!--{$IMG}-->/product_2.png" alt="" /></a></li>
+					<li><a href="#"><img src="<!--{$IMG}-->/product_3.png" alt="" /></a></li>
+				</ul>
+				<ul id="slide_bar" style="position:absolute; top:340px; left:20%">
+					<li class="on"><a id="ic1" idx="0" >1</a></li>
+					<li id="ic2" idx="1"><a>2</a></li>
+					<li id="ic3"><a>3</a></li>
+				</ul>
+			</div>
+			
+			<div id="download" style="position:absolute;width:300px;left:360px;height:360px;">
+				<pre><B style="color:#333">呼啦派，全新的学习方式</B></pre>
+				<pre>多种教务管理功能</pre>
+				<pre>课时、学费自动统计</pre>
+				<pre>朋友分享、咨信传播</pre>
+				<div style="margin:20px 0px;"><a href="/download"><img src="<!--{$IMG}-->/download.png" /></a></div>
+				<div><a href="javascript:;" onclick="downfromphone()"><img src="<!--{$IMG}-->/download_2.png" /></a></div>
+			</div>
+
+			<div id="login" style="position:absolute;width:300px;left:700px;height:320px;_height:360px;+height:360px;border:1px solid #CCC;padding:10px 20px">				
+				<h1 style="font-size:14px;border-bottom:1px solid #CCC;line-height:40px;"><span style="float:right;"><a href="/register" class="high">用户注册</a></span>登录</h1>
+				<form action="/login" id="dataForm" name="dataForm" method="post">
+					<div class="formItem">
+						<div class="label">用户名</div>
+						<input type="text" name="username" id="username" value="<!--{$account}-->" class="inputtext" size="20"/>
+						<span id="usernameTip"></span>
+					</div>
+					<div class="formItem">
+						<div class="label"><a style="float:right;color:#666" href="/forget">忘记密码</a>密码</div>
+						<input type="password" name="password" id="password" value="" class="input-text" size="20"/>
+						<span id="nameTip"></span>
+					</div>
+					<div class="formItem" style="padding-left:6px;">			
+						<input name="submit" type="submit" id="formSubmit" value="登&nbsp;&nbsp;录" style="margin-top:30px;+margin-top:20px;height:46px;padding:0px 20px;background:#FF9801;border:0px;color:#FFF;width:290px;font-size:16px;" />
+					</div>
+				</form>
+			</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="footer" style="line-height:30px;color:#F1F1F1">2013-2014 Hulapai Co.ltd. All Rights</div>
+
+<script type="text/javascript">
+var t = n = count = 0;
+$(function(){	
+	count = $("#slide_list li").size();
+    $("#slide_list li:not(:first-child)").css('left', '-300px');  
+    t = setInterval("showAuto()", 4000);
+    $("#slide").hover(function(){clearInterval(t)}, function(){t = setInterval("showAuto()", 4000);});
+	$("#slide_bar").each(function(i){
+		$(this).click(function(){
+			clearInterval(t);
+			if(i == n) return false;
+			$("#slide_list li").eq(i).css('left', '0px').siblings().css('left', '-300px');
+			n= i;
+			setInterval("showAuto()", 4000);
+		});
+	});
+});
+
+function showAuto(t){
+	if(t) n = t;
+	t = n >= (count - 1) ? 0 : n + 1;
+	var outLi = $("#slide_list li").eq(n);
+	var inLi = $("#slide_list li").eq(t);
+	$(outLi).animate({left : '+300px'}, 2000, function(){
+		$(this).css({left : '-300px'});		
+	});
+	$(inLi).animate({left : '0px'}, 2000);
+	// var container = $("#slide_list");
+	/*
+    //$("#slide_list li").eq(n).css('left', '-300px').fadeOut(800).parent().children().eq(t).css('left', '0px').fadeIn(1000);
+	// $("#slide_list li").eq(n).animate({opacity : 'hide'}, 2000).parent().children().eq(t).css('left', '0px').animate({left : '0px', opacity : 'show'}, 2000);
+	$("#slide_list li").eq(n).animate({left : '+300px'}, 2000).css({left : '-300px'});//.parent().children().eq(t).css('left', '0px').animate({left : '+300px'}, 2000);
+	$("#slide_list li").parent().children().eq(t).css('left', '0px').animate({left : '+300px'}, 2000);
+	*/
+	/*
+	$("#slide_list li").eq(n).animate({left : '+300px'}, 2000, 'easing', function(){
+		var outLi = $("#slide_list li").eq(t);
+		var inLi = $("#slide_list li").eq(n);
+
+		$(out).eq(t).animate({left : '+300px'}, 2000);
+		$("#slide_list li").eq(0).before(out);
+
+	});
+	$("#slide_bar li").eq(n).removeClass('on').parent().children().eq(t).addClass('on');
+	*/
+	$("#slide_bar li").eq(n).removeClass('on').parent().children().eq(t).addClass('on');
+	n = t;
+}
+
+function downfromphone()
+{
+	art.dialog({title : false, resize:false, content : "<img src='<!--{$IMG}-->/2wm.png' />",fixed : true, lock : true});
+}
+//clientHeight-0; 空白值 iframe自适应高度
+function windowW(){
+	if($(window).width()<980){
+		$('.header').css('width',980+'px');
+		$('#content').css('width',980+'px');
+		$('body').attr('scroll','');
+		$('body').css('overflow','');
+	}
+}
+windowW();
+
+$(window).resize(function(){
+	if($(window).width()<980){
+		windowW();
+	}else{
+		$('.header').css('width','auto');
+		$('#content').css('width','auto');
+		$('body').attr('scroll','no');
+		$('body').css('overflow','hidden');		
+	}
+});
+
+window.onresize = function(){
+	var clientHeight = document.documentElement.clientHeight;
+	if($.browser.mozilla)
+	{
+		clientHeight = window.innerHeight;
+	}
+	var heights = clientHeight - 90;
+	if(heights < 540) heights=540;
+	// document.getElementById('content').height = heights;
+	//alert(heights);
+	$("#main").css('height', heights);
+}
+window.onresize();
+</script>

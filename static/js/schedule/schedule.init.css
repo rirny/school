@@ -1,0 +1,100 @@
+	html, body{
+		margin:0px;
+		padding:0px;
+		height:100%;
+		overflow:hidden;
+	}	
+    /*event in day or week view*/
+	.dhx_cal_event.past_event div{
+		background-color:#c2c2c2 !important; 
+		color:#333 !important;
+	}
+    /*multi-day event in month view*/
+	.dhx_cal_event_line.past_event{
+		background-color:#c2c2c2 !important; 
+		color:#333 !important;
+	}
+    /*event with fixed time, in month view*/
+	.dhx_cal_event_clear.past_event{
+		color:purple !important;
+	}	
+
+	 /*event only */
+	.dhx_cal_event.comment div{
+		background-color:#008040 !important; 
+		color:#FFF !important;
+	}
+    /*multi-day event in month view*/
+	.dhx_cal_event_line.comment{
+		background-color:#008040 !important; 
+		color:#FFF !important;
+	}
+    /*event with fixed time, in month view*/
+	.dhx_cal_event_clear.comment{
+		color:#FFF !important;
+	}
+
+	/*event 已过期*/
+	.dhx_cal_event.past div{
+		background-color:#d1d1d1 !important; 
+		color:#666 !important;
+	}
+    /*multi-day event in month view*/
+	.dhx_cal_event_line.past{
+		background-color:#d1d1d1 !important; 
+		color:#666 !important;
+	}
+    /*event with fixed time, in month view*/
+	.dhx_cal_event_clear.past{
+		color:#666 !important;
+	}
+
+	.dhx_form_repeat{text-align:left;}
+
+	.dhx_repeat_week {width:100%}	
+	.dhx_repeat_week label{padding:0px 8px;}
+	.dhx_section_time, .dhx_wrap_section{text-align:left;}
+	.dhx_repeat_center select{width:60px;}
+
+	.dhx_section_time,.dhx_wrap_section{ padding-left:12px}
+	.dhx_section_time{padding-left:42px;text-align:left;}
+
+	.dhx_repeat_center, .dhx_repeat_left,.dhx_repeat_right{height:60px;}
+	.dhx_repeat_center{padding:0px 10px; margin-top:14px;}
+	.dhx_repeat_center label{margin-left:10px;}
+	.dhx_repeat_left{width:0px}
+	.dhx_repeat_divider{border:0px;}
+	.dhx_repeat_right{width:220px;}
+	.dhx_close_icon{}
+	.dhx_cal_ltext, textarea{overflow:hidden;overflow-x:none; overflow-y:none;line-height:28px;}
+	.dhx_multi_select_teacher label, .dhx_multi_select_student label{width:14%;display:block; float:left;overflow:hidden;white-space:nowrap;}
+	#color_selector{width:100%; height:18px; margin:4px 10px 0px 120px;}
+	.color_option{width:16px;margin:0px 2px; height:16px; float:left; position:relative; border:1px solid #FFF;cursor: pointer;}
+	.bcp-selected{background:url('imgs_dhx_terrace/controls.png') -36px 64px;
+		height: 10px;width: 10px;left: 0px;top: 0px;margin: 3px;overflow: hidden;position: relative; vertical-align: top;
+	}
+	div.icon_release{background-position: -122px 0px;}
+	div.icon_comment{background-position: -102px 0px;}	
+	div.icon_attendance{background-position: -21px 0px;}
+	.dhx_header{border-bottom:2px solid #FFF}
+	.dhx_release_btn_set{border: 1px solid #ff6633;color: white;text-shadow: 0px -1px 0px #6F6F6F;background-color: #ff8040;}
+	.dhx_release_btn{background-image: url('imgs_dhx_terrace/controls.png');background-position: -63px 0px;width: 20px;display:none}
+	.lessonSet{overflow:hidden;}
+	.lesson_section{line-height:20px;}	
+	.lesson_section div{float:left; width:140px; overflow:scroll; overflow-x:hidden; height:72px; padding:0px 4px;}
+	.lesson_section .select{width:504px;}
+	.lesson_section .select li{position:relative;margin:1px;padding:1px 2px;border:1px solid #FFF; width:30%; float:left;line-height:16px;}
+	.lesson_section .select cite{position:absolute;right:20px; color:blue;Font-style:normal}
+	.lesson_section .select cite:hover{text-decoration:underline; Font-style:normal}
+	.lesson_section .select .privCheck{right:80px; position:absolute;}
+	.lesson_section .option li{border:1px solid #FFF}
+	.lesson_section{width:660px; height:72px; overflow:hidden; float:left; margin:0px 10px; border:1px solid #F1F1F1}	
+	.lesson_section li:hover{background:#fff8f4; cursor:pointer;border:1px solid #ff6600}
+	#student_select li,#teacher_select li{width:30%; float:left;line-height:16px;}	
+	#teacher_selector, #teacher_selector .select,#teacher_selector .option{height:50px;}
+	.lesson_section span.dhx_text_disabled{margin:0px 20px; color:red}
+
+	.dhx_cal_event .dhx_header, .dhx_cal_event .dhx_footer, .dhx_cal_event .dhx_body, .dhx_cal_event .dhx_title{color:#FFF}
+	.dhx_cal_event_clear{color:#FFF}
+	.dhx_body{color:#FFF}
+	.dhx_cal_event_clear {line-height:20px;height:20px;}

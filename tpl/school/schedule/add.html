@@ -1,0 +1,241 @@
+<!--{include file="../header.html"}-->
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/jscal2.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/border-radius.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/win2k.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/calendar.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/lang/en.js"></script>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/formValid/style/validator.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidator.min.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/jquery.form.js?ver=<!--{math equation=rand(1,9999)}-->"></script>
+
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+
+<div class="mainContent">
+	<div class="mbx">
+		<span><a href="javascript:;" onclick="window.history.go(-1);">返回</a> >></span>	
+		<a href="javascript:;" onclick="window.top.menuOn('base', 1)">首页</a> > <a href="/schedule">教学管理</a> > <a>预设课程</a> 
+	</div>
+	<form class="dataForm" action="/series/save" method="post" id="dataForm">
+	<div class="formItem">
+		<label>所属科目：</label>
+		<select name="course_type" id="course_type" >
+			<option value="">请选择科目</option>
+			<option value="1">音乐</option>
+			<option value="2">表演</option>
+			<option value="3">舞蹈</option>
+			<option value="4">美术</option>
+			<option value="5">棋类</option>
+			<option value="6">球类</option>
+			<option value="7">综合体育</option>
+			<option value="8">语言</option>
+			<option value="9">课外辅导</option>
+			<option value="104">国学</option>
+			<option value="109">早教</option>
+			<option value="10">其他</option>			
+			</select>
+
+		<select name="course" id ="course"><option value="">请选择</option></select>
+
+		<span id="courseTip"></span>
+	</div>
+	<div class="formItem">
+		<label style="margin-right:6px">课程名称：</label><input type="text" name="title" id="title" class="input-text" size="20"/>
+		<span id="titleTip"></span>
+	</div>
+	<div class="formItem">			
+			<label>颜色显示：</label>
+			<div class="colorOptions">
+				<input type="hidden" id="color" value="<!--{$result.color|default:0}-->" name="color" />
+				<!--{foreach from=$colors item=item key=key name=color}-->
+				<a href="javascript:;" <!--{if ($key== $result.color) || (!$result.color && $smarty.foreach.color.first)}-->class="on"<!--{/if}-->style="background:<!--{$item}-->;" val="<!--{$key}-->"><i></i></a>
+				<!--{/foreach}-->
+			</div>
+	</div>	
+	<div class="formItem">
+		<label style="margin-right:6px">课时设置：</label><input type="text" style="width:30px; height:16px;" name="setTime"id='setTime' value="60"/>   分钟/课时
+		<span id="setTimeTip"></span>
+	</div>
+	<div class="formItem">
+		<label>上课时间：</label> <span id="endTip"></span>
+		<select name="week" id="week"><option value="1">周一</option><option value="2">周二</option><option value="3">周三</option><option value="4">周四</option><option value="5">周五</option><option value="6">周六</option><option value="0">周日</option></select>
+		<!--{html_select_time  use_24_hours=true display_hours=true display_minutes=true display_seconds=false minute_interval=5 hour_interval=array(7,23) time=$curTimeStamp  field_array='time[][start]' }--> 
+		<input style="width:18px; height:16px;" id="times" name="times" value="1" />  课时
+		<span id="timesTip"> </span>
+		<button type="button" name="add" id="add" style="height:26px;width:50px">添加</button>
+		<span id="addTip"> </span>
+	</div>
+	
+	<div class="formItem" style="padding-left:116px;">			
+		<input name="submit" type="submit" id="formSubmit" class="dataBnt" value="确认"/>
+		<input name="reset" type="button"  class="cancelBnt" onclick="window.history.go(-1);" value="取消"/>
+	</div>
+</form>
+</div>
+	
+<script type="text/javascript">
+
+
+var index = 0;
+$(function() {  
+	window.top.closeAllDialog();
+	// var index = 0;
+	$(".colorOptions a").click(function(){		
+		if($(this).attr('css') != 'on')	$(this).addClass('on');	$(this).siblings().removeClass('on'); $("#color").val($(this).attr('val'));
+	});
+
+	$("#dataForm button[name=add]").click(function () {
+		var setTime,times,week,startHour,startMin,startNum,endHour,endMin,start,end,endNum,weekText,text,bid;
+		var html = $(this).parent('.formItem');
+		setTime = $("#setTime").val();
+		times = $("#times").val();
+		week = $("#week").val();
+		startHour = $(html).find(":input[name*='Time_Hour']").val();
+		startMin = $(html).find(":input[name*='Time_Min']").val();
+		startNum = Number(startHour)*60 + Number(startMin); 
+		endNum =  Number(times)*setTime + startNum;
+		$(html).nextAll(".formItem").each(function(i,obj){
+			if(startNum >= $(obj).find(":hidden[name*=start]").val() && startNum < $(obj).find(":hidden[name*=end]").val() && week== $(obj).find(":hidden[name*=week]").val())
+			{
+				var d = window.top.art.dialog({title: false, icon : 'error', content:'添加的上课时间与已设置时间有冲突,请重新设置', width:'400px',resize:false, lock:true, ok:function () {},okValue: '确定'});
+				d.showModal();
+				bid = true;
+			}
+		});
+		if(bid) return;
+		endHour = parseInt(endNum/60);
+		endMin = endNum%60;
+		if(endHour == 24)	endHour = '00';
+		else if(endHour < 10) endHour = '0'+ endHour; 
+		if(endMin < 10) endMin = '0'+ endMin; 
+		end = endHour +':'+ endMin;
+		start = startHour+':'+startMin;
+		weekText = $("#week option:selected").text();
+		text = weekText+' ; '+start+'-'+end+' ; '+times+'课时';
+		$(html).after("<div  class='formItem'><label style='margin-right:10px'>已选：</label><input type='hidden' value='' name='rule[start][]' /><input type='hidden' value='' name='rule[end][]' /><input type='hidden' value='' name='rule[week][]' /><input type='hidden' value='' name='rule[times][]' />"+"<span>"+text+"</span></div>" );
+		var current = $(html).next(".formItem");
+		$(current).find(":hidden[name*=start]").attr('value', startNum);
+		$(current).find(":hidden[name*=end]").attr('value' , endNum);
+		$(current).find(":hidden[name*=times]").attr('value', times);
+		$(current).find(":hidden[name*=week]").attr('value' , week);	
+		index += 1;
+		$(html).next(".formItem").find("span").after("<button type='button' name='delete'  style='height:26px;width:50px'>删除</button>");
+		$num = 0;
+		$("#dataForm button[name=delete]").click(function () {
+			$(this).parent('.formItem').remove();
+			if(num == 0)
+				index -= 1;
+			num++;
+		});
+	});	
+
+	$("#course_type").change(function(){
+		var type = $(this).val();
+		if(type == 10)
+		{
+			$("#course").empty();
+			$("#course").append("<option value=''>请选择</option>");
+			$("#course").append("<option value='10'>其他</option>");
+		}
+		else{
+			$.ajax({
+				url: '/series/ajax',
+				data : {type : type,action: 'getCourse'},
+				type : 'post',
+				dataType :'json',
+				success: function (data) {
+					var obj = $("#course");
+					$(obj).empty();
+					$(obj).append("<option value=''>请选择</option>");
+					for(var i = 0;i<data.result.length;i++)
+					{
+						$(obj).append("<option value="+ data.result[i]._id + '>' + data.result[i].name +"</option>");
+					}
+				},
+				cache: false
+			}); 
+		}
+	});
+
+	$.formValidator.initConfig({formID:"dataForm", submitButtonID: 'formSubmit', submitOnce:true, errorFocus:true,wideWord:true,
+		onError:function(msg, obj, errorlist){
+		},
+		onSuccess:function(){
+			// form_submit();
+		}
+	});
+
+	$("#course_type").formValidator({onShow:"", onFocus:"科目为必选", defaultValue:''}).inputValidator({min:1,onError: "科目为必选!"});
+	$("#course").formValidator({onShow:"", onFocus:"课程为必选", defaultValue:''}).inputValidator({min:1,onError: "课程为必选!"});
+	$("#title").formValidator({onShow:"", onFocus:"标题长度为2-40个字符", defaultValue:''}).inputValidator({min:2,max:40,onError:"标题长度为2-40个字符"});
+	$("#times").formValidator({autoModify:true,onShow:"",onFocus:"只能输入1-10之间的整数或一位小数"}).inputValidator({min:0.1, max:10, type:"value",onErrorMin:"你输入的值必须大于等于0.1",onError:"只能输入1-10之间的整数或一位小数"}).regexValidator({regExp:"^\\d+(\\.\\d{1})?$"});
+	$("#setTime").formValidator({autoModify:true,onShow:"",onFocus:"只能输入30-180之间的整数"}).inputValidator({min:30, max:180, type:"value",onErrorMin:"你输入的值必须大于等于30",onError:"只能输入30-180之间的整数或一位小数"}).regexValidator({regExp:"^\\d+$"});
+
+	$("#add").formValidator({autoModify:true,onShow:"",onFocus:"请点添加按钮设置课程上课时间"}).functionValidator({fun : function(){
+		if(index>0)
+			return 1;
+		else
+			return "请点添加按钮设置课程上课时间";
+	}});
+
+	$("#end").formValidator({autoModify:true,onShow:"",onFocus:"课程时间必须大于30分钟"}).functionValidator({fun : function(){
+		var startHour,startMin,endHour,endMin,start,end = 0;
+		var rule = {};
+		$("input:checkbox:checked").each(function(i,obj){
+			var rule = $(obj).parents('.formItem');
+			startHour = $(rule).find(":input[name*='Time_Hour']").val();
+			startMin = $(rule).find(":input[name*='Time_Min']").val();
+			endHour = $(rule).find(":input[name*='endHour']").val();
+			endMin = $(rule).find(":input[name*='endMinute']").val();
+			start = Number(startHour)*60 + Number(startMin);
+			end = Number(endHour)*60 + Number(endMin);
+			$(rule).find(":hidden[name*=start]").attr('value', start);
+			$(rule).find(":hidden[name*='end']").attr('value' , end);
+			rule[i] = {
+				'week' : $(rule).find("week"),
+				'start' : $(rule).find("start"),
+				'end' : $(rule).find("end")
+			};
+		});
+
+		$('<input />').attr('name', 'rule');
+		$('<input />').attr('name', 'rule');
+		
+		if(end - start < 30){return '课程时间必须大于30分钟';}
+		return true;
+	}});	
+});
+
+function form_submit()
+{
+	$('#dataForm').ajaxSubmit({  
+		type:"post",   
+		dataType:"json", 
+		url:"/series/save", 
+		success:function(data, status, xhr){ 
+			// alert(data.message);  
+			window.location.href= '/series';			
+		}
+	});
+}
+
+function course_change(pid)
+{
+	$.ajax({
+		url: '/schedule/getinfo',
+		data : {type : pid},
+		type : 'post',
+		dataType :'json',
+		success: function (data) {
+			for(var i = 0;i<data.result.length;i++)
+			{
+				 $("#course").append("<option value="+ data.result[i]._id + '>' + data.result[i].name +"</option>");
+			}
+		},
+		cache: false
+	}); 
+}
+</script>
+</body>
+</html>

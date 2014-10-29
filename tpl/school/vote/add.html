@@ -1,0 +1,208 @@
+<!--{include file="../header.html"}-->
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/jscal2.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/border-radius.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/win2k.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/calendar.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/lang/en.js"></script>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/formValid/style/validator.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidator.min.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/jquery.form.js"></script>
+
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+
+<div class="mainContent">
+	<div class="mbx">
+		<span><a href="javascript:;" onclick="window.history.go(-1);">返回</a> >></span>
+		<a href="javascript:;" onclick="menuOn('base', 'on')">首页</a> > <a href="/stat">教学工具</a> > <a href="/vote">问卷</a> > <a>创建问卷</a> 		
+	</div>
+	<div class="dataForm" style="background:#F5F5F5;padding:10px 0px">		
+		<form action="/vote/add" id="dataForm" name="dataForm" method="post">
+		<div class="formItem">			
+			<label>问题内容：</label>
+			<input type="text" value="" id="title" name="title" class="input-text" style="width:400px"/>			
+			<span id="titleTip"></span>
+		</div>
+		<div class="formItem">			
+			<label>类型：</label>
+			<select name="multi" id="multi"><!--{html_options options=$multis}--></select>
+			<span id="multiTip"></span>
+		</div>
+		<div class="formItem">
+			<label>开始日期：</label>
+			<input type="text" name="start" id="start" value="<!--{$curDate}-->" class="input-text datePlug" style="width:96px" readonly/>
+			<script type="text/javascript">var startCalendar = callCalendar({inputField : 'start', min : '<!--{$curDate}-->'});</script>
+			<span id="startTip"></span>
+		</div>	
+		<div class="formItem">
+			<label>结束日期：</label>
+			<input type="text" name="end" id="end" value="<!--{$curDate}-->" class="input-text datePlug" style="width:96px" readonly/>
+			<script type="text/javascript">var startCalendar = callCalendar({inputField : 'end', min : '<!--{$curDate}-->'});</script>
+			<span id="endTip"></span>
+		</div>
+
+		<div class="formItem">			
+			<label>老师：</label>
+			<input type="hidden" value="" id="teacher" name="teacher" />
+			<div class="teacherSelected selected"><ul></ul></div>
+			<button type="button" name="selectTeacher" id="selectTeacher" style="margin-left:0px" onclick="toSelect('teacher', 100)">选择老师</button>
+			<span id="teacherTip"></span>
+		</div>
+		<div class="formItem">			
+			<label>学生：</label>
+			<input type="hidden" value="" id="student" name="student" />
+			<div class="studentSelected selected"><ul></ul></div>
+			<button type="button" name="selectStudent" id="selectStudent" style="margin-left:0px" onclick="toSelect('student', 100)" >选择学生</button>
+			<span id="studentTip"></span>
+		</div>
+			<input type="hidden" value="" id="user" name="user" />			
+			<span id="userTip" class="onShow" style="margin-left:120px;padding-bottom:14px;">问卷对象，请选择老师或学生</span>
+		<div class="formItem">
+			<label>投票选项：</label>
+			
+			<div class="option">							
+				<div class="optioner">
+					<input type="text" id="option_0" name="option[]" value="" class="input-text" size="20" style="width:280px;" />
+					<input type="button" name="deleteOption" value="删除" class="bnt" />	
+					<span id="option_0Tip"></span>
+				</div>
+				<div class="optioner">
+					<input type="text" id="option_1" name="option[]" value="" class="input-text" size="20" style="width:280px;" />
+					<input type="button" name="deleteOption" value="删除" class="bnt" />
+					<span id="option_1Tip"></span>
+				</div>
+			</div>	
+
+			<div>					
+				<label style="width:84px;"></label>
+				<input type="hidden" name="optionHandle" id="option" value="" class="input-text" size="20" />
+				<input type="button" name="addOption" id="addOption" value="添加" class="bnt" />
+				<span id="optionTip"></span>
+			</div>
+		</div>
+
+		<div class="formItem" style="padding-left:116px;">			
+			<input type="submit" name="submit" id="formSubmit" class="dataBnt" value="发布" />
+			<input type="button" name="reset" class="cancelBnt" onclick="window.history.go(-1)" value="取消" />
+		</div>
+		</form>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+	$.formValidator.initConfig({formID:"dataForm", submitButtonID: 'formSubmit', submitOnce:true, errorFocus:true,wideWord:false,
+		onError:function(msg, obj, errorlist){$("#" + obj.id).focus();},
+		onSuccess:function(){}
+	});	
+	$("#title").formValidator({onShow:"请填写问题内容", onFocus:"请填写问题内容", onCorrect : '', defaultValue:''}).inputValidator({min:1,max:30,onErrorMin:'请填写问题内容',onErrorMax:"问题内容长度不超过30个字"});	
+	
+	$("#option_0").formValidator({onShow:"请填写选项内容", onFocus:"请填写选项内容", onFocus:"请填写选项内容", onCorrect : '', defaultValue:''}).inputValidator({min:1,max:30,onErrorMin:'请填写选项内容', onErrorMax:"选项内容长度不超过30个字"});	
+	$("#option_1").formValidator({onShow:"请填写选项内容", onFocus:"请填写选项内容", onFocus:"请填写选项内容", onCorrect : '', defaultValue:''}).inputValidator({min:1,max:30,onErrorMin:'请填写选项内容', onErrorMax:"选项内容长度不超过30个字"});
+
+	$("#option").formValidator({onShow:"", onFocus:"", onError:'选项不得少于两项', onCorrect : '', defaultValue:''}).functionValidator({fun : function(){
+		var Error = '';
+		var optioner = $(".optioner input[type='text']");
+		if(optioner.length < 2) return '选项不得少于两项';
+		if(optioner.length > 10) return '选项不得多于10项';
+		var iError = 0;		
+		$(optioner).each(function(i, obj){
+			var len = $(obj).val().textLength();			
+			if(len < 1)  {iError = i; Error = "选项" + (iError +1)+ '，内容不能为空'; return false;}
+			if(len > 30) {iError = i; Error = "选项" + (iError +1)+ '，内容长度不超过30个字';return false;}
+		});		
+		if(Error) { return Error;}	
+		return true;		
+	}, onError : '选项不得少于两项'});
+
+	$("#teacher").formValidator({tipID:'user', onShow:"",onFocus:"", onCorrect : ''}).functionValidator({fun : function(){
+		if($(".teacherSelected li").length > 100) return '老师人数不得超过100人';
+		return true;
+	}});
+	$("#student").formValidator({tipID:'user', onShow:"",onFocus:"", onCorrect : ''}).functionValidator({fun : function(){
+		if($(".studentSelected li").length > 100) return '学生人数不得超过100人';
+		return true;		
+	}});
+
+	$("#user").formValidator({onShow:"请选择问卷对象", onFocus:"", onError : '请选择问卷对象', onCorrect : ''}).functionValidator({fun : function(){
+		var len = $(".selected li").length;
+		if($(".selected li").length < 1) return '问卷对象至少1人';
+		if($(".selected li").length > 100) return '问卷对象不得超过100人';
+		return true;		
+	}});
+	
+	$("button[name='reset']").click(function(){		
+		window.history.go(-1);
+	});
+
+	$("#addOption").click(function(){
+		var len = $(".optioner").length;
+		if(len >= 10){alert("最多只能10项！"); return false;}
+		var item = $(".optioner:first").clone();		
+		$(item).find('input[name="option[]"]').val('').attr('id', 'option_' + len);
+		$(item).find('span').val('').attr('id', 'option_' + len + "Tip").text('');
+		$(item).find('.bnt').bind('click', function(){
+			if($(".optioner").length <= 2) return false;
+			$(this).parents('.optioner').remove();
+		});
+		$(".option").append($(item));		
+		$("#option_" + len).formValidator({onShow:"请填写选项内容", onFocus:"请填写选项内容",onFocus:"请填写选项内容", onCorrect : '', defaultValue:''}).inputValidator({max:30, onErrorMax:"选项内容长度不超过30个字"});
+	});
+	
+	$("input[name='deleteOption']").click(function(){
+		if($(".optioner").length <= 2) return false;
+		$(this).parents('.optioner').remove();
+	});
+
+	//$("#dataForm").submit(function(){return false;});
+});
+
+function toSelect(type, offset, priv)
+{
+	type = type == 'teacher' ?  'teacher' : 'student';
+	var typeName = '老师';
+	if(type != 'teacher')
+	{
+		typeName = '学生'; type = 'student';
+	}
+	var selected = new Array();	
+	$("input[name='" + type + "[id][]']").each(function(i, obj){
+		selected.push($(obj).val());
+	});	
+	var ajaxUrl = '/' + type + '/select';
+	if(offset > 0 && selected.length > 0)
+	{
+		ajaxUrl += '?id=' +  selected.join() + "&offset=" + offset + (priv ? "&priv=1" : '');
+		if(selected.length >= offset)
+		{
+			window.top.art.dialog({id : 'Error', content : typeName + '人数不能超过' + offset + '人', width: 300, icon : 'Error'}, function(){art.dialog('Error').close();});
+			return false;
+		}
+	}else if(offset){
+		ajaxUrl += "?&offset=" + offset;
+	}
+	art.dialog.open(ajaxUrl, {id: 'selectPanel',title: "选择" + typeName, width : '90%', height: '90%', 'lock' : true, resize:false});
+}
+
+function render(type, data)
+{	
+	type = type == 'teacher' ?  'teacher' : 'student';
+	var panel = $("." + type + "Selected ul");
+	for(key in data)
+	{		
+		if($(panel).find("li input[name='" + type + "[id][]'][value='" + data[key].id + "']").length < 1)
+		{
+			var str = "<li><i></i>";
+			str += '<input type="hidden" name="' + type + '[id][]" value="' + data[key].id + '" />';
+			str += '<input type="hidden" name="' + type + '[name][]" value="' + data[key].name + '" />';
+			str += '<input type="hidden" name="' + type + '[en][]" value="' + data[key].en + '" />';
+			if(type == 'teacher') str += '<input type="hidden" name="' + type + '[priv][]" value="' + data[key].priv + '" />';			
+			str += '<span>' + data[key].name + '</span></li>';
+			$(panel).append(str);
+		}
+	}	
+	$(".teacherSelected").find("i").bind('click', function(){$(this).parent('li').remove()});
+}
+</script>
+</body>
+</html>

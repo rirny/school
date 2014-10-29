@@ -1,0 +1,132 @@
+<!--{include "../header.html"}-->
+<script src="<!--{$JS}-->/schedule/dhtmlxscheduler.js" type="text/javascript" charset="utf-8"></script>
+<script src="<!--{$JS}-->/schedule/ext/dhtmlxscheduler_dhx_terrace.js" type="text/javascript" charset="utf-8"></script>
+<link rel="stylesheet" href="<!--{$JS}-->/schedule/dhtmlxscheduler_dhx_terrace.css" type="text/css" title="no title" charset="utf-8">
+<script src="<!--{$JS}-->/schedule/ext/dhtmlxscheduler_year_view.js" type="text/javascript" charset="utf-8"></script>
+<script src="<!--{$JS}-->/schedule/locale_cn.js" type="text/javascript" charset="utf-8"></script>
+<script src="<!--{$JS}-->/schedule/schedule.init.js" type="text/javascript" charset="utf-8"></script>
+<link rel="stylesheet" href="<!--{$JS}-->/schedule/schedule.init.css" type="text/css" title="no title" charset="utf-8">
+<style type="text/css">
+	html, body{
+		margin:0px;
+		padding:0px;
+		height:100%;
+		overflow:hidden;
+	}	
+	.dhx_cal_event_line.custom, .dhx_cal_event.custom div{
+		background-color:#fd7;
+		border-color:#da6;
+		color:#444;
+	}
+	.dhx_cal_event .dhx_title{font-size:9px !important; height:13px;}
+	.eventOn .dhx_body{width:300px; height:180px;}
+</style>
+<script type="text/javascript">	
+/*
+var WINHEIGHT;
+if(window.top.innerHeight)
+{
+	WINHEIGHT = window.top.innerHeight;
+}else{
+	WINHEIGHT = window.top.document.documentElement.clientHeight;
+}
+if(WINHEIGHT < 600) WINHEIGHT = 600;
+WINHEIGHT -= 210;
+var dataHeight = WINHEIGHT - 94;
+
+window.onresize = function(){
+	var clientHeight = document.documentElement.clientHeight;
+	if($.browser.mozilla)
+	{
+		clientHeight = window.innerHeight;
+	}
+	var heights = clientHeight - 100;	
+	// alert(heights);
+	//document.getElementById('rightMain').height = heights;
+	//var openClose = $("#rightMain").height()+39;	
+	cs_resize(heights);
+}
+*/
+//alert(WINHEIGHT);
+function init() {		
+	
+	scheduler.hlp = {
+		root: '/',
+		url : '/event/load',
+		module : 'school',
+		param : {
+			'course' : <!--{$smarty.get.course|default:0}-->,
+			'teacher' : <!--{$smarty.get.teacher|default:0}-->,
+			'keyword' : '<!--{$smarty.get.keyword}-->',
+			'start' : '<!--{$smarty.get.keyword}-->',
+			'end' : '<!--{$smarty.get.end}-->'
+		},
+		build : function(){
+			return this.url.url_build(this.param);
+		}
+	}
+	scheduler.customer();
+	// cs_resize(WINHEIGHT);
+	$(".dhx_cal_tab[name='week_tab']").click();
+}	
+
+function cs_resize(height)
+{
+	var sch = document.getElementById("scheduler_here");
+	sch.style.height = (parseInt(height))+"px";
+	dataHeight = height - 104;	
+	document.getElementById('dhx_cal_data').style.height = dataHeight + 'px';
+}
+
+$(document).ready(function(){	
+	$("#searchForm input[name='keyword']").focus(function(){var def=$(this).attr('def'); if($(this).val()== def){$(this).val(''); $(this).css('color', '#666');}});
+	$("#searchForm input[name='keyword']").blur(function(){var def=$(this).attr('def'); if($(this).val()== def || $(this).val()==''){$(this).val(def); $(this).css('color', '#DDD');}else{$(this).css('color', '#666');}});
+	
+	$("#searchForm").submit(function(){		
+		var def = $(this).find("input[name='keyword']").attr('def');
+		var keyword = $(this).find("input[name='keyword']").val();
+		if(def == keyword) $(this).find("input[name='keyword']").val('');
+		$(this).find("input[name='search']").attr('name', '');
+	});
+
+	$(".dhx_cal_tab[name='add_tab']").click(function(e){
+		scheduler.addEventNow(null, null, e);
+	});	
+	init();
+	
+	$("#searchForm").submit(function(){		
+		var def = $(this).find("input[name='keyword']").attr('def');
+		var keyword = $(this).find("input[name='keyword']").val();
+		if(def == keyword) $(this).find("input[name='keyword']").val('');
+	});
+});
+</script>
+<div class="mainContent" style="padding:4px;">
+	<div class="searchPanel" style="margin:0px;">
+		<form action="/event/schedule" method="get" name="searchForm" id="searchForm" >			
+			<div class="searchForm" style="border-width:0px 0px 1px 0px;">				
+				关键字：<input name="keyword" type="text" class="input-text" value="<!--{$smarty.get.keyword|default:'课程名/学生名'}-->" def="课程名/学生名" />
+				科目：<select name="course"><option value="">全部</option><!--{html_options options=$courses selected=$smarty.get.course}--></select>				
+				上课老师：<select name="teacher"><option value="">所有</option><!--{html_options options=$teachers selected=$smarty.get.teacher}--></select>
+				<input name="search" type="submit" value="搜索" class="searchBnt" />	
+			</div>			
+		</form>
+	</div>	
+
+	<div id="scheduler_here" class="dhx_cal_container" style="height:500px;">		
+		<div class="dhx_cal_navline">
+			<div class="dhx_cal_prev_button">&nbsp;</div>
+			<div class="dhx_cal_next_button">&nbsp;</div>
+			<div class="dhx_cal_today_button"></div>
+			<div class="dhx_cal_date"></div>
+			<div class="dhx_cal_tab" name="day_tab" style="right:204px;"></div>
+			<div class="dhx_cal_tab" name="week_tab" style="right:140px;"></div>			
+			<div class="dhx_cal_tab" name="month_tab" style="right:76px;"></div>			
+			<div class="dhx_cal_tab" name="add_tab" style="right:380px;border:0px;"><input type="button" value="开课" class="dataBnt" style="margin-top:2px;" onclick="window.location.href='/event/add';" /></div>
+		</div>	
+		<div class="dhx_cal_header"></div>
+		<div class="dhx_cal_data" id="dhx_cal_data"></div>		
+	</div>
+	<div style="height:600px;margin:30px;border:1px solid #CCC">
+	</div>
+</div>

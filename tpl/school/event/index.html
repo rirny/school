@@ -1,0 +1,295 @@
+<!--{include file="../header.html"}-->
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/jscal2.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/border-radius.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/win2k.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/calendar.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/lang/en.js"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+
+<div class="mainContent">
+	<div class="mbx">
+		<span><a href="javascript:;" onclick="window.history.go(-1);">返回</a> >></span>
+		<a href="javascript:;" onclick="window.top.menuOn('base', 1)">首页</a> > <a href="/event">教学管理</a> > <a>课程列表</a>		
+	</div>
+	<div class="searchPanel">
+		<form action="/schedule" method="get" name="searchForm" id="searchForm" >			
+			<div class="searchForm">
+				<input type="hidden" id="order" name="order[<!--{key($smarty.get.order)}-->]" value="<!--{current($smarty.get.order)}-->" />
+				关键字：<input name="keyword" type="text" class="input-text" value="<!--{$smarty.get.keyword|default:'课程名'}-->" def="课程名" />				
+				科目：<select name="course"><option value="">全部</option><!--{html_options options=$courses selected=$smarty.get.course}--></select>
+				起始日期：<input name="start" id="start" type="text" value="<!--{$start}-->" class="dateSelect" />
+				<script type="text/javascript">var startCalendar = callCalendar({inputField : 'start'});</script>
+				结束日期：<input name="end" id="end" type="text" value="<!--{$end}-->" class="dateSelect" /><script type="text/javascript">var startCalendar = callCalendar({inputField : 'end'});</script>
+				<!--上课老师：<select name="teacher"><option value="">所有</option><!--html_options options=$teachers selected=$smarty.get.teacher </select>/-->
+				<input name="reset" type="reset" value="清除筛选条件" class="searchBnt" />
+				<input name="search" type="submit" value="搜索" class="searchBnt" />
+				<input name="exportBnt" type="button" value="导出" class="searchBnt" />				
+				<!--{if $sid}-->
+					<select name="attend"><option value="">考勤</option><!--{html_options options=$attend_status selected=$smarty.get.attend}--></select>
+					<input type="hidden" name="sid" id="sid" value="<!--{$sid}-->" />
+				<!--{/if}-->
+				<input type="hidden" name="export" id="export" value="0" />
+				
+			</div>
+			<!--div class="searchHandle">
+				<input name="reset" type="reset" value="清除筛选条件" class="searchBnt" />
+				<input name="search" type="submit" value="搜索" class="searchBnt" />
+				<input name="exportBnt" type="button" value="导出" class="searchBnt" />
+			</div-->
+		</form>
+	</div>
+	<div class="dataTable">
+		<div class="dataHeader">
+			<div class="page"><a>总：<!--{$record}--></a></div>
+			<input name="eventAdd" type="button" value="开课" class="dataBnt" onclick="javascript:window.location.href='/schedule/add'"/>			
+		</div>
+		<div class="dataSet">
+			<table width="100%" cellpadding="0" cellspacing="0" >
+				<thead>
+					<th width="20"><input type="checkbox" name="chkAll" value="1" onclick="checkAll(this)"/></th>
+					<th width="180" name="title" class="order" order="<!--{if key($smarty.get.order) == 'title' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">课程名称<i></i></th>
+					<th width="120" name="course" class="order" order="<!--{if key($smarty.get.order) == 'course' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">科目<i></i></th>
+					<th width="120" class="order" name="date" order="<!--{if key($smarty.get.order) == 'date' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">上课日期<i></i></th>
+					<th width="160" name="start" class="order" order="<!--{if key($smarty.get.order) == 'start' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">上课时间<i></i></th>
+					<th width="160">上课老师</th>
+					<!--{if $sid}-->
+						<th width="100">上课学生</th>
+					<!--{else}-->
+						<th width="100">考勤</th>
+						<th width="100" name="students" class="order" order="<!--{if key($smarty.get.order) == 'students' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">学生人数<i></i></th>
+					<!--{/if}-->					
+					<th>操作</th>
+				</thead>
+				<tbody>
+					<script type="text/javascript">var result = <!--{$resultObject|default:'{}'}-->;</script>
+					<!--{foreach from=$result item=item key=key name=result}-->					
+					<tr>
+						<td><input type="checkbox" name="checkbox" value="<!--{$item.id}-->" /></td>
+						<td><!--{$item.title}--></td>
+						<td><!--{$courses[$item.course]}--></td>
+						<td><!--{$item.date}--></td>
+						<td><!--{$item.start}-->~<!--{$item.end}--></td>
+						<td><!--{foreach from=$item.teacher key=tkey item=tval}--><!--{$tval}--> <!--{foreachelse}-->-<!--{/foreach}--></td>						
+						<!--{if $sid}-->
+							<td>
+								<!--{$student}-->
+								<!--{if $item.attend==1}-->出勤
+								<!--{elseif $item.absence==1}-->缺勤
+								<!--{elseif $item.leave==1}-->请假
+								<!--{elseif $item.attended == 0}-->未考勤
+							</td>
+							<!--{/if}-->
+						<!--{else}-->
+							<td><!--{if $item.attended==1}-->已考勤<!--{else}--><font color="red">未考勤</font><!--{/if}-->								</td>
+							<td><a href="javascript:;"  onclick="javascript:StudentShow(<!--{$item.id}-->, <!--{$item.students|@count}-->)" id="tableItem<!--{$item.id}-->" class="high"><!--{$item.students}--></a></td>
+						<!--{/if}-->
+						<!--{if $sid}-->
+							<td><a href="/attend/do?event=<!--{$item.id}-->" class="high">考勤</a></td>
+						<!--{else}-->
+							<td>
+								<a href="/attend/do?event=<!--{$item.id}-->" class="high">考勤</a> <a href="javascript:;"  onclick="javascript:scheduleChange(result[<!--{$key}-->])" class="high">调课</a> <a href="dataDelete(<!--{$item.id}-->)" class="high">顺延</a>
+							</td>
+						<!--{/if}-->
+					</tr>                                                 
+					<!--{foreachelse}-->
+					<tr>
+						<td class="high" colspan=8 height=60 align="center">暂无记录</td>						
+					</tr>
+					<!--{/foreach}-->
+				</tbody>
+			</table>
+		</div>		
+		<div class="dataFooter" style="margin-top:10px">
+			<div class="page" id="page"><a>总：<!--{$record}--></a></div>
+			<input name="schedule" id="schedule" type="button" value="批量调课" class="dataBnt" onclick="multiSchedule()" />
+			<!--input name="freeze" id="freeze" type="button" value="批量冻结" class="dataBnt" onclick="multi('freeze')" /-->
+		</div>
+			<!--{if !$sid}-->
+			<!--input name="multiDelete" type="button" value="批量删除" class="dataBnt" onclick="multiDelete()"/-->
+			<!--select name="updateOption" id="updateOption"><option>批量修改</option--><!--{html_options options=$updateOptions}--><!--/select>
+			<!--input name="multiUpdate" type="button" value="批量修改" class="dataBnt" onclick="multiUpdate()"/-->
+			<!--{/if}-->
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+$(function()
+{
+	window.top.closeAllDialog();
+	$(".dataSet tr:even").addClass('even');	
+	$(".dataSet tr").hover(function(){$(this).addClass('on');},function(){$(this).removeClass('on')});
+	$("#searchForm input[name='keyword']").focus(function(){var def=$(this).attr('def'); if($(this).val()== def){$(this).val(''); $(this).css('color', '#666');}});
+	$("#searchForm input[name='keyword']").blur(function(){var def=$(this).attr('def'); if($(this).val()== def || $(this).val()==''){$(this).val(def); $(this).css('color', '#DDD');}else{$(this).css('color', '#666');}});
+
+	$("#searchForm input[name='student']").focus(function(){var def=$(this).attr('def'); if($(this).val()== def){$(this).val(''); $(this).css('color', '#666');}});
+	$("#searchForm input[name='student']").blur(function(){var def=$(this).attr('def'); if($(this).val()== def || $(this).val()==''){$(this).val(def); $(this).css('color', '#DDD');}else{$(this).css('color', '#666');}});
+	
+	$(".dataSet th.order").click(function(){
+		var name = $(this).attr('name');
+		var order = $(this).attr('order');		
+		$("#order").attr({'name' : 'order[' + name + ']', 'value' : order});
+		$("#searchForm").submit();
+	});
+	
+	$("#updateOption").change(function(){
+		if($(this).val() == 'date') {$("#updateDate").show();}else{$("#updateDate").hide();}
+	});
+
+	$("#searchForm input[type='reset']").click(function(){
+		var keyword = $("input[name='keyword']");
+		$(keyword).val($(keyword).attr('def'));
+		var student = $("input[name='student']");
+		$(student).val($(student).attr('def'));
+		$("select[name='course']").val('');
+		$("select[name='teacher']").val('');
+		$("input[name='start']").val('<!--{$dateStart}-->');
+		$("input[name='end']").val('<!--{$dateEnd}-->');
+		$("#order").attr({'name' : 'order[date]', 'value' : 1});
+		$("#searchForm").submit();
+	});
+
+	$("#searchForm").submit(function(){		
+		var def = $(this).find("input[name='keyword']").attr('def');
+		var keyword = $(this).find("input[name='keyword']").val();
+		if(def == keyword) $(this).find("input[name='keyword']").val('');
+		var stu_def = $(this).find("input[name='student']").attr('def');
+		var student = $(this).find("input[name='student']").val();
+		if(stu_def == student) $(this).find("input[name='student']").val('');
+		$(this).find("input[name='search']").attr('name', '');
+	});
+
+	$("input[name='exportBnt']").click(function(){
+		//$("#searchForm").attr('action', '/event/export');
+		$("#export").val(1);
+		$("#searchForm").submit();
+		$("#export").val(0);
+	});
+});
+
+function checkAll(o){
+	if( o.checked == true ){
+		$('input[name="checkbox"]').attr('checked','true');		
+	}else{
+		$('input[name="checkbox"]').removeAttr('checked');		
+	}
+}
+
+function getChecked() {
+	var idArr = new Array();
+	$.each($('.dataSet input[name="checkbox"]:checked'), function(i, n){
+		idArr.push( $(n).val() );
+	});
+	return idArr;
+}
+
+function multiDelete()
+{
+	var idArr = getChecked();
+	if(idArr.length < 1) {window.top.art.dialog({'icon' : 'error', 'content' : '请选择要删除的课程', resize:false, 'lock':true}); return false;}
+	dataDelete(idArr);
+}
+
+function dataDelete(id)
+{
+	window.top.art.dialog({'id':'EventDelete', 'content' : '课程删除，课程相关记录将会被清除！确定要删除课程吗？', 'lock':true, resize:false, ok:function (){
+		$.ajax({
+			url: '/event/delete',
+			data : {'id' : id},
+			dataType :'json',
+			type : 'post',
+			success: function (data) {				
+				if(data.state) {icon = 'succeed'; background='#fff0f0'}else{icon = 'succeed'; background='#E2FF7E';}
+				window.top.art.dialog({id: 'Success', title: '课程删除', icon : icon, content:data.message, width:'400px',resize:false, lock:true}, function(){
+					window.top.right.location.reload();
+				});//.time(3);
+			},
+			cache: false
+		}); 
+    },cancel: true});
+}
+
+function scheduleChange(obj)
+{
+	window.top.art.dialog({'id':'scheduleChange', icon : 'question', 'content' : '确定要调课吗?', 'lock':true, resize:false, width:400, height:'auto'}, function(){
+		$.ajax({
+			url: '/schedule/change',
+			data : {'id' : obj.id, 'schedule' : obj.schedule,'day' : obj.date, 'tid' : obj.tid, 'sid' : obj.sid, 'index' : obj.start},
+			dataType :'json',
+			type : 'post',
+			success: function (data) {							
+				if(data.state) {icon = 'succeed'; background='#fff0f0'}else{icon = 'error'; background='#E2FF7E';}
+				window.top.art.dialog({id: 'Success', title: false, icon : icon, content:data.message, width:'400px',resize:false, lock:true, cancel : false, 'close' : function(){				
+					if(data.state) window.top.right.location.reload();
+				}}).time(2);
+			},
+			cache: false
+		});
+	},function(){});
+}
+
+function multiUpdate()
+{
+	var idArr = getChecked();
+	if(idArr.length < 1) {window.top.art.dialog({title : '消息', icon : 'error', content : '请选择要修改的课程', resize:false, lock:true, width : '15%'}, function(){}, function(){}); return false;}
+	var type = $("select[name='updateOption'] option:selected").val();
+	var title = $("select[name='updateOption'] option:selected").text();
+	if(type == 'text' || type=='time')
+	{
+		window.top.art.dialog.open('/event/ajax?event=' + idArr + "&action=" + type, {id: 'EventUpdate', title: title, width: 500, height:'auto', resize:false, height: 'auto', 'lock' : true});
+	}else if(type == 'date')
+	{		
+		var date = $("#date").val();
+		$.post('/event/ajax', {id : idArr, action : 'date', date : date},function(data){
+			var icon = data.state ? 'succeed' : 'error';
+			art.dialog({title : false, icon:icon, content : data.message, lock : true, resize : false, cancel:false, width:'20%', close : function(){
+				if(data) window.location.reload();
+			}}).time(3);			
+		}, 'json');
+
+	}else if(type == 'teacherAdd')
+	{
+		art.dialog.open('/teacher/select?handle=add&selected=hide&offset=3&priv=1&src=' + idArr, {id: 'selectPanel',title: "选择要添加的老师", width : '90%', height: '90%', 'lock' : true, resize:false});
+	}else if(type == 'teacherRemove')
+	{
+		art.dialog.open('/teacher/select?handle=remove&selected=hide&offset=3&src=' + idArr, {id: 'selectPanel',title: "选择要删除的老师", width : '90%', height: '90%', 'lock' : true, resize:false});
+	}else if(type == 'studentAdd')
+	{		
+		art.dialog.open('/student/select?handle=add&selected=hide&offset=3&src=' + idArr, {id: 'selectPanel',title: "选择要添的学生", width : '90%', height: '90%', 'lock' : true, resize:false});
+	}else if(type == 'studentRemove')
+	{
+		art.dialog.open('/student/select?handle=remove&selected=hide&offset=3&src=' + idArr, {id: 'selectPanel',title: "选择要删除的学生", width : '90%', height: '90%', 'lock' : true, resize:false});
+	}
+	return false;
+}
+
+function render(type, data, event, handle)
+{	
+	var postData = {
+		action : type, 
+		handle : handle,			
+		src : data,
+		id : event
+	};
+	$.post('/event/ajax', postData, function(data){	
+		alert(data);
+		if(data.state)
+		{			
+			window.location.reload();
+		}else{
+			art.dialog.alert(data.message);
+		}
+	}, 'text');
+}
+
+function StudentShow(id, num)
+{	
+	art.dialog.open('/student/ajax?action=list&module=event&event=' + id, {id: 'studentShow',title: '共' + num + '人', 'width' : 196, 'lock' : false, resize:false, fixed:true, follow: document.getElementById("tableItem" + id)});
+
+	//art.dialog.open('/student/ajax?action=list&module=event&event=' + id, {id : 'GroupAdd', title:false, lock:false, resize: false, content : 'test', padding : '0px 10px 10px', fixed : true, follow: document.getElementById("tableItem" + id)});		
+
+}
+</script>
+</body>
+</html>

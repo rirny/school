@@ -1,0 +1,79 @@
+<!--{include file="../header.html"}-->
+<link href="<!--{$JS}-->/dialog/default.css" rel="stylesheet" type="text/css">
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+<style>
+.dataPalne h3,.dataPalne h4{font-size:12px;font-weight:bold}
+label{color:#666}
+h3 input{margin-right:4px;}
+h4 input{margin-right:4px;}
+.dataSet li input{margin-right:2px;}
+</style>
+<body>
+<div class="mainContent">
+	<div class="mbx">
+		<a href="javascript:;" onclick="window.top.menuOn('base', 1)">首页</a> > <a href="/purview">权限管理</a> > <a>权限设置</a> > <!--{$group.name}-->
+	</div>	
+	<div class="dataForm" style="padding:0px 0px">
+	<form action="/purview/set" id="dataForm" name="dataForm" method="post">
+		<input type="hidden" name="gid" value="<!--{$group.gid}-->" />
+		<input type="hidden" name="uid" value="<!--{$user.uid}-->" />
+		<div class="dataPalne">		
+			<h3><input type="checkbox" name="all" value="<!--{$items.module}-->" <!--{if $user.enable == '*' || $group.enable=='*'}-->checked=checked<!--{/if}-->/><label>所有权限</label></h3>
+			<div class="dataSet dataSelect">			
+			<!--{foreach from=$result key=key item=items}-->
+				<div style="overflow:hidden;width:100%" class="moudelContainer">
+					<h4><input type="checkbox" name="priv[]" class="module" value="<!--{$items.id}-->" <!--{if $items.checked}-->checked=checked<!--{/if}--> /><label><!--{$items.name}--></label></h4>
+					<ul>
+						<!--{foreach from=$items.items item=item key=i}-->					
+						<li>					
+							<input type="checkbox" class="item" name="priv[]" value="<!--{$item.id}-->" <!--{if $item.checked}-->checked=checked<!--{/if}--> />
+							<label title="<!--{$item.name}-->"><!--{$item.name}--></label>
+						</li>
+						<!--{/foreach}-->
+					</ul>
+				</div>
+			<!--{/foreach}-->	
+			</div>
+		</div>
+		<div class="formItem" style="margin:10px 0px">
+			<input type="submit" name="submit" id="formSubmit" class="dataBnt" style="margin-left:0px;" value="确定" />
+			<input type="button" name="reset" class="cancelBnt" value="取消" onclick="javascript:window.history.go(-1);" />
+		</div>
+	</form>
+	</div>
+</div>
+<script type="text/javascript">
+	$(":checkbox[name='all']").click(function(){
+		var checked = $(this).attr('checked');
+		if(checked)
+			$(":checkbox").attr("checked", "checked");
+	});
+
+	$(".module").click(function(){
+		var checked = $(this).attr('checked');
+		if(checked)
+			$(this).parents('.moudelContainer').find('.item').attr("checked", "checked");
+		else
+			$(this).parents('.moudelContainer').find('.item').attr("checked", false);
+	});
+
+	$(".item").click(function(){
+		var checked = $(this).attr('checked');
+		if(checked)
+		{
+			$(this).parents('.moudelContainer').find('h4 :checkbox').attr("checked", "checked");
+		}else{
+			var check = $(this).parents('.moudelContainer').find('li :checkbox:checked');
+			if(check.length < 1)
+				$(this).parents('.moudelContainer').find('h4 :checkbox').attr("checked", false);
+		}
+	});
+
+	$("button[name='reback']").click(function(){
+		// $("#dataForm").clearForm();
+		window.location.href="/purview";
+	});
+</script>
+</body>
+</html>

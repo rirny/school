@@ -1,0 +1,258 @@
+<!--{include file="../header.html"}-->
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/jscal2.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/border-radius.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/win2k.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/calendar.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/lang/en.js"></script>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/formValid/style/validator.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidator.min.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/jquery.form.js"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+
+<style>
+.weekSelector label{text-align:left; width:40px;}
+.checkbox{display:inline-block; *zoom:1; *display:inline;vertical-align:top}
+.checkbox label{text-align:left;width:auto; margin:0px 8px 0px 4px}
+</style>
+<div class="mainContent">
+	<div class="mbx">
+		<span><a href="javascript:;" onclick="window.history.go(-1);">返回</a> >></span>	
+		<a href="javascript:;" onclick="window.top.menuOn('base', 1)">首页</a> > 
+		<a href="javascript:;" onclick="window.top.menuOn('recruit', 1)">招生管理</a> > 
+		<a href="/recruit">课程信息</a> > <a>招生</a> 
+	</div>
+	<div class="dataForm" style="background:#F5F5F5;padding:10px 0px">		
+		<form action="" id="dataForm" name="dataForm" method="post">
+		<input type="hidden" name="id" value="<!--{$result.id}-->" />
+		<div class="formItem">
+			<label>课程：</label>
+			<select name="course" id="course"><option value="">请选择课程</option><!--{html_options options=$courses selected=$result.course}--></select>
+			<span id="courseTip"></span>
+		</div>
+		<div class="formItem">
+			<label style="margin-right:6px">课程名称：</label><input type="text" name="text" id="text" value="<!--{$result.text}-->" class="input-text" size="20"/>
+			<span id="textTip"></span>
+		</div>
+
+		<div class="formItem classTimes">			
+			<label style="margin-right:6px">课次总数：</label><input type="text" name="times" id="times" value="<!--{$result.times}-->" class="input-text" style="width:40px;"/>
+			<span id="timesTip"></span>
+		</div>		
+
+		<div class="formItem">			
+			<label>上课老师：</label>
+			<input type="hidden" value="" id="teacher" name="teacher" />
+			<div class="teacherSelected selected"><ul>
+			<!--{foreach from=$result.teachers item=teacher key=key name=teacher}-->
+				<li><i></i>
+				<input type="hidden" name="teacher[id][]" value="<!--{$key}-->" />
+				<input type="hidden" name="teacher[name][]" value="<!--{$teacher.name}-->" />
+				<input type="hidden" name="teacher[en][]" value="<!--{$teacher.en}-->" />
+				<span><!--{$teacher.name}--></span></li>
+			<!--{/foreach}-->		
+			</ul></div>
+			<button type="button" name="selectTeacher" id="selectTeacher" style="margin-left:0px" onclick="toSelect('teacher', 3, 0)">上课老师</button>
+			<span id="teacherTip"></span>
+		</div>
+
+		<div class="formItem">			
+			<label>授课对象：</label>	
+			<div class="checkbox"><!--{html_checkboxes name="target" options=$targets selected=$result.target}--></select></div>
+		</div>
+		
+		<div class="formItem">			
+			<label>上课形式：</label>	
+			<div class="checkbox"><!--{html_checkboxes name="form" options=$forms selected=$result.form}--></select></div>
+		</div>
+
+		<div class="formItem">
+			<label style="margin-right:2px">上课日期：</label>
+			<span id="date" <!--{if $result.always==1}-->style="display:none"<!--{/if}-->>
+				<input type="text" name="start_date" id="start_date" value="<!--{if $result.start_date}--><!--{$result.start_date}--><!--{else}--><!--{$curDate}--><!--{/if}-->" class="input-text datePlug" style="width:96px" readonly/>
+				<script type="text/javascript">var startCalendar = callCalendar({inputField : 'start_date', max: '<!--{$maxEnd}-->', min : '<!--{$minStart}-->'});</script>至
+				<input type="text" name="end_date" id="end_date" value="<!--{if $result.end_date}--><!--{$result.end_date}--><!--{else}--><!--{$curDate}--><!--{/if}-->" class="input-text datePlug" style="width:96px" readonly/>
+				<script type="text/javascript">var endCalendar = callCalendar({inputField : 'end_date', max: '<!--{$maxEnd}-->', min : '<!--{$minStart}-->'});</script>
+			</span>
+			<input type="checkbox" name="always" id="always" value='1' <!--{if $result.date ===0}-->checked="checked"<!--{/if}-->/> <label style="width:30px">长期</label>
+			<span id="dateTip"></span>
+		</div>
+
+		<div class="formItem">		
+			<label>上课时间：</label>			
+			<input type="hidden" id="time" value="" name="time" />			
+			<!--{html_select_time prefix=start use_24_hours=true display_hours=true display_minutes=true display_seconds=false minute_interval=5 hour_interval=array(7,23) time=$start_time hour_extra="id=startHour" minute_extra="id=startMinute"}--> 至
+			<!--{html_select_time prefix=end use_24_hours=true display_hours=true display_minutes=true display_seconds=false minute_interval=5 hour_interval=array(7,23) time=$end_time hour_extra="id=endHour" minute_extra="id=endMinute"}-->
+			<span id="timeTip"></span>
+		</div>
+
+		<div class="formItem">		
+			<label>课程费用：</label>			
+			<input type="text" id="lb_price" value="<!--{$result.lb_price|default:'0.00'}-->" name="lb_price" style="width:80px"/> - 
+			<input type="text" id="ub_price" value="<!--{$result.ub_price|default:'0.00'}-->" name="ub_price" style="width:80px" />
+			<input type="hidden" id="price" value="" name="price" />	
+			<span id="priceTip"></span>
+		</div>
+
+		<div class="formItem" style="position:relative">
+			<label style="margin-right:2px;vertical-align:top">课程简介：</label>
+			<textarea name="description" id="description" rows="5" cols="60" class="input-text" style="width:400px;height:100px;resize:none"><!--{$result.description}--></textarea>
+			<span id="wordCount" style="left:480px;top:98px;"><b>800</b>字</span>
+			<span id="descriptionTip"></span>
+		</div>
+		
+		<span id="resultTip"></span>
+		<div class="formItem" style="padding-left:116px;">			
+			<input name="submit" type="submit" id="formSubmit" class="dataBnt" value="发布" />
+			<input name="reset" type="button" name="reset" class="cancelBnt" onclick="window.history.go(-1);" value="取消"/>
+		</div>
+		</form>
+	</div>
+</div>
+
+<script type="text/javascript">
+$(function(){
+	$.formValidator.initConfig({formID:"dataForm", submitButtonID: 'formSubmit', submitOnce:true, errorFocus:true,wideWord:true,
+		onError:function(msg, obj, errorlist){},
+		onSuccess:function(){}
+	});
+	// $("#course").formValidator({onShow:"", onFocus:"课程为必选", defaultValue:''}).inputValidator({min:1,onError: "课程为必选!"});
+	$("#text").formValidator({onShow:"", onFocus:"标题长度为2-20个字符", defaultValue:''}).inputValidator({min:2,max:20,onError:"标题长度为2-20个字符"});
+	//$("#date").formValidator({onShow:"", onFocus:"上课日期为必选", defaultValue:"<!--{$curDate}-->"});
+	$("#times").formValidator({autoModify:true,onShow:"",onFocus:"只能输入2-99之间的数字哦", defaultValue:2}).inputValidator({min:2,max:99,type:"value",onErrorMin:"你输入的值必须大于1",onError:"只能输入2-99之间的数字哦"});
+
+	$("#always").formValidator({autoModify:true,onShow:"",onFocus:"课程时间必须大于30分钟"}).functionValidator({fun : function(){
+		if($("#always").attr('checked') == true) return true;
+		var start = $("#start_date").val();
+		var Start = new Date(start);
+		var end = $("#end_date").val();
+		var End = new Date(end);
+		if(End.getTime() < Start.getTime()) return '结束日期必须大于开始日期！';		
+		return true;
+	}});
+
+	$("#time").formValidator({autoModify:true,onShow:"",onFocus:"课程时间必须大于30分钟"}).functionValidator({fun : function(){		
+		var start = parseInt($("#startHour").val(),10)*60 + parseInt($("#startMinute").val(),10);
+		var end = parseInt($("#endHour").val(),10)*60 + parseInt($("#endMinute").val(),10);
+		if(end - start < 30){return '课程时间必须大于30分钟';}		
+		return true;
+	}});
+	
+	$("#lb_price").regexValidator({regexp:"money",datatype:"enum",onerror:"你输入的金额格式不正确"});
+	$("#ub_price").regexValidator({regexp:"money",datatype:"enum",onerror:"你输入的金额格式不正确"});
+
+	$("#price").formValidator({autoModify:true,onShow:"",onFocus:"最大金额不能小于最小金额！"}).functionValidator({fun : function(){		
+		var lb = $("#lb_price").val();
+		var ub = $("#ub_price").val();
+		if(lb > ub) return "最大金额不能小于最小金额！";
+		return true;
+	}});
+
+	wordChange(800, $('#description'));
+	$("#description").keyup(function(e){
+		wordChange(800, $(this));		
+	});
+
+	$("#teacher").formValidator({autoModify:true,onShow:"请选择上课老师！",onFocus:"请选择上课老师！"}).functionValidator({fun : function(){
+		if($(".teacherSelected li").length < 1) return '请选择上课老师！';
+		if($(".teacherSelected li").length > 3)  return '上课老师不得多于3人';			
+		return true;
+	}});
+
+	$("#always").click(function(){
+		var status = $(this).attr('checked');
+		if(status)
+		{
+			$("#date").hide();
+		}else{
+			$("#date").show();
+		}
+	});
+
+	$(".selected").find("i").bind('click', function(){$(this).parents('li').remove()});
+
+	$("#dataForm").submit(function(){	
+		$("#dataForm").ajaxSubmit({ 
+			dataType:'json',
+			type: 'post',			
+			success: function(data){	
+				if(!data.state)
+				{
+					window.top.art.dialog({'title' : false, 'icon': 'error','cancel' : false, 'content' : data.message}, function(){});
+				}else{
+					window.top.art.dialog({title : '招生发布', lock : true, content : '发布成功！', icon : 'succeed', okVal : '返回', cancelVal: '继续发布'}, function(){
+						window.location.href = "/recruit";
+					}, function(){
+						window.location.href = "/recruit/add";
+					});
+				}
+			},  
+			error: function(XmlHttpRequest, textStatus, errorThrown){  
+				alert(textStatus);  
+			}
+		});
+		return false;
+	});
+
+});
+
+function toSelect(type, offset, priv)
+{
+	type = type == 'teacher' ?  'teacher' : 'student';
+	var typeName = '老师';
+	if(type != 'teacher')
+	{
+		typeName = '学生'; type = 'student';
+	}
+
+	var selected = new Array();	
+	$("input[name='" + type + "[id][]']").each(function(i, obj){
+		selected.push($(obj).val());
+	});
+	var selectedPrivs = new Array();	
+	$("input[name='" + type + "[priv][]']").each(function(i, obj){
+		selectedPrivs.push($(obj).val());
+	});
+
+	var ajaxUrl = '/' + type + '/select?';
+	if(priv)
+	{
+		ajaxUrl += "priv=1&privs=" + selectedPrivs.join(',');
+	}	
+	if(offset > 0 && selected.length > 0)
+	{
+		ajaxUrl += '&id=' +  selected.join() + "&offset=" + offset;
+		if(selected.length >= offset)
+		{
+			window.top.art.dialog({id : 'Error', content : typeName + '人数不能超过' + offset + '人', width: 300, icon : 'Error'}, function(){art.dialog('Error').close();});
+			return false;
+		}
+	}else if(offset){
+		ajaxUrl += "&offset=" + offset;
+	}
+	art.dialog.open(ajaxUrl, {id: 'selectPanel',title: "选择" + typeName, width : '90%', height: '90%', 'lock' : true, resize:false});
+}
+
+function render(type, data)
+{	
+	type = type == 'teacher' ?  'teacher' : 'student';
+	var panel = $("." + type + "Selected ul");
+	for(key in data)
+	{		
+		if($(panel).find("li input[name='" + type + "[id][]'][value='" + data[key].id + "']").length < 1)
+		{
+			var str = "<li><i></i>";
+			str += '<input type="hidden" name="' + type + '[id][]" value="' + data[key].id + '" />';
+			str += '<input type="hidden" name="' + type + '[name][]" value="' + data[key].name + '" />';
+			str += '<input type="hidden" name="' + type + '[en][]" value="' + data[key].en + '" />';
+			if(type == 'teacher') str += '<input type="hidden" name="' + type + '[priv][]" value="' + data[key].priv + '" />';			
+			str += '<span>' + data[key].name + '</span></li>';
+			$(panel).append(str);
+		}
+	}	
+	$(".selected").find("i").bind('click', function(){$(this).parents('li').remove()});
+}
+</script>
+</body>
+</html>

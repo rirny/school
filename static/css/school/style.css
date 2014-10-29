@@ -1,0 +1,143 @@
+.header{height:auto}
+.top{height:46px;}
+.logo{padding:4px 60px;}
+.nav{height:83px;background:url('../../images/school/topbg.png') repeat-x;}
+.navMenu{margin-left:200px;}
+.navMenu li{width:97px;height:80px; float:left;margin-top:2px}
+.navMenu li a{display:block;width:50px;height:50px; margin:14px auto 0px; text-indent:-9999px;overflow:hidden; background-repeat:no-repeat; background-position:center bottom;}
+.navMenu li i{width:2px;height:80px;float:left;display:block; margin-top:2px;background:url('../../images/school/menuSp.jpg') center bottom;}
+.navMenu li.sp{}
+.navMenu li.on{background:url('../../images/school/menubg.png') center bottom}
+
+.left_menu{position:relative;z-index:200}
+.left_menu li{height:56px;font-size:14px; padding:0px 20px;z-index:9999;}
+.left_menu li span{border-bottom:1px solid #CCC; display:block; line-height:56px;padding:0px 0px 0px 24px; background:url('../../images/school/star.png') 0px 22px no-repeat; vertical-align:bottom;}
+.left_menu li.on{background:url('../../images/school/leftMenuOn.png') no-repeat; right:-2px; margin-right:-2px;z-index:999;}
+.left_menu li.on span{background:url('../../images/school/star-on.png') 0px 22px no-repeat;}
+
+.mainContent{padding:0px 30px; min-width:1040px;_width:expression((document.documentElement.clientWidth||document.body.clientWidth)>1040?"1040px":"");}
+.searchPanel{margin-top:16px;}
+.mbx{font-size:14px; border-bottom:1px solid #CCC; line-height:40px;}
+.mbx span{float:right;}
+.searchForm{border:1px solid #BABABA;height:30px; color:#565656;padding:8px; line-height:28px;}
+.searchForm input{border:1px solid #000;color:#999; +border:0px;padding:0px 8px; height:24px; line-height:24px;margin:0px 6px 0px 4px;}
+.searchForm input.input-text{+border:1px solid #ccc;_border:1px solid #ccc;_height:24px;+height:24px;}
+.searchForm select{width:100px; display:inline-block; *zoom:1; *display:inline; height:26px;vertical-align: middle; border:1px solid #ccc; +border:1px solid #ccc;}
+select{display:inline-block; *zoom:1; *display:inline; height:26px;vertical-align: middle;}
+select:hover{border:1px solid #666; }
+input.dateSelect{width:94px; background:url('../../images/school/calendar.png') no-repeat 86px 3px #FFF;}
+.searchHandle{text-align:center; margin-top:10px;}
+.searchBnt,.cancelBnt{background:url('../../images/school/bntBg.png') repeat-x; color:#FFF !important; height:26px; padding:2px 14px; border:1px solid #555;+border:0px;border-radius:3px;}
+.dataTable{font-size:12px;}
+.dataHeader,.dataFooter{height:30px; line-height:30px; padding:8px 0px;}
+.page{float:right;}
+.page a{display:inline-block; height:28px; line-height:28px; padding:0px 8px;margin-left:6px; border:1px solid #DDD; border-radius:2px;cursor:pointer}
+.page a:hover,.page a.on{color:#FFF;background:#0771A1;text-decoration:none}
+.page li{float:left}
+
+.dataBnt{background:url('../../images/school/dataBnt.png') repeat-x; color:#FFF; height:26px; padding:2px 14px; border:1px solid #74B4C7; +border:0px;border-radius:3px;}
+.dataSet{color:#B2B2B2}
+.dataSet th,.dataSet td{text-align:left; font-size:12px; padding:0px 6px;}
+.dataSet th{background:#EBEBEB; height:34px; border:solid #9A9A9A; border-width:1px 0px; color:#666}
+.dataSet th.order{cursor:pointer;}
+.dataSet th.order i{display:inline-block;width:8px;height:10px; background:url('../../images/school/order.png') no-repeat;margin:0px 4px;}
+
+.dataSet td{line-height:34px; color:#888}
+td.high,.high,td.high,td.high a{color:#146AB5;font-weight:bold;}
+
+.dataSet tr.even{background:#F0F0F0; border:solid #E5E5E5; border-width:1px 0px; }
+.dataSet tr.on{background:#fffff3;}
+
+.ajaxStudentList{}
+.ajaxStudentList h1{font-size:12px; height:36px; line-height:36px;}
+.ajaxStudentList h1 i{float:right}
+.ajaxStudentList li{height:46px; line-height:46px;background:url('../../images/school/bg-48.png') repeat-x;border:1px solid #ccc; position:relative;}
+.ajaxStudentList h1,.ajaxStudentList li{padding:0px 8px}
+.ajaxStudentList #page{margin:10px;}
+.ajaxStudentList img{vertical-align:middle; margin-right:8px;}
+.ajaxCourseList li{height:30px;line-height:30px;background:url('../../images/school/bg-48.png') repeat-x;border:solid #ccc; border-width:1px 1px 0px; padding:0px 8px;}
+.ajaxCourseList li input{ vertical-align:inline; margin-right:4px;}
+
+
+.ajaxStudentList li i{position:absolute; top:18px; right:10px; float:right; width:12px;height:12px;display:block; 
+	vertical-align:middle; margin-left:10px;background:url('../../images/school/close.png') no-repeat; cursor:pointer;
+}
+
+.dataForm{padding:0px 10px; margin-top:16px}
+.dataForm p,.formColor{padding:5px;}
+.dataForm .input-text{width: 15em;padding: 4px;border: 1px solid #bbb;}
+.dataForm .colorOptions{display:inline-block; *zoom:1; *display:inline; vertical-align: middle; }
+.dataForm .colorOptions a{display:inline-block; *zoom:1; *display:inline; width:22px; height:22px;border:1px solid #FFF}
+.dataForm .colorOptions a i{width:22px;height:22px; display:inline-block; *zoom:1; *display:inline;}
+.dataForm .colorOptions a.on i{width:22px;height:22px;background:url('../../images/school/gou.png') no-repeat 5px 4px;}
+
+.dataForm button,.dataForm input.bnt{ margin-left:15px; padding: 6px 8px; cursor: pointer; display: inline-block; text-align: center; line-height: 1; *padding:4px 10px; *height:2em; letter-spacing:2px; font-family: Tahoma, Arial/9!important; width:auto; overflow:visible; *width:1; color: #333; border: solid 1px #999; border-radius: 5px; background: #DDD; filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFFF', endColorstr='#DDDDDD'); background: linear-gradient(top, #FFF, #DDD); background: -moz-linear-gradient(top, #FFF, #DDD); background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#FFF), to(#DDD)); text-shadow: 0px 1px 1px rgba(255, 255, 255, 1); box-shadow: 0 1px 0 rgba(255, 255, 255, .7),  0 -1px 0 rgba(0, 0, 0, .09); -moz-transition:-moz-box-shadow linear .2s; -webkit-transition: -webkit-box-shadow linear .2s; transition: box-shadow linear .2s; }
+.dataForm button::-moz-focus-inner{ border:0; padding:0; margin:0; }
+.dataForm button:focus,input.bnt::focus{ outline:none 0; border-color:#426DC9; box-shadow:0 0 8px rgba(66, 109, 201, .9); }
+.dataForm button:hover,input.bnt:hover{ color:#000; border-color:#666; }
+.dataForm button:active,input.bnt:active { border-color:#666; filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#DDDDDD', endColorstr='#FFFFFF'); 
+background: linear-gradient(top, #DDD, #FFF); background: -moz-linear-gradient(top, #DDD, #FFF); 
+background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#DDD), to(#FFF)); box-shadow:inset 0 1px 5px rgba(66, 109, 201, .9), inset 0 1px 1em rgba(0, 0, 0, .3); 
+}
+.dataForm button[disabled]{ cursor:default; color:#666; background:#DDD; border: solid 1px #999; filter:alpha(opacity=50); opacity:.5; box-shadow:none; }
+button.aui_state_highlight,input.aui_state_highlight { color: #FFF; border: solid 1px #1c6a9e; background: #2288cc; 
+filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#33bbee', endColorstr='#2288cc'); 
+background: linear-gradient(top, #33bbee, #2288cc); background: -moz-linear-gradient(top, #33bbee, #2288cc); 
+background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#33bbee), to(#2288cc)); text-shadow: -1px -1px 1px #1c6a9e; 
+}
+button.aui_state_highlight:hover,input.aui_state_highlight:hover{ color:#FFF; border-color:#0F3A56; }
+button.aui_state_highlight:active,input.aui_state_highlight:active{ border-color:#1c6a9e; filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#33bbee', endColorstr='#2288cc'); 
+background: linear-gradient(top, #33bbee, #2288cc); 
+background: -moz-linear-gradient(top, #33bbee, #2288cc); background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#33bbee), to(#2288cc));
+}
+.formItem{padding:6px 5px;overflow:hidden;}
+.formItem label{display:inline-block; *zoom:1; *display:inline;width:100px; text-align:right; padding-right:8px;}
+.datePlug{width:96px;background:url('../../images/school/calendar.png') no-repeat 80px 2px #FFF;}
+.weekSelector{margin:0px 0px 4px 2px;}
+.classTimes,.weekSelector{display:none;}
+.weekSelector label{width:66px;display:normal;line-height:22px}
+.weekSelector input{margin-right:6px; vertical-align: -4px;}
+
+.formItem span{display:inline-block; *zoom:1; *display:inline; vertical-align: middle;}
+.dataPalne{margin-top:8px;}
+.dataPalne h3{background:#EBEBEB; border:solid #9A9A9A; border-width:1px 0px; font-size:12px; color:#000; font-weight:normal; height:32px; line-height:34px; padding:0px 10px; margin-top:8px; vertical-align: middle;}
+.dataPalne input{margin-right:6px;}
+.dataSelect h4{background:#EBEBEB; border:solid #9A9A9A; border-width:1px 0px; font-size:12px; color:#000; font-weight:normal; height:32px; line-height:34px; padding:0px 10px; margin:8px 0px; vertical-align: middle;}
+.dataSelect ul,.groupSelect ul{overflow:hidden; padding:0px 10px;}
+.dataSelect li{width:80px; float:left; vertical-align: middle; line-height:24px;}
+.groupSelect li{float:left; vertical-align: middle; line-height:24px; margin-right:20px;}
+
+.selected{ display:inline-block; *zoom:1; *display:inline;vertical-align:top}
+.selected ul{padding:0px 0px;}
+.selected li{display:inline-block; *zoom:1; *display:inline;border:1px solid #DDDDDD; border-radius:3px;padding:3px 10px 3px 6px; background:url('../../images/school/bnt-bg.png') repeat-x; margin-right:8px; margin-bottom:8px;cursor:pointer}
+.selected li i{width:8px;height:8px; background:url('../../images/school/close.png') no-repeat; margin-right:4px; display:inline-block; *zoom:1; *display:inline;}
+.studentSelected{max-width:500px;}
+
+.logoImage{display:inline-block; *zoom:1; *display:inline; vertical-align:bottom;border:1px solid #e4e4e4;}
+.uploadify{display:inline-block; *zoom:1; *display:inline; vertical-align:bottom;}
+.logoImage img{width:80px;height:80px; vertical-align:middle;border:1px solid #FFF;}
+
+.contentView{background:#FFF;}
+.contentView h3, .contentView li{line-height:24px; font-size:12px; padding:4px 12px;}
+.contentView li{border:1px solid #CCC;border-top:0px; overflow:hidden; height:auto;}
+.contentView li.top{border:1px solid #CCC;}
+.contentView p.time{color:#999}
+.commentReply{position:relative;}
+#wordCount{position:absolute; top:90px; left:370px;color:#999;}
+#wordCount b{color:red}
+
+.contact,.option{display:inline-block; *zoom:1; *display:inline;vertical-align:top;}
+.contact .contactor input{color:#999}
+.contactor,.optioner{margin-bottom:4px;}
+
+.formBnt{height:26px; padding:4px 20px;+padding-top:2px;border:1px solid #F1F1F1; +border:0px;border-radius:3px;background: #DDD; filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFFF', endColorstr='#DDDDDD'); background: linear-gradient(top, #FFF, #DDD); background: -moz-linear-gradient(top, #FFF, #DDD); background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#FFF), to(#DDD)); text-shadow: 0px 1px 1px rgba(255, 255, 255, 1); box-shadow: 0 1px 0 rgba(255, 255, 255, .7),  0 -1px 0 rgba(0, 0, 0, .09); -moz-transition:-moz-box-shadow linear .2s; -webkit-transition: -webkit-box-shadow linear .2s; transition: box-shadow linear .2s; }
+input.formBnt:hover,input.bnt:hover{ color:#000; border-color:#666; }
+
+.voteRresult{border:1px solid #EBEBEB;margin:12px 0px; padding:10px;height:auto;overflow:hidden;}
+.voteRresult h3{font-size:14px;}
+.voteRresult li{display:inline-block; *zoom:1; *display:inline; vertical-align:bottom; width:320px; line-height:20px;}
+.voteRresult .progressContainer{height:20px;border:1px solid #CCC;position:relative;}
+.voteRresult .progressContainer span{position:absolute;right:10px;top:-1px;}
+.voteRresult .progressContainer div{height:20px;}
+
+#progressor div{font-size:12px;line-height:12px;}

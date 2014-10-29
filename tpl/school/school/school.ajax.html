@@ -1,0 +1,46 @@
+<!--{include file="school/header.html"}-->
+<body style="background:#333;">
+<style>
+	.schoolList{ margin-top:12px;}
+	.schoolList li{height:40px; line-height:40px; margin-bottom:0px;padding:0px 10px; cursor:pointer;border-bottom:1px solid #F1F1F1;background:#333}
+	.schoolList a{color:#FFF}
+	.schoolList li img{margin-right:6px;}
+	.schoolList li.on{background:#666}
+	.schoolList li a.set{display:none; float:right;}
+	.schoolList li.on a.set{display:normal}
+	.schoolList li.default{display:none;}
+</style>
+<div class="schoolList">
+	<ul>
+		<!--{foreach from=$result item=item key=key}-->
+			<li id="school_<!--{$item.id}-->">
+				<a class="set<!--{if $item.default}--> default<!--{/if}-->" href="javascript:;" <!--{if $item.default==0}-->onclick="setDefault(<!--{$item.id}-->);"<!--{/if}--> ><!--{if $item.default==0}-->设为<!--{/if}-->默认</a>
+				<a href="/school/change?id=<!--{$item.id}-->" ><img src="<!--{$item.avatar}-->" width="30" style="hei"><!--{$item.name}--></a>
+			</li>
+		<!--{/foreach}-->
+	</ul>
+	<div class="formItem" style="text-align:center">			
+		<button name="submit" id="formSubmit" onclick="window.top.location.href='/school/create'" class="dataBnt">创建机构</button>
+	</div>
+</div>
+</body>
+<script type="text/javascript">
+
+$(function(){
+	$(".schoolList li").hover(function(){
+		$(this).addClass('on');
+		$(this).find('a.set').show();
+	},function(){$(this).removeClass('on'); $(this).find('a.set').hide();});
+});
+
+function setDefault(id)
+{
+	$.post('/school/default', {id : id}, function(data){
+		if(data.state)
+		{
+			$('#school_' + id).find('a.set').addClass('default').text('默认');
+			$('#school_' + id).siblings('li').find('a.set').removeClass('default').text('设为默认');
+		}
+	}, 'json');
+}
+</script>

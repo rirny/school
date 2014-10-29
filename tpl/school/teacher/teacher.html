@@ -1,0 +1,324 @@
+<!--{include file="../header.html"}-->
+<link href="<!--{$JS}-->/uploadify/uploadify.css" rel="stylesheet" type="text/css">
+<script src="<!--{$JS}-->/uploadify/jquery.uploadify.min.js?ver=<!--{math equation=rand(1,9999)}-->" language="javascript" type="text/javascript" ></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+
+<style>
+	.aui_w,.aui_c,.aui_e{height:0px !important; width:0px !important;}
+	.dataSet td,.dataSet th{height:35px; overflow:hidden; white-space:nowrap;}
+	.uploadify{height:26px; width:90px; margin-right:20px;}
+	.swfupload{width:90px; height:26px;}
+	.uploadify-button{background:url('<!--{$IMG}-->/school/dataBnt.png') repeat-x; color:#FFF; margin:0px; height:26px; padding:4px 14px;+padding-top:2px;border:1px solid #74B4C7; +border:0px;border-radius:3px; width:80px;}
+	#upfile-button{width:60px;}
+	.uploadify-queue{position:absolute;}
+</style>
+
+<div class="mainContent">
+	<div class="mbx">
+		<a href="javascript:;" onclick="window.top.menuOn('base', 1)">首页</a> > <a href="javascript:;" onclick="window.top.menuOn('teacher', 1)">教师管理</a> > <a href="">教师列表</a> 
+	</div>
+	<div class="searchPanel">
+		<form action="/teacher" method="get" name="searchForm" id="searchForm" >			
+			<div class="searchForm">
+				<input type="hidden" id="order" name="order[<!--{key($smarty.get.order)|default:'name'}-->]" value="<!--{current($smarty.get.order)|default:0}-->" />
+				关键字：<input name="keyword" type="text" value="<!--{$smarty.get.keyword|default:'教师名'}-->" def="教师名" />	
+				<input type="hidden" name="export" id="export" value="0" />				
+				<input name="search" type="submit" value="搜索" class="searchBnt" />
+				<input name="exportBnt" type="button" value="导出" class="searchBnt" />
+			</div>
+		</form>
+	</div>
+	<div class="dataTable">
+		<div class="dataHeader">
+			<div class="page"><a>总：<!--{$record}--></a><!--{$paginator->getRender($curl, 0)}--></div>
+			<input name="create" id="create" type="button" value="新建教师" class="dataBnt" />
+			<input id="upfile" name="upfile" type="file" type="file" multiple="false"/> 
+			<span style="color:#ff0000;padding:0px 40px;">导入用户初始密码为“000000”</span>
+			<a class="high" href="/public/excel?type=teacher">下载Excel模板</a>			
+		</div>
+		<div class="dataSet">
+			<table width="100%" cellpadding="0" cellspacing="0" >
+				<thead>
+					<th width="2%"><input type="checkbox" name="chkAll" value="1" onclick="checkAll(this)"/></th>
+					<th width="15%" name="name" class="order" order="<!--{if key($smarty.get.order) == 'name' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">教师名<i></i></th>
+					<th width="15%" name="group">分组<i></i></th>
+					<th width="20%">联系方式<i></i></th>
+					<th width="20%" name="date" class="order" order="<!--{if key($smarty.get.order) == 'date' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">加入时间<i></i></th>
+					<th>操作</th>
+				</thead>
+				<tbody>
+					<!--{foreach from=$result item=item key=key name=result}-->
+					<tr>
+						<td><input type="checkbox" name="checkbox" value="<!--{$item.id}-->" /></td>
+						<td><a href="/teacher/view?assigner=<!--{$item.id}-->" class="high"><!--{$item.name}--></a>
+
+							<!--{if $item.recomm == 1}--><img src="/static/images/recomm.png" style="cursor:pointer" title="推荐" onclick="recomm(<!--{$item.id}-->)" /><!--{/if}-->
+							<!--{if $item.login_times > 0}--><img src="/static/images/user_2.png" style="cursor:pointer" title="注册用户" /><!--{/if}-->
+						</td>
+						<td><!--{$item.group|default:'--'}--></td>
+						<td><!--{$item.account}--></td>
+						<td><!--{$item.create_time|date_format:"%Y-%m-%d"}--></td>						
+						<td>
+							<a href="javascript:;" onclick="schedule(<!--{$item.id}-->)" class="high">排课</a> 
+							<a href="javascript:;" onclick="toGroup(<!--{$item.id}-->);" class="high">分组</a> 
+							<a href="javascript:;" onclick="toDelete(<!--{$item.id}-->);" class="high">删除</a>
+						<!--{if $item.recomm == 1}-->
+							<a href="javascript:;" onclick="recommRemove(<!--{$item.id}-->)" class="high">取消推荐</a>
+						<!--{else if $item.status==0}-->
+							<a href="javascript:;" onclick="recomm(<!--{$item.id}-->, 1)" class="high">推荐</a>
+						<!--{/if}-->
+						</td>
+					</tr>
+					<!--{foreachelse}-->
+					<tr>
+						<td class="high" colspan=8 height=60 align="center">暂无记录</td>						
+					</tr>
+					<!--{/foreach}-->
+				</tbody>
+			</table>
+		</div>		
+		<div class="dataFooter" style="margin-top:10px">
+			<div class="page" id="page"><a>总：<!--{$record}--></a><!--{$paginator->getRender($curl, 1)}--></div>
+			<input name="groupHandle" id="groupHandle" type="button" value="批量分组" class="dataBnt" onclick="multi('group')" />
+			<input name="deleteHandle" id="deleteHandle" type="button" value="批量删除" class="dataBnt" onclick="multi('delete')" />
+			<!--input name="freeze" id="freeze" type="button" value="批量冻结" class="dataBnt" onclick="multi('freeze')" /-->
+		</div>
+	</div>
+</div>
+
+<div style="display:none">
+	<div id="createForm">
+		<div class="formItem">
+			<label style="width:60px">姓名：</label>
+			<input type="text" name="createName" id="createName" class="input-text" />
+			<span id="nameTip"></span>
+		</div>
+		<div class="formItem">
+			<label style="width:60px">联系方式：</label>
+			<input type="text" name="createAccount" id="createAccount" class="input-text" />
+			<span id="accountTip"></span>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+$(function()
+{
+	// $("#searchForm input[name='keyword']").focus();
+	$(".dataSet tr:even").addClass('even');	
+	$(".dataSet tr").hover(function(){$(this).addClass('on');},function(){$(this).removeClass('on')});
+	$("#searchForm input[name='keyword']").focus(function(){var def=$(this).attr('def'); if($(this).val()== def){$(this).val(''); $(this).css('color', '#666');}});
+	$("#searchForm input[name='keyword']").blur(function(){var def=$(this).attr('def'); if($(this).val()== def || $(this).val()==''){$(this).val(def); $(this).css('color', '#DDD');}else{$(this).css('color', '#666');}});
+	
+	$(".dataSet th.order").click(function(){
+		var name = $(this).attr('name');
+		var order = $(this).attr('order');		
+		$("#order").attr({'name' : 'order[' + name + ']', 'value' : order});
+		$("#searchForm").submit();
+	});
+
+	$("#searchForm input[type='reset']").click(function(){		
+		$(this).find("input[name='keyword']").val('');
+		$("#order").attr({'name' : 'order[date]', 'value' : 1});
+	});
+	
+	$("#searchForm").submit(function(){		
+		var def = $(this).find("input[name='keyword']").attr('def');
+		var keyword = $(this).find("input[name='keyword']").val();
+		if(def == keyword) $(this).find("input[name='keyword']").val('');
+		$(this).find("input[name='search']").attr('name', '');
+	});
+	
+	$("input[name='exportBnt']").click(function(){
+		//$("#searchForm").attr('action', '/event/export');
+		$("#export").val(1);
+		$("#searchForm").submit();
+		$("#export").val(0);
+	});
+	
+	$('#upfile').uploadify({
+		'formData'     : {			
+			'type'	 : 'teacher',
+			'timestamp' : <!--{$smarty.const.TM}-->,
+			'<!--{$session_name}-->' : '<!--{$smarty.cookies[$session_name]}-->'
+		},	
+		
+		'fileTypeExts':'*.xls;*.xlsx',
+		'fileSizeLimit' : 2048,
+		'buttonClass' : 'dataBnt',
+		'height' : 16,
+		'width' : 60,
+		'buttonText' : '批量导入',		
+		'swf'      : '/static/js/uploadify/uploadify.swf?tm=' + new Date().getTime(),
+		'uploader' : '/teacher/import',		
+		'method' : 'post',
+		'multi' : false,		
+		'fileObjName' : 'upfile',
+		
+		'onSelectError' : function (file, errorCode, errorMsg) {		
+		   if (errorCode == SWFUpload.QUEUE_ERROR.FILE_EXCEEDS_SIZE_LIMIT){
+				alert('超过文件上传大小限制（5M）！');
+				return;
+		   }
+		},		
+		'onUploadSuccess' : function(file, data, response){
+			var data = jQuery.parseJSON(data);
+			var icon = data.state ? 'succeed' : 'error';			
+			window.top.art.dialog({'icon' : icon, 'content' : data.message, resize:false, 'lock':true}, function(){
+				window.top.right.location.reload(true);
+			});
+		 }		 
+	});
+
+	$("#create").click(function(){
+		art.dialog({
+			'content' : document.getElementById('createForm'),  width:'auto', height: 'auto', lock : false, id: 'createForm', title : false,
+			follow: document.getElementById('create'),drag : false,
+			ok: function () {
+				var name = document.getElementById('createName').value;
+				var account = document.getElementById('createAccount').value;
+				var artTip = this;
+				$.post('/teacher/create', {'name' : name, 'account' : account}, function(data){		
+					if(data.state)
+					{	
+						// window.location.href = '/teacher';
+						alert(data.message);
+						window.location.reload(true);
+					}else{
+						art.dialog.alert(data.message);
+					}
+				}, 'json');
+				return false;
+			},
+			cancelVal: '取消',
+			cancel: true
+		});
+	});
+
+});
+
+function checkAll(o){
+	if( o.checked == true ){
+		$('input[name="checkbox"]').attr('checked','true');
+	}else{
+		$('input[name="checkbox"]').removeAttr('checked');		
+	}
+}
+
+function getChecked() {
+	var idArr = new Array();
+	$.each($('.dataSet input[name="checkbox"]:checked'), function(i, n){
+		idArr.push( $(n).val() );
+	});
+	return idArr;
+}
+
+function multiSchedule(){
+	var idArr = getChecked();
+	if(idArr.length < 1) {window.top.art.dialog({'icon' : 'error', 'content' : '请选择老师', resize:false, 'lock':true, width:400, height:'auto'}); return false;}
+	var idHtml =  '/assign?assigner=';
+	for(var i = 0; i< idArr.length; i++)
+	{
+		if(i<1)
+			idHtml =  idHtml + idArr[i];
+		else
+			idHtml = idHtml + ',' + idArr[i]; 
+	}
+	window.location.href= idHtml+'&type=1';
+}
+
+function schedule(id){
+	window.location.href=  '/assign?assigner=' + id+'&type=1';
+}
+
+function multi(action)
+{
+	var idArr = getChecked();	
+	if(idArr.length < 1) {window.top.art.dialog({'icon' : 'error', 'content' : '请选择老师', resize:false, 'lock':true, width:400, height:'auto'}); return false;}
+	if(action == 'delete')
+	{
+		toDelete(idArr);
+	}else if(action == 'group')
+	{
+		toGroup(idArr);
+	}else if(action == 'freeze')
+	{
+		freeze(idArr, 2);
+	}
+}
+function freeze(id, status)
+{
+	window.top.art.dialog({'id':'TeacherDelete', icon : 'question', 'content' : '确定要' + (status == 0 ? '取消' : '') + '冻结码?', 'lock':true, resize:false, width:400, height:'auto'}, function(){
+		$.ajax({
+			url: '/teacher/ajax',
+			data : {'id' : id, action : 'freeze', 'status' : status},
+			dataType :'json',
+			type : 'post',
+			success: function (data) {							
+				if(data.state) {icon = 'succeed'; background='#fff0f0'}else{icon = 'error'; background='#E2FF7E';}
+				window.top.art.dialog({id: 'Success', title: false, icon : icon, content:data.message, width:'400px',resize:false, lock:true, cancel : false, 'close' : function(){				
+					if(data.state) window.top.right.location.reload(true);
+				}}).time(2);
+			},
+			cache: false
+		});
+	},function(){});
+}
+
+function toDelete(id)
+{
+	window.top.art.dialog({'id':'TeacherDelete', icon : 'question', 'content' : '确定要删除吗?', 'lock':true, resize:false, width:400, height:'auto'}, function(){
+		$.ajax({
+			url: '/teacher/delete',
+			data : {'id' : id},
+			dataType :'json',
+			type : 'post',
+			success: function (data) {							
+				if(data.state) {icon = 'succeed'; background='#fff0f0'}else{icon = 'error'; background='#E2FF7E';}
+				window.top.art.dialog({id: 'Success', title: false, icon : icon, content:data.message, width:'400px',resize:false, lock:true, cancel : false, 'close' : function(){				
+					if(data.state) window.top.right.location.reload(true);
+				}}).time(2);
+			},
+			cache: false
+		});
+	},function(){});
+}
+
+function toGroup(idArr)
+{
+	window.top.art.dialog.open('/teacher/Group?id=' + idArr, {id : 'teacherGroup', title: '老师分组', shadow:false,drag:true, resize:false, height:'auto'});
+}
+
+function recomm(teacher, status)
+{	
+	art.dialog.open('/teacher/recom?status=' + status + '&teacher=' + teacher,{title : '教师推荐', resize : false, lock : true, padding: '0px 0px', width:'480px', height:'210px'});
+}
+function recommRemove(teacher)
+{
+	window.top.art.dialog({'id':'TeacherDelete', icon : 'question', 'content' : '确定要取消吗?', 'lock':true, resize:false, width:400, height:'auto'}, function(){
+		$.ajax({
+			url: '/teacher/recom',
+			data : {'teacher' : teacher, action : 'recomm', status : 0},
+			dataType :'json',
+			type : 'post',
+			success: function (data) {							
+				if(data.state) {icon = 'succeed'; background='#fff0f0'}else{icon = 'error'; background='#E2FF7E';}
+				window.top.art.dialog({id: 'Success', title: false, icon : icon, content:data.message, width:'400px',resize:false, lock:true, cancel : false, 'close' : function(){				
+					if(data.state) window.top.right.location.reload(true);
+				}}).time(2);
+			},
+			cache: false
+		});
+	});
+}
+function recommRender(data)
+{
+	if(data.state) {icon = 'succeed'; background='#fff0f0'}else{icon = 'error'; background='#E2FF7E';}
+	window.top.art.dialog({id: 'Success', title: false, icon : 'succeed', content:data.message, width:'400px',resize:false, lock:true, cancel : false, 'close' : function(){				
+		if(data.state) window.location.reload(true);
+	}}).time(2);
+}
+</script>
+</body>
+</html>

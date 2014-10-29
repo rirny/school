@@ -1,0 +1,85 @@
+<!--{include file="../header.html"}-->
+<script type="text/javascript" src="<!--{$JS}-->/jquery.form.js"></script>
+<style>
+	body{margin:0px;padding:0px}
+	li{width:<!--{if count($result) <= 8 }-->99%<!--{elseif count($result) <= 16}-->49%<!--{elseif count($result) <= 24}-->32%<!--{elseif count($result) <= 40}-->24%<!--{/if}-->; 
+		display:inline-block; *zoom:1; *display:inline; vertical-align: middle;line-height:24px;
+	}	
+	.formItem li label{text-align:left; width:auto; margin-left:8px;}
+</style>
+
+<div class="dataForm" style="padding:10px;margin:0px;">
+<form action="/student/Grade" id="dataFrom" name="dataFrom" method="post">
+	<input type="hidden" value="<!--{$id}-->" name="id" />
+	<div class="formItem groups" >
+		<ul>
+			<!--{foreach from=$result key=key item=item}-->
+				<li><input type="checkbox" value="<!--{$item.id}-->" name="grade[]" <!--{if $item.check}-->checked="checked"<!--{/if}--> /><label><!--{$item.name}--></label></li>
+			<!--{/foreach}-->			
+		</ul>
+	</div>
+	<div class="formItem groupForm" style="display:none;">
+		<input type="text" class="input-text" name="name" value="" style="width:100px;margin-right:8px;"/>
+		<input id="newBnt" type="button" value="确定" class="dataBnt"/>
+		<input name="groupCancel" id="groupCancel" type="button" value="取消" class="cancelBnt"/>
+	</div>
+	<div class="formItem groupAdd">
+		<a href="javascript:;" id="add" class="high">创建班级</a>
+	</div>
+
+	<div class="formItem formSubmit">
+		<input name="submit" id="formSubmit" type="submit" value="确定" class="dataBnt"/>
+		<input name="cancel" id="cancel" type="button" value="取消" class="cancelBnt"/>
+	</div>
+</form>
+</div>
+
+<script type="text/javascript">
+$(function(){
+	$("#cancel").click(function(){window.top.closeAllDialog();});
+	$("#add").click(function(){
+		$(".groupForm").show();
+		$(".groupAdd,.formSubmit").hide();
+		$(".groupForm input[name='name']").val('');		
+	});
+	$("#newBnt").click(function(){
+		var name = $("input[name='name']").val();
+		if(!name) window.top.art.dialog({'title' : false, 'icon': 'error','cancel' : false, 'content' : '请填写班级名称！'}, function(){});
+		$.post('/grade/do', {name : name}, function(data){
+			if(data.state)	{				
+				$(".groups").append('<li><input type="checkbox" value="' + data.result._id + '" name="group[]" /><label>' + name + '</label></li>');
+				$("#groupCancel").click();
+			}else{
+				window.top.art.dialog({'title' : false, 'icon': 'error','cancel' : false, 'content' : data.message}, function(){});
+			}
+		}, 'json');
+		$(".groupForm").hide();		
+	});
+
+	$("#groupCancel").click(function(){
+		$(".groupForm").hide();
+		$(".groupAdd,.formSubmit").show();	
+	});
+
+	$("#dataFrom").submit(function(){
+		$("#dataFrom").ajaxSubmit({ 
+			dataType:'json',
+			type: 'post',			
+			success: function(data){	
+				if(!data.state)
+				{
+					window.top.art.dialog({'title' : false, 'icon': 'error','cancel' : false, 'content' : data.message}, function(){});
+				}else{					
+					window.top.right.location.reload();
+					window.top.closeAllDialog();
+				}
+			},  
+			error: function(XmlHttpRequest, textStatus, errorThrown){  
+				alert(textStatus);  
+			}
+		});
+		return false;
+	});
+
+});
+</script>

@@ -1,0 +1,124 @@
+<!--{include file="../header.html"}-->
+<div class="mainContent">
+	<div class="mbx">
+		<span><a href="javascript:;" onclick="window.history.go(-1);">返回</a> >></span>
+		<a href="javascript:;" onclick="window.top.menuOn('base', 1)">首页</a> > <a href="javascript:;" onclick="window.top.menuOn('student', 1)">学生管理</a> > <a href="/apply/student">新生申请</a>		
+	</div>
+	<form action="/apply/student" method="get" name="searchForm" id="searchForm" >		
+		<input type="hidden" id="order" name="order[<!--{key($smarty.get.order|default:'time')}-->]" value="<!--{current($smarty.get.order)|default:0}-->" />	
+	</form>
+
+	<div class="dataTable">
+		<div class="dataHeader">		
+			<div class="page"><a>总：<!--{$record}--></a><!--{$paginator->getRender($curl, 0)}--></div>
+			<input name="add" id="add" type="button" value="添加学生" class="dataBnt" />
+		</div>
+		<div class="dataSet">
+			<table width="100%" cellpadding="0" cellspacing="0" >
+				<thead>
+					<th width="20"><input type="checkbox" name="chkAll" value="1" onclick="checkAll(this)"/></th>					
+					<th width="120" name="name" order="<!--{if key($smarty.get.order) == 'name' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">学生名<i></i></th>					
+					<th width="180" name="time" class="order" order="<!--{if key($smarty.get.order) == 'time' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">申请时间<i></i></th>
+					<th width="120">消息<i></i></th>				
+					<th>操作</th>
+				</thead>
+				<tbody>
+					<!--{foreach from=$result item=item key=key name=result}-->
+					<tr>
+						<td><input type="checkbox" name="checkbox" value="<!--{$item.id}-->" /></td>
+						<td><!--{$item.name}--></td>					
+						<td><!--{$item.create_time|date_format:"%Y-%m-%d"}--></td>
+						<td><!--{$item.message}--></td>						
+						<td >
+							【<a href="javascript:;" onclick="handle('pass', <!--{$item.id}-->)" class="high">通过</a>】
+							【<a href="javascript:;" onclick="handle('refuse', <!--{$item.id}-->)" class="high">拒绝</a>】
+						</td>
+					</tr>
+					<!--{foreachelse}-->
+					<tr>
+						<td class="high" colspan=5 height=60 align="center">暂无记录</td>						
+					</tr>
+					<!--{/foreach}-->
+				</tbody>
+			</table>
+		</div>		
+		<div class="dataFooter" style="margin-top:10px">
+			<div class="page" id="page"><a>总：<!--{$record}--></a><!--{$paginator->getRender($curl, 1)}--></div>
+			<!--{if $result}-->
+			<input name="pass" id="pass" onclick="multi('pass')" type="button" value="批量通过" class="dataBnt" />			
+			<input name="refuse" id="refuse" onclick="multi('refuse')" type="button" value="批量拒绝" class="dataBnt" />
+			<!--{/if}-->			
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function()
+{
+	// $("#searchForm input[name='keyword']").focus();
+	$(".dataSet tr:even").addClass('even');	
+	$(".dataSet tr").hover(function(){$(this).addClass('on');},function(){$(this).removeClass('on')});
+	$(".dataSet th.order").click(function(){
+		var name = $(this).attr('name');
+		var order = $(this).attr('order');		
+		$("#order").attr({'name' : 'order[' + name + ']', 'value' : order});
+		$("#searchForm").submit();
+	});
+
+	$("pass").click(function(){
+		var idArr = getChecked();
+		handle('pass', idArr.join());
+	});
+	$("pass").click(function(){
+		var idArr = getChecked();
+		refuse('refuse', idArr.join());
+	});
+
+	$("#add").click(function(){
+		window.top.art.dialog.open('/apply/add?type=student', {
+			id : 'ApplyAdd', title: '添加学生', 
+			shadow:false, drag:true, title:false, resize:false, width: 400, 
+			height:120,
+			left: 230,
+			top: 210,
+			fixed: true		
+		});
+	});
+});
+function checkAll(o){
+	if( o.checked == true ){
+		$('input[name="checkbox"]').attr('checked','true');		
+	}else{
+		$('input[name="checkbox"]').removeAttr('checked');		
+	}
+}
+
+function multi(action)
+{
+	id = getChecked();
+	handle(action, id);
+}
+function getChecked() {
+	var idArr = new Array();
+	$.each($('.dataSet input[name="checkbox"]:checked'), function(i, n){
+		idArr.push( $(n).val() );
+	});
+	return idArr;
+}
+function handle(action, id)
+{
+	if(!id) {window.top.art.dialog({'icon' : 'error', 'content' : '请选择数据', resize:false, 'lock':true}); return false;}
+	$.ajax({
+		url: '/apply/do',
+		data : {'id' : id, 'handle' : action, 'character' : 'student'},
+		dataType :'json',
+		type : 'post',
+		success: function (data) {				
+			if(data.state) {icon = 'succeed'; background='#fff0f0'}else{icon = 'succeed'; background='#E2FF7E';}
+			window.top.art.dialog({id: 'Success', title: false, icon : icon, content:data.message, width:400, resize:false, lock:true, close : function(){window.top.right.location.reload();}}).time(3);
+		},
+		cache: false
+	}); 
+}
+</script>
+</body>
+</html>

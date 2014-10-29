@@ -1,0 +1,86 @@
+<!--{include file="school/header.html"}-->
+<style>
+	.cms_content {height:auto; overflow:hidden;}
+	.cmsLeft{width:180px; float:left; padding:8px 0px;}
+	.cmsLeft li{height:30px; line-height:30px; padding:0px 12px;}
+	.cmsRight{width:570px; float:left; padding:0px 20px; border-left:1px solid #ccc}
+	.cmsRight{line-height:24px;}
+	.qu {padding:0px 12px;}
+	.qu h3{line-height:40px; height:40px; margin-top:20px;}
+	.qu h3 a.top{float:right;font-size:12px;font-weight:normal}
+	.qu h4{line-height:30px; margin-top:12px; font-size:12px; color:#000; overflow:hidden}
+
+</style>
+<body scroll="no" style="background:#292929">
+<div class="header">
+	<div class="top">
+		<div class="userStatus" style="float:right;color:#FFF;line-height:50px;padding-right:12px;">
+			<!--{if $__USER__.id}--><span><!--{$__USER__.name|default:$__USER__.account}--></span><a href="/logout">退出</a>
+			<!--{else}-->
+			<a href="/login">登录</a><a href="/register">注册</a>
+			<!--{/if}-->
+		</div>
+		<div class="logo" ><a><img src="<!--{$IMG}-->/school/logo.png" /></a></div>		
+	</div>
+</div>
+<div id="content" style="background:#F9F9F9; padding:12px 0px;position:relative;">
+	<div id="main" style="position:relative;width:1000px; margin:0px auto;border:1px solid #CCC">
+		<a name="top"></a>
+		<div class="cms_content">
+
+			<h3 class="qa" style="height:38px;line-height:38px;background:url('http://www.hulapai.com/statics/images/hulapai/header_bg.png') repeat-x; padding:0px 8px; border-bottom:1px solid #CCC">帮助指南 - 教育机构管理系统操作指南</h3>
+			<!--
+			<div>			
+			<embed id="video" src="http://player.youku.com/player.php/sid/XNjk5NjU2NjA4/v.swf" allowFullScreen="true" quality="high" width="480" height="400" align="middle" allowScriptAccess="always" type="application/x-shockwave-flash"></embed>
+			</div>
+			-->
+			<!--{foreach from=$result item=item}-->			
+			<div class="qu" >
+				<h3><a href="<!--{$item.description}-->" target="_blank" onclick="change('<!--{$item.description}-->')"><!--{$item.title}--></a></h3>
+			</div>
+			<!--{/foreach}-->	
+			<div style="padding:10px; font-size:16px; color:#999;text-align:center">您还可以在优酷、搜狐视频、爱奇艺、酷六、56、新浪视频内搜索“教育机构管理后台教学视频”观看</div>
+		</div>
+	</div>
+			
+</div>
+<div id="footer" style="line-height:30px;color:#F1F1F1">2013-2014 Hulapai Co.ltd. All Rights</div>
+<script type="text/javascript">
+//clientHeight-0; 空白值 iframe自适应高度
+function windowW(){
+	if($(window).width()<980){
+		$('.header').css('width',980+'px');
+		$('#content').css('width',980+'px');
+		$('body').attr('scroll','');
+		$('body').css('overflow','');
+	}
+}
+windowW();
+
+$(window).resize(function(){
+	if($(window).width()<980){
+		windowW();
+	}else{
+		$('.header').css('width','auto');
+		$('#content').css('width','auto');
+		$('body').attr('scroll','no');
+		$('body').css('overflow','hidden');		
+	}
+});
+
+window.onresize = function(){
+	var clientHeight = document.documentElement.clientHeight;
+	if($.browser.mozilla)
+	{
+		clientHeight = window.innerHeight;
+	}
+	var heights = clientHeight - 110;
+	if(heights < 540) heights=540;
+	// document.getElementById('content').height = heights;
+	//alert(heights);
+	$("#main").css('height', heights);
+}
+window.onresize();
+</script>
+<body>
+</html>

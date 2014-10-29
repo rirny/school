@@ -1,0 +1,234 @@
+<!--{include file="school/header.html"}-->
+<link href="<!--{$JS}-->/uploadify/uploadify.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/formValid/style/validator.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidator.min.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/jquery.form.js"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script src="<!--{$JS}-->/uploadify/jquery.uploadify.min.js?ver=<!--{math equation=rand(1,9999)}-->" language="javascript" type="text/javascript" ></script>
+<style>
+#queue{display:inline-block; *zoom:1; *display:inline;}
+.uploadify{margin:0px;line-height:28px;_line-height:24px;}
+.uploadify{height:28px; +height:24px;width:90px;margin-bottom:6px; vertical-align:bottom;}
+.swfupload{width:90px; height:26px;+height:24px;}
+.uploadify-button{padding:2px; color:#666; width:80px; margin-left:6px;+margin-left:10px;background:url('<!--{$IMG}-->/school/bnt-bg.png') repeat-x;border:1px solid #cecece}
+#upfile-button{width:60px;}
+.uploadify-button-text{}
+.uploadify:hover .uploadify-button{color:#666}
+.uploadify-queue{position:absolute;}
+</style>
+<div class="mainContent">
+	<div class="mbx">
+		<a href="javascript:;" onclick="menuOn('base', 'on')">首页</a> > <a href="/event">基本信息</a> > <a>机构信息</a> 
+	</div>
+	<div class="dataForm" style="background:#F5F5F5;padding:10px 0px">		
+		<form action="/info" id="dataForm" name="dataForm" method="post">
+		<input type="hidden" name="school" id="school" value="<!--{$result.id}-->" class="input-text" size="20"/>
+		<input type="hidden" name="timestamp" value="<!--{$timestamp}-->"/>
+		<input type="hidden" name="token" value="ttt"/>
+		<!--{if $result.code_set == 1}-->
+		<div class="formItem">
+			<label>机构号：</label> <!--{$result.code}-->
+		</div>
+		<!--{else}-->
+		<div class="formItem">
+			<label style="margin-right:6px">机构号：</label><input type="text" name="code" id="code" value="<!--{$result.code}-->" class="input-text" size="20"/>
+			<input type="hidden" name="_code" id="_code" value="<!--{$result.code}-->" class="input-text" size="20"/>
+			<span id="codeTip"></span>
+		</div>
+		<!--{/if}-->
+
+		<div class="formItem">
+			<label style="margin-right:6px">机构名称：</label><input type="text" name="name" id="name" value="<!--{$result.name}-->" class="input-text" size="30"/>
+			<span id="nameTip"></span>
+		</div>
+
+		<div class="formItem">
+			<label style="margin-right:0px">机构类型：</label>
+			<select name="type" id="type"><!--{html_options options=$types selected=$result.type}--></select>			
+			<span id="typeTip"></span>
+		</div>
+		
+		<div class="formItem">
+			<label style="margin-right:0px;vertical-align:top">机构Logo：</label>
+			<div class="logoImage"><img src="<!--{$result.logo}-->" /></div>
+			<input id="upfile" name="upfile" type="file" type="file" multiple="false" />
+			<div id="queue"></div>
+			<span id="uploadTip"></span>
+		</div>
+
+		<div class="formItem">
+			<label style="margin-right:6px">联系人：</label><input type="text" name="contact" id="contact" value="<!--{$result.contact}-->" class="input-text" size="20"/>
+			<span id="contactTip"></span>
+		</div>
+
+		<div class="formItem">
+			<label style="margin-right:6px">联系方式：</label><input type="text" name="phone" id="phone" value="<!--{$result.phone}-->" class="input-text" size="20" maxlength="18" />
+			<span id="phoneTip"></span>
+		</div>
+
+		<div class="formItem">
+			<label style="margin-right:6px"></label><input type="text" name="phone2" id="phone2" value="<!--{$result.phone2}-->" class="input-text" size="20"/>			
+		</div>
+
+		<div class="formItem">
+			<label style="margin-right:6px">网址：</label><input type="text" name="web" id="web" value="<!--{$result.web}-->" class="input-text" size="20" style="width:300px"/>			
+		</div>
+
+		<div class="formItem">
+			<label style="margin-right:0px">地区：</label>
+				<select name="province" id="province"><option value="0">选择省份</option><!--{html_options options=$provinces selected=$result.province}--></select>
+				<select name="city" id="city"><option value="0">选择城市</option></select>
+				<select name="area" id="area"><option value="0">选择区/县</option></select>
+			<span id="areaTip"></span>
+		</div>
+
+		<div class="formItem">
+			<label style="margin-right:6px">详细地址：</label><input type="text" name="address" id="text" value="<!--{$result.address}-->" class="input-text" style="width:300px"/>
+			<span id="addressTip"></span>
+		</div>
+
+		<div class="formItem" style="position:relative">
+			<label style="margin-right:2px;vertical-align:top">机构简介：</label>
+			<textarea name="description" id="description" rows="5" cols="60" class="input-text" style="width:400px;height:100px;resize:none"><!--{$result.description}--></textarea>
+			<span id="wordCount" style="left:480px;top:98px;"><b>800</b>字</span>
+			<span id="descriptionTip"></span>
+		</div>
+		<div class="formItem" style="padding-left:118px;">			
+			<!--<button name="submit" id="formSubmit" class="dataBnt aui_state_highlight">发布</button>-->
+			<input name="submit" id="formSubmit" type="submit" value="确定" class="dataBnt"/>
+			<!--<button type="button" name="reset">取消</button>-->
+		</div>		
+		</form>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+	$('#upfile').uploadify({
+		'formData'     : {
+			'school' : <!--{$result.id}-->,
+			'type'	 : 'school',
+			'timestamp' : <!--{$smarty.const.TM}-->,
+			'<!--{$session_name}-->' : '<!--{$smarty.cookies[$session_name]}-->'
+		},		
+		'width' : 65,
+		'height' : 25,
+		'fileTypeExts':'*.jpg;*.jpeg;*.png;*.gif',
+		'fileSizeLimit' : 2048,
+		'buttonText' : '上传',
+		'buttonClass': 'upload-button',
+		'swf'      : '<!--{$JS}-->/uploadify/uploadify.swf?tm=' + new Date().getTime(),
+		'uploader' : '/public/upload',		
+		'method' : 'post',
+		'multi' : false,
+		'fileObjName' : 'upfile',
+		'onSelectError' : function (file, errorCode, errorMsg) {		
+		   if (errorCode == SWFUpload.QUEUE_ERROR.FILE_EXCEEDS_SIZE_LIMIT){
+				alert('超过文件上传大小限制（5M）！');
+				return;
+		   }
+		   // alert(errorCode);
+		},		
+		'onUploadSuccess' : function(file, data, response){			
+			var data = jQuery.parseJSON(data);	
+			if(data.state){
+				var uploadFile = data.result.filepath;				
+				$(".logoImage img").attr('src', '<!--{$STATIC_PATH}-->/' + uploadFile + "?tm=<!--{$smarty.const.TM}-->");				
+			}
+		 }
+		
+	});
+
+	<!--{if $result.province}-->areaChange(<!--{$result.province}-->, 0, <!--{$result.city}-->);<!--{/if}-->
+	<!--{if $result.city}-->areaChange(<!--{$result.city}-->, 1, <!--{$result.area}-->);<!--{/if}-->
+
+	$("#province").change(function(){		
+		areaChange($(this).val(), 0, 0);
+	});
+	$("#city").change(function(){		
+		areaChange($(this).val(), 1, 0);
+	});
+	<!--{if $result.code_set == 0}-->
+	$("#code").focus();
+	<!--{/if}-->
+	$.formValidator.initConfig({formID:"dataForm", submitButtonID: 'formSubmit', submitOnce:true, errorFocus:true,wideWord:false,
+		onError:function(msg, obj, errorlist){alert(msg);},
+		onSuccess:function(){}
+	});
+	$("#province").formValidator({tipid : 'areaTip', onShow:"", onFocus:"请选择省份", defaultValue:''}).inputValidator({min:1,onError: "省份必选!"});
+	$("#city").formValidator({tipid : 'areaTip', onShow:"", onFocus:"请选择城市", defaultValue:''}).inputValidator({min:1,onError: "城市必选!"});
+	$("#area").formValidator({tipid : 'areaTip', onShow:"", onFocus:"请选择区县", defaultValue:''}).inputValidator({min:1,onError: "区县为必选!"});
+	$("#name").formValidator({onShow:"", onFocus:"机构名称30个字以内", defaultValue:''}).inputValidator({min:2,max:30,onError:"机构名称30个字以内"});
+	$("#contact").formValidator({onShow:"", onFocus:"请填写联系人", defaultValue:''}).inputValidator({min:2,max:20,onError:"请填写联系人"});
+
+	$("#phone,#phone2").formValidator({tipid : 'phoneTip', onShow:"",onFocus:"请填写联系方式！"}).functionValidator({fun : function(){
+		var mobileReg = new RegExp(regexEnum.mobile);
+		//var phoneReg = new RegExp(regexEnum.phone);
+		//var telReg = new RegExp(regexEnum.tel400); //2014/5/5 修改电话正则 fxd
+		var phone = $("#phone").val();
+		var phone2 = $("#phone2").val();
+		if(phone && !(mobileReg.test(phone))) {this.onError = '联系方式格式不正确!';  $("#phone").focus(); return false;}
+		if(phone2 && !(mobileReg.test(phone2))) {this.onError = '联系方式格式不正确!';  $("#phone2").focus(); return false;}
+		if(!phone && !phone2) {this.onError = '联系方式须填写至少一个!';  $("#phone").focus(); return false;}
+		return true;
+	}, onError : '请填写联系方式！'});
+
+	$("#contact").formValidator({onShow:"", onFocus:"请填写联系人", defaultValue:''}).inputValidator({min:2,max:20,onError:"请填写联系人"});
+	$("#description").formValidator({onShow:"",  onFocus:"描述内容须为5-800字", defaultValue:''}).inputValidator({min:5,max:800, onErrorMin:"描述内容至少为5个字", onErrorMax:'描述内容不可超过800个字'});
+	$("button[name='reset']").click(function(){
+		//$("#dataForm").clearForm();
+	});	
+	<!--{if $result.code_set == 0}-->
+	$("#code").formValidator({onShow:"机构号为6-20个字母、数字或下划线;机构号只能修改一次!", onFocus:"机构号为6-20个字母、数字或下划线", defaultValue:''}).inputValidator({min:6,max:20,onError:"机构号为6-20个字母、数字或下划线"}).regexValidator({
+		regExp:"username",dataType:"enum",onerror:"机构号为6-20个字母、数字或下划线"
+	}).ajaxValidator({
+		type : 'get', 'url' : '/public/school_code_exists', data : {id : <!--{$result.id}-->}, dataType : 'json', processData : true, oneceValid: false, success : function(data){			
+			if(data.state == 1) 
+			{				
+				return true;
+			}else if(data.state == 2){				
+				return '机构号已存在，不可用';
+			}else{
+				return data.message;
+			}
+		},
+		beforesend : function(){
+			window.top.art.dialog('机构号验证中...');
+		},
+		buttons: $("#formSubmit"),
+		error: function(){alert("错误");}, 
+		onError : "机构号错误", 
+		onWait : "机构号验证中..."//function(){alert($("#pcode").val());}
+	}).defaultPassed();	
+	<!--{/if}-->
+	wordChange(800, $('#description'));
+	$("#description").keyup(function(e){
+		wordChange(800, $(this));		
+	});
+});
+
+function areaChange(pid, level, def)
+{
+	var next = 'area';
+	if(level == 0)
+	{
+		$("#city option:gt(0)").remove();
+		next = 'city';
+	}
+	$("#area option:gt(0)").remove();
+	if(level == 1 && pid == 0) return ;
+	if(pid)
+	{		
+		$.get("/public/get_area?", {pid : pid}, function(data){			
+			$.each(data, function(i,item){				
+				$("#" + next).append('<option value="' + i + '">' + item + '</option>');
+				$("#" + next).val(def);
+			});
+			//$("#" + next).focus();
+		}, 'json');
+		$("#nameTip").focus();
+	}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+/.DS_Store
+/manager.php
+/libaray/Smarty/
+/libaray/PHPExcel/
+/conf/config.php
+/nbproject/
+/√接口文挡
+
+.DS_Store
+
+*.swp
+
+/.metadata/
+
+/.settings/org.eclipse.core.resources.prefs
+
+/composer.phar
+
+/composer.lock
+
+/vendor/
+
+# OS generated files #  
+######################  
+.DS_Store  
+.DS_Store?  
+._*

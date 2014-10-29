@@ -1,0 +1,85 @@
+<!--{include file="../header.html"}-->
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/jscal2.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/border-radius.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/win2k.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/calendar.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/lang/en.js"></script>
+<div class="mainContent">
+	<div class="mbx">
+		<span><a href="javascript:;" onclick="window.history.go(-1);">返回</a> >></span>
+		<a href="javascript:;" onclick="window.top.menuOn('base', 1)">首页</a> > <a href="/student">学生管理</a> > <a href="/comment/student">点评记录</a> 		
+	</div>
+	
+	<div class="dataTable" style="background:#F5F5F5; height:100%;overflow:hidden; padding:20px 16px;">
+		<div class="contentView" style="">
+			<ul>
+				<li class="top">
+					<h3>
+					<!--{if $comment.character == 'teacher'}--><!--{$comment.teacher.firstname}--><!--{$comment.teacher.lastname}-->
+					<!--{else if $comment.character=='school'}--><!--{$comment.school}-->
+					<!--{else}--><!--{$comment.student.name}--><!--{$relations[$comment.relation.relation]}--><!--{/if}-->
+					</h3>
+					<p><!--{$comment.content}--></p>
+					<!--{if $comment.attach}-->
+					<p><img src="<!--{$STATIC_PATH}-->/<!--{$comment.attach.src}-->" width="45" onclick="show_attach('<!--{$STATIC_PATH}-->/<!--{$comment.attach.src}-->')" /></p>
+					<!--{/if}-->
+					<p><!--{$comment.create_time}--></p>
+				</li>
+				<!--{foreach from=$reply item=item key=key}-->
+				<li>
+					<h3>
+					<!--{if $item.character == 'teacher'}--><!--{$item.teacher.firstname}--><!--{$item.teacher.lastname}-->
+					<!--{else if $item.character=='school'}--><!--{$item.school}-->
+					<!--{else}--><!--{$item.student.name}--><!--{$relations[$item.relation.relation]}--><!--{/if}-->
+					</h3>
+					<p><!--{$item.content}--></p>
+					<p><!--{$item.create_time}--></p>
+				</li>
+				<!--{/foreach}-->
+			</ul>
+			
+		</div>
+			<!--{if !$event}-->
+			<div class="reply dataForm" style="padding:0px;">
+				<form action="/comment/reply" method="post">
+					<div class="formItem commentReply" style="padding:0px">				
+						<input type="hidden" name="pid" value="<!--{$comment.id}-->" />
+						<input type="hidden" name="event" value="0" />
+						<textarea name="content" id="replyContent" rows="5" cols="60" class="input-text" style="width:400px;height:100px;resize:none"></textarea>						
+						<span id="wordCount"><b>300</b>字</span>
+					</div>
+					<div class="formItem" style="padding-top:12px;">			
+						<button name="submit" id="formSubmit" class="dataBnt" style="margin-left:0px">发布</button>					
+					</div>
+				</form>
+			</div>
+			<!--{/if}-->
+	</div>
+</div>
+<script type="text/javascript">
+$(function()
+{
+	// $("#searchForm input[name='keyword']").focus();
+	$(".dataSet tr:even").addClass('even');	
+	$(".dataSet tr").hover(function(){$(this).addClass('on');},function(){$(this).removeClass('on')});
+	$(".dataSet th.order").click(function(){
+		var name = $(this).attr('name');
+		var order = $(this).attr('order');		
+		$("#order").attr({'name' : 'order[' + name + ']', 'value' : order});
+		$("#searchForm").submit();
+	});	
+
+	$("#replyContent").keydown(function(){
+		var Len = $(this).val().length;
+		if(Len > 300) return false;
+		$("#wordCount").find("b").text(300-Len);
+	});	
+});
+
+function show_attach(src)
+{
+	window.top.art.dialog({title : false, content : '<img src="'+ src +'"/>', padding:0, lock: true, resize: false});
+}
+</script>
+</body>
+</html>

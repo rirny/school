@@ -1,0 +1,12 @@
+<html> 
+<head>   
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />  
+</head>
+<script type="text/javascript">
+var content = '<div id="progressor"><div>正在生成课程请不要关闭此页面</div><div style="padding: 0; background-color: white; border: 1px solid navy; width:<!--{$width}-->px">\n';
+content+= '<div id="progress" style="padding: 0; background-color: #0066cc; border: 0; width: 0px; text-align: center;height:20px;"></div>\n';        
+content+= '</div>\n';
+content+= '<div id="status" style="line-height:20px;">&nbsp;</div>\n';
+content+= '<div id="percent" style="position: relative; top: -36px; text-align: center; font-weight: bold;">0%</div></div>\n';
+window.top.art.dialog({id: 'Success', title : '正在生成课程', content:content, width:600, resize:false, lock:true, cancel : false});
+</script>

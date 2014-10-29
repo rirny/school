@@ -1,0 +1,7 @@
+<ul>
+	<!--{foreach from=$items key=key item=item name=menu}-->
+	<li <!--{if $smarty.foreach.menu.first}-->class="on"<!--{/if}--> app="<!--{$item.app}-->" action="<!--{$item.action}-->" param="<!--{$item.param}-->"><span>
+		<a href="javascript:;" target="right"><!--{$item.name}--></a>
+	</span></li>
+	<!--{/foreach}-->
+</ul>

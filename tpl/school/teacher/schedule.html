@@ -1,0 +1,261 @@
+<!--{include file="../header.html"}-->
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/jscal2.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/border-radius.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/win2k.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$CSS}-->/school/tabs.css">
+<script type="text/javascript" src="<!--{$JS}-->/calendar/calendar.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/lang/en.js"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+
+<div class="mainContent">
+	<div class="mbx">
+		<span><a href="javascript:;" onclick="window.history.go(-1);">返回</a> >></span>
+		<a href="javascript:;" onclick="window.top.menuOn('base', 1)">首页</a> > <a href="javascript:;" onclick="window.top.menuOn('teacher', 1)">教师管理</a> > <a>排课</a>
+	</div>
+	<div style="padding:10px 0px 0px 0px;">
+		<label>已选老师：杨远成，胡春芳，吕玉珏，刘亚磊，樊学东，严金玺，朱时海，刘忻，东方闪电，美国队长，蜘蛛侠，雷神，钢铁侠，绿巨人，黄品源 ，圣达菲，钱文恩</label>
+	</div>
+	<div class="searchPanel">
+		<form action="/teacher/schedule" method="get" name="searchForm" id="searchForm" >			
+			<div class="searchForm">
+				<input type="hidden" id="order" name="order[<!--{key($smarty.get.order)}-->]" value="<!--{current($smarty.get.order)}-->" />
+				关键字：<input name="keyword" type="text" class="input-text" value="<!--{$smarty.get.keyword|default:'课程名'}-->" def="课程名" />						
+				<input name="reset" type="reset" value="清除筛选条件" class="searchBnt" />
+				<input name="search" type="submit" value="搜索" class="searchBnt" />
+				<input name="exportBnt" type="button" value="导出" class="searchBnt" />				
+				<input type="hidden" name="export" id="export" value="0" />
+				
+			</div>
+			<!--div class="searchHandle">
+				<input name="reset" type="reset" value="清除筛选条件" class="searchBnt" />
+				<input name="search" type="submit" value="搜索" class="searchBnt" />
+				<input name="exportBnt" type="button" value="导出" class="searchBnt" />
+			</div-->
+		</form>
+	</div>
+	<div id="teacherid">
+			<!--{foreach from=$idArr  key=key item=item}-->
+			<input type="hidden" name="ids" value="<!--{$item}-->" />
+			<!--{/foreach}-->
+	</div>
+	<div style="padding:10px 0px 0px 0px;">
+		<ul id="tabs">
+			<li><a href="#" name="tab1">全部</a></li>
+			<li><a href="#" name="tab2">周一</a></li>
+			<li><a href="#" name="tab3">周二</a></li>
+			<li><a href="#" name="tab4">周三</a></li>    
+		</ul>
+		<div id="content"> 
+			<div id="tab1">
+				<div class="dataTable">
+					<div class="dataHeader">
+						<div class="page"><a>总：<!--{$record}--></a></div>	
+					</div>
+					<div class="dataSet">
+						<table width="100%" cellpadding="0" cellspacing="0" >
+							<thead>
+								<th width="20"><input type="hidden" name="hRadio" value="1" /></th>
+								<th width="180" name="title" class="order" order="<!--{if key($smarty.get.order) == 'title' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">课程名称<i></i></th>
+								<th width="120" name="course" class="order" order="<!--{if key($smarty.get.order) == 'course' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">科目<i></i></th>
+								<th width="420" name="time" class="order" order="<!--{if key($smarty.get.order) == 'time' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">上课时间<i></i></th>
+								<th width="120">课时/次</th>		
+							</thead>
+							<tbody>
+								<!--{foreach from=$result item=item key=key name=result}-->
+								<tr>
+									<td><input type="radio" name="radio" value="<!--{$item.id}-->" /></td>
+									<td><!--{$item.title}--></td>
+									<td><!--{$item.name}--></td>
+									<td><!--{$item.time}--></td>
+									<td><!--{$item.times}--></td>
+								</tr>                                                 
+								<!--{foreachelse}-->
+								<tr>
+									<td class="high" colspan=8 height=60 align="center">暂无记录</td>						
+								</tr>
+								<!--{/foreach}-->
+							</tbody>
+						</table>
+					</div>		
+					<div class="dataFooter" style="margin-top:10px">
+						<div class="page" id="page"><a>总：<!--{$record}--></a></div>
+						<div style="padding-bottom:10px;">
+							<label>手机端权限：</label>
+							<input type="checkbox" name="checkbox" value="1" /><label> 点评 </label>
+							<input type="checkbox" name="checkbox" value="2" /><label> 考勤 </label>
+							<input type="checkbox" name="checkbox" value="3" /><label> 通知 </label>
+						</div>
+					</div>
+					<div class="searchForm">
+						起始日期：<input name="start" id="start" type="text" value="<!--{$start}-->" class="dateSelect" />
+						<script type="text/javascript">var startCalendar = callCalendar({inputField : 'start'});</script>
+					</div>
+					<div class="formItem" style="padding-top:50px;">			
+						<input name="submit" style="padding-right:20px;" type="submit" id="aSubmit" class="dataBnt" value="确认并继续开设" />
+						<input name="submit" style="padding-right:20px;" type="submit" id="vSubmit" class="dataBnt" value="确认并查看" />
+						<input name="reset" type="button" name="reset" class="cancelBnt" onclick="window.history.go(-1);" value="取消"/>
+					</div>
+				</div>
+			</div>
+			<div id="tab2">
+				<h2>Phasellus non nibh</h2>
+				<p>Non erat laoreet ullamcorper. Pellentesque magna metus, feugiat eu elementum sit amet, cursus sed diam. Curabitur posuere porttitor lorem, eu malesuada tortor faucibus sed.</p>
+				<h3>Duis pulvinar nibh vel urna</h3>
+				<p>Donec purus leo, porttitor eu molestie quis, porttitor sit amet ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Donec accumsan ornare elit id imperdiet. </p>
+				<p>Suspendisse ac libero mauris. Cras lacinia porttitor urna, vitae molestie libero posuere et. </p>
+			</div>
+			<div id="tab3">
+				<h2>Phasellus non nibh</h2>
+				<p>Non erat laoreet ullamcorper. Pellentesque magna metus, feugiat eu elementum sit amet, cursus sed diam. Curabitur posuere porttitor lorem, eu malesuada tortor faucibus sed.</p>
+				<h3>Duis pulvinar nibh vel urna</h3>
+				<p>Donec purus leo, porttitor eu molestie quis, porttitor sit amet ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Donec accumsan ornare elit id imperdiet. </p>
+				<p>Suspendisse ac libero mauris. Cras lacinia porttitor urna, vitae molestie libero posuere et. </p>
+			</div>
+			<div id="tab4">
+				<h2>Cum sociis natoque penatibus</h2>
+				<p>Magnis dis parturient montes, nascetur ridiculus mus. Nullam ac massa quis nisi porta mollis venenatis sit amet urna. Ut in mauris velit, sed bibendum turpis.</p>
+				<p>Nam ornare vulputate risus, id volutpat elit porttitor non. In consequat nisi vel lectus dapibus sodales. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Praesent bibendum sagittis libero.</p>
+				<h3>Imperdiet sem interdum nec</h3>
+				<p>Mauris rhoncus tincidunt libero quis fringilla.</p>    
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+$(function()
+{
+	window.top.closeAllDialog();
+	$(".dataSet tr:even").addClass('even');	
+	$(".dataSet tr").hover(function(){$(this).addClass('on');},function(){$(this).removeClass('on')});
+
+	$("input[name='exportBnt']").click(function(){
+		//$("#searchForm").attr('action', '/event/export');
+		$("#export").val(1);
+		$("#searchForm").submit();
+		$("#export").val(0);
+	});
+
+	$(".dataSet tr:even").addClass('even');	
+	$(".dataSet tr").hover(function(){$(this).addClass('on');},function(){$(this).removeClass('on')});
+	$("#searchForm input[name='keyword']").focus(function(){var def=$(this).attr('def'); if($(this).val()== def){$(this).val(''); $(this).css('color', '#666');}});
+	$("#searchForm input[name='keyword']").blur(function(){var def=$(this).attr('def'); if($(this).val()== def || $(this).val()==''){$(this).val(def); $(this).css('color', '#DDD');}else{$(this).css('color', '#666');}});
+
+	$(".dataSet th.order").click(function(){
+		var name = $(this).attr('name');
+		var order = $(this).attr('order');		
+		$("#order").attr({'name' : 'order[' + name + ']', 'value' : order});
+		$("#searchForm").submit();
+	});
+
+	$("#searchForm input[type='reset']").click(function(){		
+		$(this).find("input[name='keyword']").val('');
+		$("#order").attr({'name' : 'order[date]', 'value' : 1});
+	});
+
+	$("#searchForm").submit(function(){		
+		var def = $(this).find("input[name='keyword']").attr('def');
+		var keyword = $(this).find("input[name='keyword']").val();
+		if(def == keyword) $(this).find("input[name='keyword']").val('');
+		$(this).find("input[name='search']").attr('name', '');
+	});
+
+	//tabs
+	$("#content").find("[id^='tab']").hide(); // Hide all content
+    $("#tabs li:first").attr("id","current"); // Activate the first tab
+    $("#content #tab1").fadeIn(); // Show first tab's content
+    
+    $('#tabs a').click(function(e) {
+        e.preventDefault();
+        if ($(this).closest("li").attr("id") == "current"){ //detection for current tab
+         return;       
+        }
+        else{             
+          $("#content").find("[id^='tab']").hide(); // Hide all content
+          $("#tabs li").attr("id",""); //Reset id's
+          $(this).parent().attr("id","current"); // Activate this
+          $('#' + $(this).attr('name')).fadeIn(); // Show content for the current tab
+        }
+    });
+});
+
+$("#aSubmit").click(function(){
+	var schedule = 	$(":checked").val();
+	var teacher = new Array();
+	$("input[name='ids']").each(function(i,obj){
+		teacher.push($(this).val());
+	});
+	$.ajax({
+		url : '/teacher/schedule',
+		data : {
+			start : $("#start").val(),
+			schedule : schedule,
+			teacher : teacher
+ 		},
+		type : 'post',
+		dataType :'json',
+		success: function (data) {
+			var html = window.location.href='/teacher/schedule?id=';
+			for(var i = 0; i< data.result.length; i++)
+			{
+				if(i<1)
+					html =  html + data.result[i];
+				else
+					html = html + ',' + data.result[i]; 
+			}
+			window.location.href= html;		
+		},
+		cache: false
+	});
+});
+
+$("#vSubmit").click(function(){
+	var schedule = 	$(":checked").val();
+	var teacher = new Array();
+	$("input[name='ids']").each(function(i,obj){
+		teacher.push($(this).val());
+	});
+	$.ajax({
+		url : '/teacher/schedule',
+		data : {
+			start : $("#start").val(),
+			schedule : schedule,
+			teacher : teacher
+ 		},
+		type : 'post',
+		dataType :'json',
+		success: function (data) {
+			var html = window.location.href='/teacher/schedule?id=';
+			for(var i = 0; i< data.result.length; i++)
+			{
+				if(i<1)
+					html =  html + data.result[i];
+				else
+					html = html + ',' + data.result[i]; 
+			}
+			window.location.href= html;		
+		},
+		cache: false
+	});
+});
+
+function checkAll(o){
+	if( o.checked == true ){
+		$('input[name="checkbox"]').attr('checked','true');		
+	}else{
+		$('input[name="checkbox"]').removeAttr('checked');		
+	}
+}
+
+function getChecked() {
+	var idArr = new Array();
+	$.each($('.dataSet input[name="checkbox"]:checked'), function(i, n){
+		idArr.push( $(n).val() );
+	});
+	return idArr;
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!--{include file="../header.html"}-->
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/jscal2.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/border-radius.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/win2k.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/calendar.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/lang/en.js"></script>
+<div class="mainContent">
+	<div class="mbx">
+		<a href="javascript:;" onclick="window.top.menuOn('base', 1)">首页</a> > <a href="/event">学生管理</a> > <a>剩余课时查询</a>
+	</div>
+	<div class="searchPanel">
+		<form action="/student/remain" method="get" name="searchForm" id="searchForm" >			
+			<div class="searchForm">
+				<input type="hidden" id="order" name="order[<!--{key($smarty.get.order)}-->]" value="<!--{current($smarty.get.order)}-->" />
+				关键字：<input name="keyword" type="text" value="<!--{$smarty.get.keyword|default:'学生名'}-->" def="学生名"  />
+				<input type="hidden" name="export" id="export" value="0" />	
+				剩余课次≤ <input type="text" name="remain" id="remain" value="" style="width:35px"/>
+				<input name="search" type="submit" value="搜索" class="searchBnt" />
+				<input name="exportBnt" type="button" value="导出" class="searchBnt" />
+			</div>
+		</form>
+	</div>
+	<div class="dataTable">
+		<div class="dataHeader">
+			<div class="page"><a>总：<!--{$record}--></a><!--{$paginator->getRender($curl, 0)}--></div>
+		</div>
+		<div class="dataSet">
+			<table width="100%" cellpadding="0" cellspacing="0" >
+				<thead>
+					<th width="20"><input type="hidden" name="sid"/></th>
+					<th width="120" name="name">学生名</th>
+					<th width="100" name="title" class="order" order="<!--{if key($smarty.get.order) == 'title' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">课程名称<i></i></th>
+					<th width="120" >开始日期<i></i></th>
+					<th width="180" >结束日期<i></i></th>
+					<th width="120">总课次</th>
+					<th width="120" name="remain" class="order" order="<!--{if key($smarty.get.order) == 'remain' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->"><i></i>剩余课次</th>
+					<th width="160">联系方式</th>
+				</thead>
+				<tbody>
+					<!--{foreach from=$result item=item key=key name=result}-->
+					<tr>
+						<td><input type="hidden" name="id" value="<!--{$item.id}-->" /></td>
+						<td><a href="/student/view?id=<!--{$item.id}-->" class="high"><!--{$item.name}--></a></td>
+						<td><!--{$item.title}--></td>
+						<td><!--{$item.start_date}--></td>
+						<td><!--{$item.end_date}--></td>
+						<td><!--{$item.times}--></td>
+						<td><!--{$item.remain}--></td>
+						<td><!--{$item.concator}--></td>
+					</tr>
+					<!--{foreachelse}-->
+					<tr>
+						<td class="high" colspan=7 height=60 align="center">暂无记录</td>						
+					</tr>
+					<!--{/foreach}-->
+				</tbody>
+			</table>
+		</div>		
+		<div class="page" id="page"><a>总：<!--{$record}--></a><!--{$paginator->getRender($curl, 1)}--></div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function()
+{
+	$(".dataSet tr:even").addClass('even');	
+	$(".dataSet tr").hover(function(){$(this).addClass('on');},function(){$(this).removeClass('on')});
+	$("#searchForm input[name='keyword']").focus(function(){var def=$(this).attr('def'); if($(this).val()== def){$(this).val(''); $(this).css('color', '#666');}});
+	$("#searchForm input[name='keyword']").blur(function(){var def=$(this).attr('def'); if($(this).val()== def || $(this).val()==''){$(this).val(def); $(this).css('color', '#DDD');}else{$(this).css('color', '#666');}});
+
+	$(".dataSet th.order").click(function(){
+		var name = $(this).attr('name');
+		var order = $(this).attr('order');		
+		$("#order").attr({'name' : 'order[' + name + ']', 'value' : order});
+		$("#searchForm").submit();
+	});
+
+	$("#searchForm input[type='reset']").click(function(){		
+		$(this).find("input[name='keyword']").val('');
+		$("#order").attr({'name' : 'order[date]', 'value' : 1});
+	});
+
+	$("#searchForm").submit(function(){		
+		var def = $(this).find("input[name='keyword']").attr('def');
+		var keyword = $(this).find("input[name='keyword']").val();
+		if(def == keyword) $(this).find("input[name='keyword']").val('');
+		$(this).find("input[name='search']").attr('name', '');
+	});
+	
+	$("input[name='exportBnt']").click(function(){
+		$("#export").val(1);
+		$("#searchForm").submit();
+		$("#export").val(0);
+	});
+});
+
+function StudentShow(id, num)
+{	
+	window.top.art.dialog.open('/student/ajax?action=list&module=event&handle=0&event=' + id, {id: 'StudentList', title: '共' + num + '人', 'width' : '196px', 'lock' : true, resize:false, follow: document.getElementById("tableItem" + id)});	
+}
+</script>
+</body>
+</html>

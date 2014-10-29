@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<head>
+<link href="<!--{$CSS}-->/school/reset.css" rel="stylesheet" type="text/css">
+<link href="<!--{$CSS}-->/school/style.css" rel="stylesheet" type="text/css">
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/jquery.js" charset="UTF-8"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/school/comm.js" charset="UTF-8"></script>
+<script type="text/javascript" src="<!--{$JS}-->/jquery.form.js"></script>
+<body>
+<div class="dataForm">
+	<form id="dataForm" action="/event/ajax" method="post">
+		<input type="hidden" value="<!--{$event}-->" name="id" />
+		<input type="hidden" value="<!--{$action}-->" name="action" />
+		<!--{if $action == 'text'}-->
+			<div class="formColor formItem">
+				<label>课程名称：</label> 
+				<input type="text" value="" name="text" id="text" class="input-text"/>
+				<span id="textTip"></span>
+			</div>
+			<div class="formColor formItem">
+				<label>课程颜色：</label> 
+				<div class="colorOptions">
+					<input type="hidden" id="color" value="" name="color" />
+					<!--{foreach from=$colors item=item key=key}-->
+					<a href="javascript:;" style="background:<!--{$item}-->;border-color:<!--{$item}-->" val="<!--{$key}-->"><i></i></a>
+					<!--{/foreach}-->
+				</div>
+				<span id="colorTip"></span>
+			</div>
+		<!--{elseif $action == 'time'}-->
+			<div class="formItem">			
+				<label>上课时间：</label>
+				<input type="hidden" id="start" value="" name="start" />
+				<input type="hidden" id="end" value="" name="end" />			
+				<!--{html_select_time prefix=start use_24_hours=true display_hours=true display_minutes=true display_seconds=false minute_interval=5 hour_interval=array(7,23) time=$curTimeStamp hour_extra="id=startHour" minute_extra="id=startMinute"}--> 至
+				<!--{html_select_time prefix=end use_24_hours=true display_hours=true display_minutes=true display_seconds=false minute_interval=5 hour_interval=array(7,23) time=$endTimeStamp hour_extra="id=endHour" minute_extra="id=endMinute"}-->
+				<span id="end"></span>
+			</div>
+		<!--{/if}-->
+		<div class="formItem" style="padding-left:116px;">			
+			<input type="submit" id="formSubmit" class="dataBnt" value="确定"/>
+			<input type="button" name="cancel" class="cancelBnt" value="取消" />
+		</div>
+	</form>
+	<script>
+	$(function()
+	{
+		$(".colorOptions a").click(function(){
+			var css = $(this).attr('css'); 
+			if(css != 'on'){
+				$(this).addClass('on');
+				$(this).siblings().removeClass('on');
+				$("#color").val($(this).attr('val'));
+			}
+		});
+		
+		$("#dataForm").submit(function(){			
+			if($("#text").length > 0)
+			{
+				var text = $("input[name='text']").val();
+				if(!text){
+					window.top.art.dialog.alert('课程名称不能为空！'); return false;
+				}
+			}			
+			if($("#start").length > 0)
+			{
+				var startHour = parseInt($("#startHour").val());
+				var startMinute = parseInt($("#startMinute").val());
+				var start  = parseInt(startHour*60) + startMinute;				
+				var endHour = parseInt($("#endHour").val());				
+				var endMinute = parseInt($("#endMinute").val());				
+				var end  = endHour*60 + endMinute;			
+				if(end - start < 30) {window.top.art.dialog.alert('课程时间须大于30分钟！'); return false;}				
+			}
+		});
+		$("input[name='cancel']").click(function(){			
+			window.top.closeAllDialog();
+		});
+	});
+	</script>
+</div>
+</body>
+</html>

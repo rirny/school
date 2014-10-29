@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<head>
+<link href="<!--{$CSS}-->/school/reset.css" rel="stylesheet" type="text/css">
+<link href="<!--{$CSS}-->/school/style.css" rel="stylesheet" type="text/css">
+<link href="<!--{$JS}-->/dialog/default.css" rel="stylesheet" type="text/css">
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/jquery.js"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/school/comm.js"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+
+<body scroll="no" style="background:#292929">
+<script type="text/javascript">
+var defaultHandle = <!--{if is_string($result.handle.default.url)}-->'<!--{$result.handle.default.url}-->'<!--{else}--><!--{$result.handle.default.url}--><!--{/if}-->;
+function action()
+{
+	if(typeof defaultHandle == 'string')
+	{
+		window.location.href = defaultHandle;
+	}else{
+		window.history.go(defaultHandle);			
+	}			
+}
+</script>
+<!--{if $target == 1}-->
+<div class="header">
+	<div class="top">
+		<div class="logo" ><a><img src="<!--{$IMG}-->/school/logo.png" /></a></div>
+	</div>
+</div>
+<!--{/if}-->
+<div id="content" style="background:#F9F9F9;">
+	<div class="mainContent" id="main" style="position:relative;width:1000px;margin:0px auto;">
+		<div style="border:1px solid #DDD;width:538px;margin:0px auto; height:250px;position:absolute;top:30%;left:30%">			
+			<div style="line-height:24px;padding:60px 20px; text-align:center"><!--{$result.message}--></div>
+			<!--{if $result.time > 0}-->
+				<script type="text/javascript">
+					window.setInterval(action, 5000);
+				</script>
+			<!--{/if}-->
+			<div class="formItem" style="text-align:center">
+				<!--{foreach from=$result.handle key=key item=item}-->
+					<a href="<!--{if is_numeric($item.url)}-->javscript:window.history.go(-1);<!--{else}--><!--{$item.url}--><!--{/if}-->"><!--{$item.name|default:'返回'}--></a>
+				<!--{/foreach}-->
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+$(function(){	
+});
+
+//clientHeight-0; 空白值 iframe自适应高度
+function windowW(){
+	if($(window).width()<980){
+		$('.header').css('width',980+'px');
+		$('#content').css('width',980+'px');
+		$('body').attr('scroll','');
+		$('body').css('overflow','');
+	}
+}
+windowW();
+
+$(window).resize(function(){
+	if($(window).width()<980){
+		windowW();
+	}else{
+		$('.header').css('width','auto');
+		$('#content').css('width','auto');
+		$('body').attr('scroll','no');
+		$('body').css('overflow','hidden');		
+	}
+});
+
+window.onresize = function(){
+	var clientHeight = document.documentElement.clientHeight;
+	if($.browser.mozilla)
+	{
+		clientHeight = window.innerHeight;
+	}
+	var heights = <!--{if $target == 1}-->clientHeight - 145<!--{else}-->clientHeight<!--{/if}-->;
+	if(heights < 540) heights=540;
+	// document.getElementById('content').height = heights;
+	//alert(heights);
+	$("#main").css('height', heights);
+}
+window.onresize();
+</script>

@@ -1,0 +1,56 @@
+<div class="dataSet">
+	<table width="100%" cellpadding="0" cellspacing="0" >
+		<thead>
+			<!--<th width="20"></th>-->
+			<!--<th width="120">类型<i></i></th>-->
+			<th width="120">创建时间<i></i></th>
+			<th width="*" name="group">内容<i></i></th>
+			<th width="*">操作</th>
+		</thead>
+		<tbody>
+			<!--{foreach from=$result item=item key=key name=result}-->
+			<tr>
+				<!--<td><input type="checkbox" name="checkbox" value="{$item.id}" /></td>-->
+				<!--<td><!-{if $item.sorts==0}->--<!-{else}-><!-{$sources[$item.sorts]}-><!-{/if}-></td>-->
+				<td><!--{$item.create_time|date_format:'%Y-%m-%d %H:%M'}--></td>
+				<td><!--{$item.remark}--></td>
+				<td><a href="javascript:;" onclick="handle('delete', <!--{$item.id}-->)" class="high">删除</a></td>		
+			</tr>
+			<!--{foreachelse}-->
+			<tr>
+				<td class="high" colspan=8 height=60 align="center">暂无记录</td>						
+			</tr>
+			<!--{/foreach}-->
+		</tbody>
+	</table>
+</div>		
+<div class="dataFooter" style="margin-top:10px">
+	<div class="page" id="page"><a>总：<!--{$record}--></a></div>
+</div>
+<script type="text/javascript">
+$(function()
+{
+	// $("#searchForm input[name='keyword']").focus();
+	$(".dataSet tr:even").addClass('even');	
+	$(".dataSet tr").hover(function(){$(this).addClass('on');},function(){$(this).removeClass('on')});	
+});
+
+function handle(action, id)
+{
+	window.top.art.dialog({'id':'remarkHandle', 'content' : "确定要删除吗？", 'lock':true, resize:false, ok:function (){
+		$.ajax({
+			url: '/remark/ajax',
+			data : {handle : action, action : 'student', 'id' : id},
+			type : 'post',
+			dataType :'json',
+			success: function (data) {				
+				if(data.state) {icon = 'succeed'; background='#fff0f0'}else{icon = 'succeed'; background='#E2FF7E';}
+				window.top.art.dialog({id: 'Success', title: false, icon : icon, content:data.message, width:'400px',resize:false, lock:true, close : function(){
+					// window.top.right.location.reload();
+				}}).time(3);
+			},
+			cache: false
+		}); 
+    },cancel: true});
+}
+</script>

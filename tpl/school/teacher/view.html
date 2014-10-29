@@ -1,0 +1,274 @@
+<!--{include file="../header.html"}-->
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/jscal2.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/border-radius.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/win2k.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/formValid/style/validator.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$CSS}-->/school/tabs.css">
+
+<script type="text/javascript" src="<!--{$JS}-->/calendar/calendar.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/lang/en.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidator.min.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/jquery.form.js"></script>
+
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+ 
+
+<div class="mainContent">
+	<div class="mbx">
+		<span><a href="javascript:;" onclick="window.history.go(-1);">返回</a> >></span>
+		<a href="javascript:;" onclick="window.top.menuOn('base', 1)">首页</a> > <a href="javascript:;" onclick="window.top.menuOn('teacher', 1)">教师管理</a> > <a>教师详情</a>		
+	</div>
+	<div class="dataForm" style="background:#F5F5F5;padding:10px 0px;overflow:hidden;height:auto;">
+		<div style="float:left; width:120px;text-align:center">
+			<p><img src="<!--{$user.avatar}-->" width="85" /></p>
+			<p><!--{$user.name}--></p>
+		</div>
+		<div style="float:left;">
+			<div class="formItem">
+				<label>性别：</label>
+				<!--{if $user.gender==1}-->男<!--{else}-->女<!--{/if}-->
+				<label style="padding-left:40px">生日：</label>
+				<!--{$user.birthday}-->
+				<label style="padding-left:40px">加入时间：</label>
+				<!--{$info.create_time|date_format:'%Y-%m-%d'}-->
+			</div>
+			<div class="formItem">
+				<label style="padding-left:20px">联系方式：</label>			
+				<!--{$user.account}-->
+			</div>
+		</div>
+	</div>
+
+	<div class="dataForm" style="background:#F5F5F5;padding:5px 5px;overflow:hidden;height:auto;">
+		<ul id="tabs">
+			<li><a href="#" name="tab1">课程</a></li>
+			<li><a href="#" name="tab2">备注</a></li>
+			<li><a href="#" name="tab3">用户评价</a></li>
+			<li><a href="#" name="tab4">用户意见</a></li>    
+		</ul>
+
+		<div id="content"> 
+			<div id="tab1">
+				<div class="dataTable">
+					<div><input type="button" value="排课" class="dataBnt" style="margin-top:10px;" onclick="window.location.href='/assign?assigner=<!--{$teacherId}-->&type=1';" /></div>
+					<div class="dataHeader">
+						<div class="page"><a>总：<!--{$record}--></a></div>	
+					</div>
+					<div class="dataSet">
+						<table width="100%" cellpadding="0" cellspacing="0" >
+							<thead>
+								<th width="3%"><input type="hidden" name="chkAll" value="1" /></th>
+								<th width="10%">课程名称</th>
+								<th width="10%">科目</th>
+								<th width="10%">开课日期</th>
+								<th width="10%">结课日期</th>
+								<th width="52%">上课时间</th>
+								<th width='5%'>操作</th>
+							</thead>
+							<tbody>
+								<!--{foreach from=$list item=item key=key name=list}-->
+								<tr>
+									<td><input type="hidden" name="id" value="<!--{$item.id}-->" /></td>
+									<td><!--{$item.title}--></td>
+									<td><!--{$item.course}--></td>
+									<td><!--{$item.start_date}--></td>
+									<!--{if $item.end_date==0000-00-00}-->
+									<td>--</td>
+									<!--{else}-->
+									<td><!--{$item.end_date}--></td>
+								<!--{/if}-->
+									<td><!--{$item.rule}--></td>
+									<!--{if $item.close==2 && time() > strtotime($item.end_date)}-->
+									<td><p><font color="#666">结课</font></p></td>
+									<!--{else}-->
+									<td><a href="javascript:;" id="close" onclick="closeSchedule(<!--{$item.id}-->);" class="high">结课</a></td>
+									<!--{/if}-->
+								</tr>                                                 
+								<!--{foreachelse}-->
+								<tr>
+									<td class="high" colspan=8 height=60 align="center">暂无记录</td>						
+								</tr>
+								<!--{/foreach}-->
+							</tbody>
+						</table>
+					</div>		
+					<div class="dataFooter" style="margin-top:10px">
+						<div class="page" id="page"><a>总：<!--{$record}--></a></div>
+					</div>
+				</div>
+			</div>
+			<div id="tab2">
+					<!--备注-->			
+				<div class="dataTable" style="border:1px solid #CCC;margin-top:12px;overflow:hidden;margin-left:10px;padding:0px 8px;float:left;width:100%;">	
+					<h3 style="font-size:12px;height:30px;line-height:30px;padding:0px 12px;"><a id="add" style="float:right;">创建</a>备注</h3>	
+					<!--{include file="../remark/list.html" result=$remark}-->
+				</div>
+			</div>
+			<div id="tab3">
+				<div class="dataTable">
+					<div class="dataHeader">
+						<div class="page"><a>总：<!--{$comm_total}--></a></div>	
+					</div>
+					<div class="dataSet">
+						<table width="100%" cellpadding="0" cellspacing="0" >
+							<thead>
+								<th width="3%"><input type="hidden" name="chkAll" value="1" /></th>
+								<th width="15%">发送人</th>
+								<th width="15%">发送时间</th>
+								<th width="67%">内容</th>		
+							</thead>
+							<tbody>
+								<!--{foreach from=$comment item=item key=key name=comment}-->
+								<tr>
+									<td><input type="hidden" name="id" value="<!--{$item.id}-->" /></td>
+									<td><!--{$item.creator}--></td>
+									<td><!--{$item.content}--></td>
+									<td><!--{$item.create_time}--></td>
+								</tr>                                                 
+								<!--{foreachelse}-->
+								<tr>
+									<td class="high" colspan=8 height=60 align="center">暂无记录</td>						
+								</tr>
+								<!--{/foreach}-->
+							</tbody>
+						</table>
+					</div>		
+					<div class="dataFooter" style="margin-top:10px">
+						<div class="page" id="page"><a>总：<!--{$comm_total}--></a></div>
+					</div>
+				</div>
+			</div>
+			<div id="tab4">
+				<div class="dataTable">
+					<div class="dataHeader">
+						<div class="page"><a>总：<!--{$feed_total}--></a></div>	
+					</div>
+					<div class="dataSet">
+						<table width="100%" cellpadding="0" cellspacing="0" >
+							<thead>
+								<th width="3%"><input type="hidden" name="chkAll" value="1" /></th>
+								<th width="15%">发送人</th>
+								<th width="15%">发送时间</th>
+								<th width="67%">内容</th>		
+							</thead>
+							<tbody>
+								<!--{foreach from=$feedback item=item key=key name=feedback}-->
+								<tr>
+									<td><input type="hidden" name="id" value="<!--{$item.id}-->" /></td>
+									<td><!--{$item.student}--></td>
+									<td><!--{$item.content}--></td>
+									<td><!--{$item.create_time}--></td>
+								</tr>                                                 
+								<!--{foreachelse}-->
+								<tr>
+									<td class="high" colspan=8 height=60 align="center">暂无记录</td>						
+								</tr>
+								<!--{/foreach}-->
+							</tbody>
+						</table>
+					</div>		
+					<div class="dataFooter" style="margin-top:10px">
+						<div class="page" id="page"><a>总：<!--{$feed_total}--></a></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<script type="text/javascript">
+	window.top.closeAllDialog();
+$(function(){
+	$("#add").click(function(){
+		art.dialog.open('/remark/ajax?handle=add&action=teacher&target=<!--{$result.id}-->', {title : '创建备注', width : 600, lock:true, reisze:false});
+	});	
+
+	$(".dataSet tr:even").addClass('even');	
+	$(".dataSet tr").hover(function(){$(this).addClass('on');},function(){$(this).removeClass('on')});
+
+	$("input[name='exportBnt']").click(function(){
+		//$("#searchForm").attr('action', '/event/export');
+		$("#export").val(1);
+		$("#searchForm").submit();
+		$("#export").val(0);
+	});
+
+	$(".dataSet tr:even").addClass('even');	
+	$(".dataSet tr").hover(function(){$(this).addClass('on');},function(){$(this).removeClass('on')});
+	$("#searchForm input[name='keyword']").focus(function(){var def=$(this).attr('def'); if($(this).val()== def){$(this).val(''); $(this).css('color', '#666');}});
+	$("#searchForm input[name='keyword']").blur(function(){var def=$(this).attr('def'); if($(this).val()== def || $(this).val()==''){$(this).val(def); $(this).css('color', '#DDD');}else{$(this).css('color', '#666');}});
+
+	$(".dataSet th.order").click(function(){
+		var name = $(this).attr('name');
+		var order = $(this).attr('order');		
+		$("#order").attr({'name' : 'order[' + name + ']', 'value' : order});
+		$("#searchForm").submit();
+	});
+
+	$("#searchForm input[type='reset']").click(function(){		
+		$(this).find("input[name='keyword']").val('');
+		$("#order").attr({'name' : 'order[date]', 'value' : 1});
+	});
+
+	$("#searchForm input[type='reset']").click(function(){		
+		$(this).find("input[name='keyword']").val('');
+		$("#order").attr({'name' : 'order[date]', 'value' : 1});
+	});
+
+	$("#searchForm").submit(function(){		
+		var def = $(this).find("input[name='keyword']").attr('def');
+		var keyword = $(this).find("input[name='keyword']").val();
+		if(def == keyword) $(this).find("input[name='keyword']").val('');
+		$(this).find("input[name='search']").attr('name', '');
+	});
+
+    $("#content").find("[id^='tab']").hide(); // Hide all content
+    $("#tabs li:first").attr("id","current"); // Activate the first tab
+    $("#content #tab1").fadeIn(); // Show first tab's content
+    
+    $('#tabs a').click(function(e) {
+        e.preventDefault();
+        if ($(this).closest("li").attr("id") == "current"){ //detection for current tab
+         return;       
+        }
+        else{             
+          $("#content").find("[id^='tab']").hide(); // Hide all content
+          $("#tabs li").attr("id",""); //Reset id's
+          $(this).parent().attr("id","current"); // Activate this
+          $('#' + $(this).attr('name')).fadeIn(); // Show content for the current tab
+        }
+    });
+});
+
+ function closeSchedule(sid)
+{
+	var d = art.dialog({
+		title: false,
+		content: 	'<div class="searchForm">选择日期：<input name="start" id="start" type="text" value="<!--{$date}-->" class="dateSelect" /></div>',
+		ok: function () {
+			$.ajax({
+				url: '/teacher/close',
+				data : {sid : sid,teacher : "<!--{$teacherId}-->" ,date: $("#start").val()},
+				type : 'post',
+				dataType :'json',
+				success: function (data) {
+					alert(data.message);
+					window.location.reload();
+				},
+				cache: false
+			}); 
+			return true;
+		},
+		cancelValue: '取消',
+		cancel:function(){}
+	});
+	var startCalendar = callCalendar({inputField : "start"});
+	d.show();
+}
+
+</script>
+</body>
+</html>

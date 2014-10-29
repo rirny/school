@@ -1,0 +1,88 @@
+<!--{include file="school/header.html"}-->
+<style>
+	body{font: 12px/1.5 微软雅黑,宋体,sans-serif;}
+	.userStatus a{color:#FFF;margin-right:20px;}
+	ul li{line-height:24px; font-size:14px; color:#999}
+</style>
+<body scroll="no" style="background:#292929">
+<div class="header">
+	<div class="top">
+		<div class="userStatus" style="float:right;color:#FFF;line-height:50px;padding-right:12px;">
+			<!--{if $__USER__.id}--><span><!--{$__USER__.name|default:$__USER__.account}--></span><a href="/logout">退出</a>
+			<!--{else}-->
+			<a href="/login">登录</a><a href="/register">注册</a>
+			<!--{/if}-->
+		</div>
+		<div class="logo" ><a><img src="<!--{$IMG}-->/school/logo.png" /></a></div>		
+	</div>
+</div>
+<div id="content" style="background:#F9F9F9; padding:12px 0px;position:relative;">
+		<div id="main" style="position:relative;width:1000px; margin:0px auto;">
+			<div style="border:1px solid #CCCCCC;position:absolute; top:15%;">
+				<h1 style="height:30px;line-height:30px;font-size:14px;padding:0px 10px;border-bottom:1px solid #ccc">官方下载</h1>
+				<ul style="border-bottom:1px solid #ccc;height:auto; overflow:hidden;padding:10px 10px;position:relative;">
+					<li style="position:absolute;top:20%;right:20px; height:50px; width:200px;background:url('<!--{$IMG}-->/down_link.png') no-repeat;" onclick="javascript:location.href='/download?version=<!--{$info.version}-->&source=<!--{$info.source}-->'"></li>
+					<li style="float:left;width:100px; height:100px;background:url('http://www.hulapai.com/statics/images/hulapai/down_icon.png') no-repeat;"></li>
+					<li  style="float:left;">
+					<ul>
+						<li class="name">呼啦派</li>
+						<li>大小：<!--{$info.size}-->MB</li>
+						<li>版本：<!--{$info.version}--></li>
+						<li>系统要求：Android2.1及以上</li>
+						<li>更新时间：<!--{$info.date}--></li>
+					</ul></li>
+					
+				</ul>
+
+				<ul style="border-bottom:1px solid #ccc;height:auto; overflow:hidden;padding:10px 10px;">
+					<li class="name" style="display:inline-block; *zoom:1; *display:inline; width:100px;">产品介绍：</li>
+					<li class="desc" style="display:inline-block; *zoom:1; *display:inline;">
+						<p>
+						呼啦派是国内首款老师和学生家长（也可以是成年学生）之间双向交流的教学辅助工具软件。
+			师生双方通过建立“关联”，老师可以在这个平台上轻松实现教学管理的大部分功能并自动推送给学生家长。如：建课，考勤，教学点评，事件通知等等；而家长也可以及时反馈意见，与老师就学生的学习情况及时交互。</p>
+						<p>微博广场和个人空间是与他人分享学习与成长的社交平台。无论您是想做公益活动的老师，还是热心分享资源的爱心妈妈，或是视学习为生命的上进青年，这里都是一个专门为您打造的绿色生态圈。</p>						
+					</li>
+				</ul>
+			</div>
+		</div>
+</div>
+<div id="footer" style="line-height:30px;color:#F1F1F1">2013-2014 Hulapai Co.ltd. All Rights</div>
+<script type="text/javascript">
+//clientHeight-0; 空白值 iframe自适应高度
+function windowW(){
+	if($(window).width()<980){
+		$('.header').css('width',980+'px');
+		$('#content').css('width',980+'px');
+		$('body').attr('scroll','');
+		$('body').css('overflow','');
+	}
+}
+windowW();
+
+$(window).resize(function(){
+	if($(window).width()<980){
+		windowW();
+	}else{
+		$('.header').css('width','auto');
+		$('#content').css('width','auto');
+		$('body').attr('scroll','no');
+		$('body').css('overflow','hidden');		
+	}
+});
+
+window.onresize = function(){
+	var clientHeight = document.documentElement.clientHeight;
+	if($.browser.mozilla)
+	{
+		clientHeight = window.innerHeight;
+	}
+	var heights = clientHeight - 110;
+	if(heights < 540) heights=540;
+	// document.getElementById('content').height = heights;
+	//alert(heights);
+	$("#main").css('height', heights);
+}
+window.onresize();
+</script>
+<body>
+</html>

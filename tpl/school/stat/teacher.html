@@ -1,0 +1,124 @@
+<!--{include file="../header.html"}-->
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/jscal2.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/border-radius.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/win2k.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/calendar.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/lang/en.js"></script>
+
+<div class="mainContent">
+	<div class="mbx">
+		<a href="javascript:;" onclick="window.top.menuOn('base', 1)">首页</a> > <a href="/stat">教学工具</a> > <a>老师统计</a>
+	</div>
+	
+	<div class="dataForm" style="">
+		<button type="button" style="margin-left:-10px;" id="index" onclick="window.location.href='/stat'">课程</button>
+		<button type="button" style="margin-left:-3px;" id="student" onclick="window.location.href='/stat/student'">学生</button>
+		<button type="button" style="margin-left:-2px;" class="aui_state_highlight" id="teacher">教师</button>
+	</div>
+
+	<form action="/stat/teacher" method="get" name="searchForm" id="searchForm" >	
+	<div class="searchPanel">				
+		<div class="searchForm">
+			<input type="hidden" id="order" name="order[<!--{key($smarty.get.order)}-->]" value="<!--{current($smarty.get.order)}-->" />
+			关键字：<input name="keyword" type="text" value="<!--{$smarty.get.keyword|default:'老师名'}-->" def="老师名" />				
+			<input type="hidden" name="export" id="export" value="0" />
+			<input name="search" type="submit" value="搜索" class="searchBnt" />
+			<input type="hidden" name="refresh" id="refresh" value="0" />
+			<input name="reSat" id="reSat" type="button" value="重新统计" class="searchBnt" />
+			<!--<input name="exportBnt" type="button" value="导出" class="searchBnt" />-->
+		</div>		
+	</div>
+	<div class="dataHeader">
+		<!--<div class="dataForm" style="margin-top:0px;width:600px;margin:0px auto;text-align:center"><button type="button" id="prev">上一月</button> <button type="button" id="next">下一月</button></div>-->
+		<select name="year"><!--{html_options options=$years  selected=$year}--></select>
+		<select name="month"><!--{html_options options=$months  selected=$month}--></select>
+	</div>
+	</form>
+
+	<div class="dataTable">		
+		<div class="dataSet">
+			<table width="100%" cellpadding="0" cellspacing="0" >
+				<thead>
+					<th width="" name="name" class="order" order="<!--{if key($smarty.get.order) == 'name' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">老师名</th>
+					<th width="" name="course" class="order" order="<!--{if key($smarty.get.order) == 'course' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">课程</th>
+					<th width="" name="classtime" class="order" order="<!--{if key($smarty.get.order) == 'classtime' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">总课时</th>
+					<th width="" name="student" class="order" order="<!--{if key($smarty.get.order) == 'student' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">出勤人次</th>	
+				</thead>
+				<tbody>
+					<!--{foreach from=$result item=item key=key name=result}-->
+					<tr class="even">						
+						<td><!--{$item.name}--></td>	
+						<td>--</a></td>
+						<td><!--{$item.class_times|default:0}--></td>
+						<td><!--{$item.attend|default:0}--></td>
+					</tr>
+						<!--{foreach from=$item.series item=event key=key name=result}-->
+						<tr>						
+							<td>&nbsp;</td>	
+							<td><!--{$event.title}--></a></td>
+							<td><!--{$event.class_times|default:0}--></td>
+							<td><!--{$event.attend|default:0}--></td>
+						</tr>
+						<!--{/foreach}-->
+					<!--{foreachelse}-->
+					<tr>
+						<td class="high" colspan=8 height=60 align="center">暂无记录</td>	
+					</tr>
+					<!--{/foreach}-->
+				</tbody>
+			</table>
+		</div>		
+		<div class="dataFooter" style="margin-top:10px">
+			<div class="page" id="page"><a><!--{$paginator->getItemCount()}--></a><!--{$paginator->getRender($curl, 1)}--></div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+window.top.closeAllDialog();
+$(function()
+{	
+	$("#searchForm input[name='keyword']").focus(function(){if($(this).val() == $(this).attr('def')) $(this).val('');});
+	$("#searchForm input[name='keyword']").blur(function(){if($(this).val() == '') $(this).val($(this).attr('def'));});	
+	// $(".dataSet tr:even").addClass('even');	
+	$(".dataSet tr").hover(function(){$(this).addClass('on');},function(){$(this).removeClass('on')});
+	$(".dataSet th.order").click(function(){
+		var name = $(this).attr('name');
+		var order = $(this).attr('order');		
+		$("#order").attr({'name' : 'order[' + name + ']', 'value' : order});
+		$("#searchForm").submit();
+	});
+
+	$("select[name='year'],select[name='month']").change(function(){
+		$("#searchForm").submit();
+	});
+	$("#reSat").click(function(){
+		$("#refresh").val(1);
+		$("#searchForm").submit();
+	});
+
+	$("#searchForm input[type='reset']").click(function(){		
+		$(this).find("input[name='keyword']").val('');
+		$(this).find("select[name='start']").val('');
+		$(this).find("select[name='end']").val('');
+		$(this).find("select[name='teacher']").val('');
+		$(this).find("input[name='export']").val('');
+		$("#order").attr({'name' : 'order[date]', 'value' : 1});
+	});
+
+	$("#searchForm").submit(function(){		
+		var def = $(this).find("input[name='keyword']").attr('def');
+		var keyword = $(this).find("input[name='keyword']").val();
+		if(def == keyword) $(this).find("input[name='keyword']").val('');
+	});
+
+	$("input[name='exportBnt']").click(function(){
+		//$("#searchForm").attr('action', '/event/export');
+		$("#export").val(1);
+		$("#searchForm").submit();
+		$("#export").val(0);
+		window.top.closeAllDialog();
+	});
+});
+</script>
+</body>
+</html>

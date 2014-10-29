@@ -1,0 +1,151 @@
+<!--{include file="../header.html"}-->
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+<style>
+	.privChange i{width:12px;height:12px;display:inline-block; *zoom:1; *display:inline; vertical-align:middle; margin-left:10px;}
+	.privChange i.on{background:url('<!--{$IMG}-->/school/update.png') no-repeat; cursor:pointer;}
+</style>
+<div class="mainContent">
+	<div class="mbx">
+		<a href="javascript:;" onclick="window.top.menuOn('base', 1)">首页</a> > <a href="/student">学生管理</a> > <a>班级管理</a>
+	</div>	
+
+	<div class="searchPanel">
+		<form action="/grade" method="get" name="searchForm" id="searchForm" >			
+			<div class="searchForm">
+				<input type="hidden" id="order" name="order[<!--{key($smarty.get.order)}-->]" value="<!--{current($smarty.get.order)}-->" />
+				关键字：<input name="keyword" type="text" value="<!--{$smarty.get.keyword}-->" def="学生名" />				
+				<input name="search" type="submit" value="搜索" class="searchBnt" />
+			</div>
+		</form>
+	</div>
+
+	<div class="dataTable">
+		<div class="dataHeader">
+			<div class="page"><a>总：<!--{$record}--></a><!--{$paginator->getRender($curl, 0)}--></div>
+			<input name="create" id="create" type="button" value="新建班级" class="dataBnt" />
+		</div>
+		<div class="dataSet">
+			<table width="100%" cellpadding="0" cellspacing="0" >
+				<thead>
+					<th width="20"><input type="checkbox" name="chkAll" value="1" onclick="checkAll(this)"/></th>
+					<th width="200" name="name" class="order" order="<!--{if key($smarty.get.order) == 'name' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">班级名称<i></i></th>
+					<th width="180">学生人数<i></i></th>	
+					<th>操作</th>
+				</thead>
+				<tbody>
+					<!--{foreach from=$result item=item key=key name=result}-->
+					<tr>
+						<td><input type="checkbox" name="checkbox" value="<!--{$item.id}-->" /></td>
+						<td class="privChange"><span><!--{$item.name}--></span><i></i></td>
+						<td><a href="javascript:;" onclick="javascript:StudentShow(<!--{$item.id}-->, <!--{$item.num}-->)" id="tableItem<!--{$item.id}-->" class="high"><!--{$item.num}--></a></td>
+						<td><a href="javascript:;" onclick="dataDelete(<!--{$item.id}-->)" class="high">删除</a></td>
+					</tr>
+					<!--{foreachelse}-->
+					<tr>
+						<td class="high" colspan=8 height=60 align="center">暂无记录</td>						
+					</tr>
+					<!--{/foreach}-->
+				</tbody>
+			</table>
+		</div>		
+		<div class="dataFooter" style="margin-top:10px">
+			<div class="page" id="page"><a>总：<!--{$record}--></a><!--{$paginator->getRender($curl, 1)}--></div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function()
+{
+	$(".dataSet tr:even").addClass('even');	
+	$(".dataSet tr").hover(function(){$(this).addClass('on');},function(){$(this).removeClass('on')});
+	$(".dataSet th.order").click(function(){
+		var name = $(this).attr('name');
+		var order = $(this).attr('order');		
+		$("#order").attr({'name' : 'order[' + name + ']', 'value' : order});
+		$("#searchForm").submit();
+	});	
+
+	$("#create").click(function(){
+		window.top.art.dialog.open('/grade/add', {id : 'GradeEdit', follow: document.getElementById('import'), title: '创建班级', lock:true, drag:false, resize:false, width:500, height:'auto'});
+	});
+
+	$(".privChange").hover(function(){$(this).find('i').addClass('on');},function(){$(this).find('i').removeClass('on')});
+	$(".privChange i").bind("click", function(){
+		$(".privChange span").each(function(i,obj){$(obj).html($(obj).find('input').val());});
+		var name = $(this).prev('span').text(); 
+		$(this).prev('span').html('<input type="text" class="input-text" name="name" value="' + name + '" />');
+		$(this).prev('span').find("input").focus();
+		$(this).removeClass('on');		
+		$("input[type='text']").bind('blur', function(){			
+			var gid = $(this).parents('tr').find(':checkbox').val();
+			$(this).prev('span').find("input").focus();
+			var name= $(this).val();
+			if(name.length  < 1){alert('组名不能为空'); $(this).focus(); return false;}
+			$.post("/grade/ajax",	{action : 'rename', name: name, id : gid}, function(data){
+				// alert("Data Loaded: " + data);
+			});			
+			$(this).parents('span').html(name);
+		});
+	});
+
+});
+
+function update(id)
+{
+	window.top.art.dialog.open('/grade/edit?id=' + id, {id : 'GradeEdit', follow: document.getElementById('import'), title: '修改班级', lock:true, drag:false, resize:false,width:500,height:'auto'});
+}
+
+function checkAll(o){
+	if( o.checked == true ){
+		$('input[name="checkbox"]').attr('checked','true');		
+	}else{
+		$('input[name="checkbox"]').removeAttr('checked');		
+	}
+}
+
+function getChecked() {
+	var idArr = new Array();
+	$.each($('.dataSet input[name="checkbox"]:checked'), function(i, n){
+		idArr.push( $(n).val() );
+	});
+	return idArr;
+}
+
+function multiDelete()
+{
+	var idArr = getChecked();
+	if(idArr.length < 1) {window.top.art.dialog({'icon' : 'error', 'content' : '请选择要删除的老师', resize:false, 'lock':true}); return false;}
+	dataDelete(idArr);
+}
+
+function dataDelete(id)
+{	
+	window.top.art.dialog({'id':'CourseDelete', icon : 'question', 'content' : '班级删除', 'lock':true, resize:false, ok:function (){
+		$.ajax({
+			url: '/grade/delete',
+			data : {'id' : id},
+			dataType :'json',
+			type : 'post',
+			success: function (data) {			
+				if(data.state) {icon = 'succeed'; background='#fff0f0'}else{icon = 'error'; background='#E2FF7E';}
+				window.top.art.dialog({id: 'Success', title: false, icon : icon, content:data.message, width:400,resize:false, lock:true}, function(){window.top.right.location.reload();}).time(3);
+			},
+			cache: false
+		}); 
+    },cancel: true});
+}
+function StudentShow(id, num)
+{	
+	// alert("tableItem" + id);
+	art.dialog.open(
+	'/student/ajax?action=list&module=grade&grade=' + id, 
+	{id: id,title: '共' + num + '人', 'width' : 196, 'lock' : false, resize:false, 
+		follow: document.getElementById("tableItem" + id)}, 
+		function(){}, 
+		function(){window.top.location.reload();}
+	);		
+}
+</script>
+</body>
+</html>

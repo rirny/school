@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<head>
+<title>忘记密码</title>
+<link href="<!--{$CSS}-->/school/reset.css" rel="stylesheet" type="text/css">
+<link href="<!--{$CSS}-->/school/style.css" rel="stylesheet" type="text/css">
+<link href="<!--{$JS}-->/dialog/default.css" rel="stylesheet" type="text/css">
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/jquery.js"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/school/comm.js"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/formValid/style/validator.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidator.min.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/jquery.form.js"></script>
+
+<style>
+	.formItem {margin-top:8px;}
+	.formItem .input-text{height:30px; line-height:30px; width:260px; font-size:14px; color:#999}
+	.formItem label{font-size:14px;}
+	.getCode{height:40px;padding:0px 20px;display:inline-block; *zoom:1; *display:inline;vertical-align: middle;border-radius:3px;border:1px solid #DDD;background:url('<!--{$IMG}-->/school/codeBng.png') repeat-x;line-height:40px;}
+	a.getCode{text-decoration:none}
+</style>
+
+<body scroll="no" style="background:#292929">
+<div class="header">
+	<div class="top">
+		<div class="logo" ><a><img src="<!--{$IMG}-->/school/logo.png" /></a></div>
+	</div>
+</div>
+
+<div id="content" style="background:#F9F9F9;">
+	<div class="mainContent" id="main" style="position:relative;width:1000px;margin:0px auto;">
+		<div class="dataForm" style="margin:0px;position:absolute; top:20%; left:20%;border:1px solid #CCC; padding:10px 40px;">	
+			<h1 style="font-size:14px;border-bottom:1px solid #CCC;line-height:40px;"><span style="float:right;"><a href="/login" class="high">登录</a></span>重置密码<span id="AllTip" style="color:red;padding:0px 40px"></span> </h1>
+			<form action="/forget" id="dataForm" name="dataForm" method="post">
+				<div class="formItem" style="margin-top:20px">
+					<label>手机号：</label>
+					<input type="text" name="mobile" id="mobile" value="请输入手机号" class="input-text" size="20" def="请输入手机号"/><i></i>
+					<a id="getCode" class="getCode" href="javascript:;" onclick = "getCode(1)">获取验证码</a>
+					<!--<span id="mobileTip"></span>-->
+				</div>
+				<div class="formItem">
+					<label>验证码：</label>
+					<input type="text" name="code" id="code" value="请输入六位验证码" class="input-text" size="20" def="请输入六位验证码"/><i></i>
+					<!--<span id="codeTip"></span>-->				
+				</div>
+				<div class="formItem">
+					<label>密码：</label>
+					<input type="text" name="passwordText" id="passwordText" value="请输入6-16位字母或数字" class="input-text" size="20" def="请输入6-16位字母或数字" />
+					<input type="password" name="password" id="password" value="" class="input-text" size="20" style="display:none;color:#666"/><i></i>
+					<!--<span id="passwordTip"></span>-->
+				</div>
+				<div class="formItem">
+					<label>确认密码：</label>
+					<input type="text" name="comfirm" id="comfirmText" value="请输入确认密码" class="input-text" size="20" def="请输入确认密码" />
+					<input type="password" name="comfirm" id="comfirm" value="" class="input-text" size="20" style="display:none;color:#555"/><i></i>
+					<!--<span id="comfirmTip"></span>-->
+				</div>
+				
+				<div class="formItem" style="padding-left:116px;">				
+					<input name="submit" type="submit" id="formSubmit" value="注&nbsp;&nbsp;册" style="height:46px;padding:0px 20px;background:#FF9801;border:0px;color:#FFF;width:272px;font-size:16px;" />					
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+$(function(){
+
+	$("#dataForm .input-text").focus(function(){var def=$(this).attr('def'); if($(this).val()== def){$(this).val(''); $(this).css('color', '#555');}});
+	$("#dataForm .input-text").blur(function(){var def=$(this).attr('def'); if($(this).val()== def || $(this).val()==''){$(this).val(def); $(this).css('color', '#999');}else{$(this).css('color', '#555');}});
+	$("#passwordText").focus(function(){
+		$(this).hide();
+		$("#password").show().focus();	
+	});
+	$("#comfirmText").focus(function(){
+		$(this).hide();
+		$("#comfirm").show().focus();	
+	});
+	$("#password").blur(function(){		
+		if(!$(this).val())
+		{
+			$(this).hide();
+			$("#passwordText").show();
+		}
+	});
+	$("#comfirm").blur(function(){		
+		if(!$(this).val())
+		{
+			$(this).hide();
+			$("#comfirmText").show();
+		}
+	});	
+	$.formValidator.initConfig({formID:"dataForm", submitButtonID: 'formSubmit', submitOnce:false, errorFocus:true,wideWord:true,		
+		onError:function(msg, obj, errorlist){var id= obj.id; $("#AllTip").text($("#" + id).parent().find('label').text() + msg);},
+		onSuccess:function(){}
+	});	
+	$("#mobile").formValidator({automodify:true, onshow:"请输入你的手机号码", onerror:"手机号码不正确！", onfocus:"请填写正确的手机号码",oncorrect:''}).inputValidator({
+		min:11,max:11,onerror:"请填写正确的手机号码"
+	}).regexValidator({
+		regExp:"mobile",dataType:"enum",onerror:"请填写正确的手机号码"
+	}).ajaxValidator({
+		type : 'get', 'url' : '/public/mobile_exists', dataType : 'json', processData : true, oneceValid: false, success : function(data){			
+			if(data.state != 2){
+				$("#AllTip").text("用户不存在!");				
+				return false;
+			}else{
+				$("#AllTip").text("");				
+			}
+			return true;
+		},		
+		error: function(){}, 
+		onerror : "用户不存在", 
+		onwait : function(){$("#AllTip").text("手机号码检验中...!");}		
+	});
+	$("#code").formValidator({onFocus:"请填写验证码", onerror:"验证码不正确！", defaultValue:''}).inputValidator({min:6,max:6,onError:"请填写验证码"});
+	$("#password").formValidator({onshow:"请输入密码",onfocus:"两次密码必须一致哦",oncorrect:""}).inputValidator({min:1,onerror:"密码不能为空,请确认"}).compareValidator({desID:"comfirm",operateor:"=",onerror:"2次密码不一致,请确认"});
+
+	$("#dataForm").submit(function(){
+		/*
+		$.post('/forget', {
+			mobile: $("#mobile").val(), 
+			code : $("#code").val(), 
+			password : $("#password").val(), 
+			comfirm : $("#comfirm").val()
+		}, function(data){
+			if(data.state == 1) {window.location.href = "/login"; return false;}			
+			$("#AllTip").text(data.message);
+		}, 'json');		
+		return false;
+		*/
+	});
+});
+
+function getCode(type)
+{
+	var mobile = $("#mobile").val();
+	var def = $("#mobile").attr('def');
+	var mobileReg = new RegExp(regexEnum.mobile);
+	if(!mobile || mobile == def){
+		art.dialog.alert('请填写手机号码！'); 
+		return false;
+	}
+	if(!mobileReg.test(mobile))
+	{
+		art.dialog.alert('请填写正确的手机号码！'); 
+		return false;
+	}
+	type = type == 1 ? 1 : 0;
+
+	$("#getCode").unbind('click');
+	$("#getCode").html('<span id="interval">60</span>后重新发送').css({'background':'#ebebeb', 'color' : '#999'});
+	$("#getCode span").text(60);
+
+	$.post('/public/code', {'mobile' : mobile, type : type}, function(data){
+		if(!data.state)
+		{
+			art.dialog.alert(data.message); return false;
+		}
+		var s = setInterval(function(){				
+			var second = parseInt($("#interval").text());				
+			second = second-1;
+			if(second > 0){					
+				$("#getCode").attr('href', '');
+				$("#interval").text(second);
+			}else{
+				$("#getCode").html('获取验证码').css({'background':'url(<!--{$IMG}-->/school/codeBng.png)', 'color' : '#999'});
+				$("#getCode").attr('href', 'javascript:getCode(1);');
+				clearInterval(s);
+			}
+		},1000); 
+	}, 'json');
+}
+//clientHeight-0; 空白值 iframe自适应高度
+function windowW(){
+	if($(window).width()<980){
+		$('.header').css('width',980+'px');
+		$('#content').css('width',980+'px');
+		$('body').attr('scroll','');
+		$('body').css('overflow','');
+	}
+}
+windowW();
+
+$(window).resize(function(){
+	if($(window).width()<980){
+		windowW();
+	}else{
+		$('.header').css('width','auto');
+		$('#content').css('width','auto');
+		$('body').attr('scroll','no');
+		$('body').css('overflow','hidden');		
+	}
+});
+
+window.onresize = function(){
+	var clientHeight = document.documentElement.clientHeight;
+	if($.browser.mozilla)
+	{
+		clientHeight = window.innerHeight;
+	}
+	var heights = clientHeight - 100;
+	if(heights < 540) heights=540;
+	// document.getElementById('content').height = heights;
+	//alert(heights);
+	$("#main").css('height', heights);
+}
+window.onresize();
+</script>

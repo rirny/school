@@ -1,0 +1,42 @@
+<html> 
+<head> 
+    <title>课程生成</title> 
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+    <style> 
+    body, div input { font-family: Tahoma; font-size: 9pt } 
+    </style> 
+    <script language="JavaScript"> 
+    <!-- 
+    function updateProgress(sMsg, iWidth) 
+    {  
+        document.getElementById("status").innerHTML = sMsg; 
+        document.getElementById("progress").style.width = iWidth + "px"; 
+        document.getElementById("percent").innerHTML = parseInt(iWidth / <!--{$width|default:100}--> * 100) + "%"; 
+     } 
+    //--> 
+    </script>     
+</head> 
+<body> 
+<div style="margin: 4px; padding: 8px; border: 1px solid gray; background: #EAEAEA; width: 508px"> 
+    <div><font color="gray">正在生成课程...</font></div> 
+    <div style="padding: 0; background-color: white; border: 1px solid navy; width: <!--{$width|default:100}-->px"> 
+    <div id="progress" style="padding: 0; background-color: #FFCC66; border: 0; width: 0px; text-align: center;   height: 16px"></div>             
+    </div> 
+    <div id="status">&nbsp;</div> 
+    <div id="percent" style="position: relative; top: -30px; text-align: center; font-weight: bold; font-size: 8pt">0%</div> 
+</div> 
+<!--{flush()}-->
+<!--{foreach from=$result key=key item=item}-->
+	<!--{usleep(10000)}-->
+	<script language="JavaScript">
+		updateProgress("正在生成课程 ....", parseInt(<!--{$key}-->) * <!--{$width}-->/<!--{$total}-->); 
+	</script>
+	<!--{flush()}-->
+	<h4><!--{$item.start_date}--></h4>
+<!--{/foreach}-->
+<script language="JavaScript"> 
+    updateProgress("操作完成！", <!--{$width|default:100}-->); 
+</script>
+<!--{flush()}-->
+</body> 
+</html>

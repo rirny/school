@@ -1,0 +1,224 @@
+<!--{include file="../header.html"}-->
+<link href="<!--{$JS}-->/dialog/default.css" rel="stylesheet" type="text/css">
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+<style>.selected{display:block;} .selected{cursor:pointer}.privSelect input{margin:0px 4px 0px 8px;}</style>
+
+<body>
+<div class="searchPanel" style="margin:10px 10px">
+	<form action="/teacher/select" method="get" name="searchForm" id="searchForm" >			
+		<div class="searchForm">			
+			<label>关键字：</label><input name="keyword" type="text" value="<!--{$smarty.get.keyword}-->" def="学生名" />
+			<input type="hidden" name="selected" value="<!--{$smarty.get.selected}-->">
+			<input type="hidden" name="id" value="<!--{$smarty.get.id}-->">
+			<input type="hidden" name="offset" value="<!--{$smarty.get.offset}-->">
+			<input type="hidden" name="group" value="<!--{$smarty.get.group}-->">
+			<input type="hidden" name="handle" value="<!--{$smarty.get.handle}-->">
+			<input name="search" type="submit" value="搜索" class="searchBnt" />
+		</div>			
+	</form>
+</div>
+<div class="dataPalne" style="margin:0px 10px">
+	<div class="selected">
+		<h3><!--{$title}-->  <!--{$date}-->  10:00-11:00</h3>
+	</div>
+	<div class="selected" <!--{if $selected_hide == 'hide'}-->style="display:none"<!--{/if}-->>
+		<h3>上课老师</h3>
+		<ul>
+			<!--{if $selected_hide != 'hide'}-->
+			<!--{foreach from=$selected item=item key=key}-->
+			<li id="select<!--{$item.id}-->"><i></i>
+				<input type="hidden" name="id" value="<!--{$item.id}-->" />
+				<input type="hidden" name="name" value="<!--{$item.name}-->" />
+				<input type="hidden" name="en" value="<!--{$item.en}-->" />
+				<!--{if $priv}--><input type="hidden" name="priv" value="<!--{$privs[$key]|default:7}-->" /><!--{/if}-->
+			<label><!--{$item.name}--></label></li>
+			<!--{/foreach}-->
+			<!--{/if}-->
+		</ul>
+	</div>	
+	<h3><!--{if $count < $offset || $offset==0}--><input type="checkbox" name="allCheck" value=0 id="allCheck" /><!--{/if}--><label>所有老师</label></h3>
+</div>
+<div style="margin:0px 10px">
+	<div class="dataPalne">
+		<div class="dataSet dataSelect">
+			<!--{if $count > 20}-->
+				<!--{foreach from=$result key=key item=item}-->
+					<div style="overflow:hidden;width:100%">
+						<h4><!--{$key}--></h4>
+						<ul>
+							<!--{foreach from=$item item=val key=i}-->
+							<!--{if $val.name && (($selected_hide == 'show') || ($selected_hide == 'hide' && $val.checked ==0))}-->	
+							<li id="dataSelect<!--{$val.id}-->"><input type="checkbox" name="item" value="<!--{$val.id}-->" <!--{if $val.checked}-->checked=checked<!--{/if}--> /><label title="<!--{$val.name}-->" en="<!--{$val.en}-->"><!--{$val.name|truncate:4:''}--></label></li>
+							<!--{/if}-->							
+							<!--{/foreach}-->
+						</ul>
+					</div>
+				<!--{/foreach}-->
+			<!--{else}-->
+				
+				<div style="overflow:hidden;width:100%">					
+					<ul>
+						<!--{foreach from=$result item=val key=i}--> 						
+						<!--{if $val.name && (($selected_hide == 'show') || ($selected_hide == 'hide' && $val.checked ==0))}-->						
+						<li id="dataSelect<!--{$val.id}-->"><input type="checkbox" name="item" value="<!--{$val.id}-->" <!--{if $val.checked}-->checked=checked<!--{/if}--> /><label title="<!--{$val.name}-->" en="<!--{$val.en}-->"><!--{$val.name|truncate:4:''}--></label></li>
+						<!--{/if}-->						
+						<!--{/foreach}-->
+					</ul>
+				</div>
+			<!--{/if}-->
+		</div>
+	</div>
+</div>
+<div class="formItem" style="margin:0px 10px">
+	<input id="submit" name="submit" type="submit" value="确定" class="dataBnt"/>
+	<input name="reset" id="reset" type="reset" value="取消" onclick="window.history.go(-1);"class="searchBnt" />
+</div>
+
+<script type="text/javascript">
+var offset = <!--{$offset|default:0}-->;
+var action = '<!--{$action}-->';
+var eventID = '<!--{$event}-->';
+var gid = '<!--{$gid|default:0}-->';
+
+$(function(){
+	$(".selected li i").bind('click', function(){
+		var id = $(this).parents('li').find("input[name='id']").val();
+		$(this).parents('li').remove();
+		$("#dataSelect" + id).find('input').attr('checked', false);
+	}); 
+	// 已选绑定事件
+	//$("#submit").focus();
+	$(".dataSelect input").click(function(){
+		var count = $(".selected li").length;		
+		var status = $(this).attr('checked');
+		var parentObj = $(this).parents('li');
+		var item = {
+			id		:	$(this).val(),		
+			name	:	$(parentObj).find('label').attr('title'),			
+			en		:	$(parentObj).find('label').attr('en')
+		}
+		var itemObj = $("#select" + item.id);
+		if(status)
+		{		
+			if(offset > 0 && count >= offset && $("#itemObj").length < 1)
+			{
+				window.top.art.dialog({id : 'Error', content : '老师人数不能超过' + offset + '人', width: 300, icon : 'Error'}, function(){art.dialog('Error').close();});
+				return false;
+			}	
+			addToselect(item);
+			count++
+		}else{			
+			if($(itemObj).length > 0)
+			{
+				$(itemObj).remove();
+				count--;
+			}
+		}		
+		$("#selecteCount").text(count);
+	});
+	$("input[name='submit']").click(function(){
+		var source = getSelected('teacher');
+		if(offset > 0 && source.length > offset) {window.top.art.dialog.alert('老师人数不能多于' + offset + '人'); return false};
+		//art.dialog.opener.render('teacher', source, '<!--{$src}-->', '<!--{$handle}-->', gid);	
+		$.ajax({
+			url : '/schedule/replace',
+			data : {sid : "<!--{$sid}-->",index : "<!--{$index}-->",teachers : source},
+			type : 'post',
+			dataType :'json',
+			success: function (data) {
+				window.history.go(-1);
+			},
+			cache: false
+		});		
+		return true;
+	});
+
+
+	$("#allCheck").click(function(){	
+		var status = $(this).attr('checked');
+		var count = $(".selected li").length;
+		var name = $(this).attr('name');		
+		$('.dataSet li').each(function(i,obj){		
+			var item = {
+				id		:	$(obj).find("input").val(),		
+				name	:	$(obj).find('label').attr('title'),			
+				en		:	$(obj).find('label').attr('en')
+			};
+
+			var itemObj = $("#select" + item.id);
+			if(status)
+			{
+				if($(itemObj).length < 1 && count <= offset)
+				{
+					addToselect(item);
+					count++;
+				}else{
+					window.top.art.dialog({id : 'Error', content : '学生人数不能超过' + offset + '人', width: 300, icon : 'Error'}, function(){art.dialog('Error').close();});
+					return false;
+				}
+			}else{			
+				if($(itemObj).length > 0)
+				{
+					$(itemObj).remove();
+					count--;
+				}
+			}										
+			$(obj).attr('checked', status);		
+			$(obj).find("input").attr('checked', status);
+		});
+		if(name == 'groupCheck')
+		{
+			$('.groupSelect li').each(function(i,obj){				
+				$(obj).find("input").attr('checked', status);
+			});
+		}		
+		$("#selecteCount").text(count);
+	});
+	
+	$("#searchForm").submit(function(){
+		return true;
+		var selected = new Array();
+		$(".selected li").each(function(i, obj){
+			selected.push($(obj).find("input[name='id']").val());			
+		});
+		$("input[name='id']").val(selected.join(","));
+	});
+});
+
+
+function getSelected(type)
+{
+	var result = new Array();	
+	$(".selected li").each(function(i, obj){
+		var checked = {
+			'id' : $(obj).find("input[name='id']").val(),
+			'name' : $(obj).find("input[name='name']").val(),
+			'en' : $(obj).find("input[name='en']").val()
+		};
+		result.push(checked);
+	});
+	return result;
+}
+
+function addToselect(source, status)
+{	
+	if($(".selected input[name='dataChecked[]'][value='" + source.id + "']").length < 1)
+	{
+		var li = '<li id="select' + source.id + '"><i></i><input type="hidden" name="id" value="' + source.id + '" />';
+		li+= '<input type="hidden" name="name" value="' + source.name + '" />';
+		li+= '<input type="hidden" name="en" value="' + source.en + '" />';
+		//if(privSet) li+= '<input type="hidden" name="priv" value="' + source.priv + '" />';
+		li+= '<label>' + source.name + '</label></li>';		
+		$(".selected ul").append(li);
+	}	
+	$(".selected li i").bind('click', function(){	
+		var id = $(this).parents('li').find("input[name='id']").val();
+		$(this).parents('li').remove();
+		$("#dataSelect" + id).find('input').attr('checked', false);
+	});
+}
+
+</script>
+</body>
+</html>

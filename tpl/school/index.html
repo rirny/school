@@ -1,0 +1,275 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<head>
+<title>机构管理系统 - 呼啦派</title>
+<link href="<!--{$CSS}-->/school/reset.css" rel="stylesheet" type="text/css">
+<link href="<!--{$CSS}-->/school/style.css" rel="stylesheet" type="text/css">
+<link href="<!--{$JS}-->/dialog/default.css" rel="stylesheet" type="text/css">
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/jquery.js?ver=<!--{math equation=rand(1,9999)}-->"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/school/comm.js"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+<style>
+	.userStatus a{color:#9C9C9A; margin:0px 4px; }
+	.userStatus img {margin:0px 8px;}
+</style>
+<body scroll="no" style="background:#292929">
+<div class="header">
+	<div class="top">
+		<div class="userStatus" style="float:right;color:#FFF;line-height:46px;padding-right:12px;">
+			<span><!--{$__USER__.name|default:$__USER__.account}--></span> <a href="/logout">退出</a>			
+			<a <!--{if $__USER__.id==2}-->href="/school"<!--{else}-->onclick="javascript:schoolChange();" href="javascript:;"<!--{/if}--> id="schoolLogo"><!--{$__SCHOOL__.name}-->
+			<img src="<!--{$__SCHOOL__.avatar}-->" width="38" height="38" style="border:1px solid #999; border-radius:3px;"/></a>
+		</div>
+
+		<div class="logo" style="float:left;"><a><img src="<!--{$IMG}-->/school/logo.png" /></a></div>
+		
+	</div>
+	<div class="nav">
+		<ul class="navMenu" id="top_menu">
+			<!--{foreach from=$modules item=item key=key}-->
+			<li name="<!--{$item.module}-->" <!--{if $item.module == 'base'}-->class="on"<!--{/if}-->><i></i><a href="javascript:;"  hidefocus="true" class="on" style="background:url('<!--{$IMG}-->/school/<!--{$item.module}-->.png')"><!--{$item.name}--></a></li>
+			<!--{/foreach}-->			
+			<li class="sp"><i></i><a></a></li>
+		</ul>
+	</div>	
+</div>
+<div class="clear"></div>
+
+<div id="content" style="background:#F5F5F5;position:relative;">
+	<div class="col-left left_menu" style="width:201px;position:relative">
+    	<div id="leftMain"></div>        
+    </div>
+
+    <div class="col-auto mr8" style="border-left:1px solid #D5D5D5;z-index:100; zoom:1">
+        <!--<div class="crumbs">当前位置：<span id="current_pos"></span></div>-->
+        <div class="col-1">
+            <div class="content" style="position:relative; overflow:hidden;background:#FFF">
+                <iframe name="right" id="rightMain" src="/main" frameborder="false" scrolling="auto" style="overflow-x:hidden;border:none; margin-bottom:10px" width="100%" height="auto" allowtransparency="true"></iframe>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div id="footer" style="line-height:30px;color:#F1F1F1">2013-2014 Hulapai Co.ltd. All Rights</div>
+
+
+<div  id="progressPanle" style="display:none;">
+	<div>
+		<div style="padding: 0; background-color: white; border: 1px solid navy; width:500px">
+			<div id="progress" style="padding:0;background:url('<!--{$IMG}-->/progress.png') repeat-x; border:0;width:0px;text-align:right;height:18px"></div>           
+		</div>		
+		<div id="percent" style="position: relative; top: -18px; text-align: center; font-weight: bold;">0%</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+var menuDefault = '<!--{$modules[0].module|default:"base"}-->';
+document.onkeydown=keyDown;
+function keyDown()
+{
+	var ieKey=event.keyCode;	
+	if (ieKey==116) //F5 key press;
+	{	
+		parent.right.location.reload();
+		
+		if(document.all) {
+			event.keyCode = 0;
+			event.returnValue = false;
+		}else {
+			event.cancelBubble = true;
+			event.preventDefault();
+		}		
+	}
+}
+
+//clientHeight-0; 空白值 iframe自适应高度
+function windowW(){
+	if($(window).width()<980){
+		$('.header').css('width',980+'px');
+		$('#content').css('width',980+'px');
+		$('body').attr('scroll','');
+		$('body').css('overflow','');
+	}
+}
+windowW();
+
+$(window).resize(function(){
+	if($(window).width()<980){
+		windowW();
+	}else{
+		$('.header').css('width','auto');
+		$('#content').css('width','auto');
+		$('body').attr('scroll','no');
+		$('body').css('overflow','hidden');		
+	}
+});
+
+window.onresize = function(){
+	var clientHeight = document.documentElement.clientHeight;
+	if($.browser.mozilla)
+	{
+		clientHeight = window.innerHeight;
+	}
+	var heights = clientHeight - 185;	
+	document.getElementById('rightMain').height = heights;
+	var openClose = $("#rightMain").height()+39;
+	//$('#center_frame').height(openClose+9);
+	//$("#openClose").height(openClose+30);	
+}
+
+function closeAllDialog()
+{
+	var list = art.dialog.list;
+	for (var i in list) {
+		list[i].close();
+	};
+}
+
+window.onresize();
+//站点下拉菜单
+$(function(){	
+	menuOn(menuDefault, 1);	
+	$(".navMenu li[name]").hover(function(){
+		var name=$(this).attr('name');
+		menuOn(name, 0);
+	},function(){
+		var name=$(this).attr('name'); 
+		menuOn(menuDefault, 0);
+	});
+	$(".navMenu li[name]").click(function(){
+		menuDefault = $(this).attr('name');
+		menuOn(menuDefault, 1);			
+	});
+	//默认载入左侧菜单
+	// var id = 'base'; //$(".top_menu").eq(0).attr('id').split('_M_');	
+	// $("#leftMain").load("/left?module=" + id, function(){leftChange()});
+});
+
+function leftChange()
+{
+	$("#leftMain").find("a").bind('click', function(){_M($(this));});	
+	$("#leftMain").find('.on a').click();
+}
+
+function menuOn(name, jump)
+{
+	var obj = $(".navMenu li[name='"+name+"']");
+	var bg = '<!--{$IMG}-->/school/' + name + ".png";
+	var bgon = '<!--{$IMG}-->/school/' + name + "-on.png";
+	$(obj).find('a').css('background-image', "url('" + bgon + "')");
+	$(obj).siblings().not('.sp').each(function(i,s){
+		var sname = $(s).attr('name');		
+		$(s).find('a').css('background-image', "url('<!--{$IMG}-->/school/" + sname + ".png')");
+		$(s).css('background-image', 'none');
+	});
+	if(jump == 1)
+	{		
+		$("#leftMain").load("/left?module=" + name,	function(){leftChange()}); // 左侧菜单
+	}
+}
+
+function _M(obj)
+{
+	var url = '/';
+	var li = $(obj).parents("li");	
+	var app = $(li).attr("app");
+	var action = $(li).attr("action");
+	var param = $(li).attr("param");
+	$(li).siblings().removeClass("on");
+	$(li).addClass("on");
+	if(app != 'index' && action != 'index')
+	{
+		url += app + "/" + action;
+	}else if(app != 'index')
+	{
+		url += app;
+	}else{
+		url += action;
+	}
+	if(param) url += "?" + param;	
+	if(app != 'stat')
+	{
+		$("#rightMain").attr('src', url);
+		return ;
+	}
+	$.ajax({
+		url: url,
+		cache: false,
+		beforeSend : function (XMLHttpRequest) {
+			art.dialog({id : 'loading', title : false, cancel:false, content : '页面数据加载中请稍后....', width:'15%', resize:false, lock:true});
+		},
+		complete : function(){
+			var list = art.dialog.list;
+			for (var i in list) {
+				list[i].close();
+			};
+			$("#rightMain").attr('src', url);
+		}
+	});
+
+	
+}
+
+function __M(app, action, param)
+{
+	var url = '/';
+	if(app != 'index') url += app;
+	if(app != 'index' && action != 'index')
+	{
+		url += app + "/" + action;
+	}else if(app != 'index')
+	{
+		url += app;
+	}else{
+		url += action;
+	}
+	if(param) url += "?" + param;
+
+	$("#rightMain").attr('src', url);
+}
+
+//左侧开关
+$("#openClose").click(function(){
+	if($(this).data('clicknum')==1) {
+		$("html").removeClass("on");
+		$(".left_menu").removeClass("left_menu_on");
+		$(this).removeClass("close");
+		$(this).data('clicknum', 0);
+	} else {
+		$(".left_menu").addClass("left_menu_on");
+		$(this).addClass("close");
+		$("html").addClass("on");
+		$(this).data('clicknum', 1);
+	}
+	return false;
+});
+
+function schoolChange()
+{	
+	<!--{if $__USER__.id > 2}-->
+	art.dialog.open('/school', {'title' : false, lock:true, reisze:false, padding:'0px 0px', width: 240, height: 'auto', follow :document.getElementById('schoolLogo')});
+	<!--{else}-->
+	window.location.href = '/school';
+	<!--{/if}-->
+}
+
+
+
+function progress_open()
+{	
+	art.dialog({id: 'Success', title : '正在生成课程', content:$("#progressPanle").html(), resize:false, padding:'0px,0px', lock:true, cancel : false});
+}
+
+function updateProgress(sMsg, iWidth) 
+{
+	//$("#status").text(sMsg);
+	$("#progress").css('width', iWidth + "px");
+	$("#percent").text(parseInt(iWidth / 500 * 100) + "%");
+	/*
+	document.getElementById("status").innerHTML = sMsg; 
+	document.getElementById("progress").style.width = iWidth + "px"; 
+	document.getElementById("percent").innerHTML = parseInt(iWidth / 500 * 100) + "%"; 
+	*/
+}
+
+</script>

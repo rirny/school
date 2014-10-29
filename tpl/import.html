@@ -1,0 +1,31 @@
+<!--{include file="school/header.html"}-->
+<link href="<!--{$JS}-->/uploadify/uploadify.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/formValid/style/validator.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidator.min.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/jquery.form.js"></script>
+<script src="<!--{$JS}-->/uploadify/jquery.uploadify.min.js" language="javascript" type="text/javascript" ></script>
+<!--{include file="school/header.html"}-->
+<link href="<!--{$JS}-->/uploadify/uploadify.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/formValid/style/validator.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidator.min.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/jquery.form.js"></script>
+<script src="<!--{$JS}-->/uploadify/jquery.uploadify.min.js" language="javascript" type="text/javascript" ></script>
+<div class="mainContent">
+	
+	<div class="dataForm" style="background:#F5F5F5;padding:10px 0px">		
+		<form action="/event/save" id="dataForm" name="dataForm" method="post">
+		<input type="hidden" name="school" id="school" value="<!--{$result.id}-->" class="input-text" size="20"/>
+		<input id="upfile" name="upfile" type="file" type="file" multiple="false" />
+		<button>提交</button>
+	</div>
+	<div>导入用户初始密码为“000000”</div>
+</div>
+<script type="text/javascript">
+<!--{if($post)}-->
+$(function(){
+	window.top.art.dialog('');
+});
+<!--{/if}-->
+</script>

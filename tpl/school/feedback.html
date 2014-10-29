@@ -1,0 +1,111 @@
+<!--{include file="school/header.html"}-->
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<style>
+	td,th{height:35px; overflow:hidden; white-space:nowrap;}
+</style>
+<div class="mainContent">
+	<div class="mbx">
+		<a href="javascript:;" onclick="window.top.menuOn('base', 'on')">首页</a> > <a href="/stat">教学工具</a> > <a>意见反馈</a>
+	</div>
+
+	<form action="/feedback" method="get" name="searchForm" id="searchForm" >			
+		<input type="hidden" id="order" name="order[<!--{key($smarty.get.order)}-->]" value="<!--{current($smarty.get.order)}-->" />			
+	</form>
+
+	<div class="dataTable">
+		<div class="dataHeader">					
+			<div class="page"><a><!--{$record}--></a><!--{$paginator->getRender($curl, 0)}--></div>
+		</div>
+		<div class="dataSet">
+			<table width="100%" cellpadding="0" cellspacing="0" >
+				<thead>
+					<th width="20"><input type="checkbox" name="chkAll" value="1" onclick="checkAll(this)"/></th>
+					<th width="120" name="name" class="order" order="<!--{if key($smarty.get.order) == 'name' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">发送人<i></i></th>
+					<th width="120" name="time" class="order" order="<!--{if key($smarty.get.order) == 'time' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">发送时间<i></i></th>
+					<th  width="320" name="content" class="order">内容</th>
+					<th width="*">操作</th>					
+				</thead>
+				<tbody>
+					<!--{foreach from=$result item=item key=key name=result}-->
+					<tr>
+						<td><input type="checkbox" name="checkbox" value="<!--{$item.id}-->" /></td>
+						<td><!--{$item.sender}--></td>	
+						<td><!--{$item.create_time}--></td>
+						<td title="<!--{$item.content}-->"><!--{$item.content|truncate:50:"..."}--></td>
+						<td><a class="high"><a href="javascript:;" onclick="handle('delete', <!--{$item.id}-->);">删除</a></td>					
+					</tr>
+					<!--{foreachelse}-->
+					<tr>
+						<td class="high" colspan=8 height=60 align="center">暂无记录</td>						
+					</tr>
+					<!--{/foreach}-->
+				</tbody>
+			</table>
+		</div>		
+		<div class="dataFooter" style="margin-top:10px">
+			<input name="delete" id="delete" type="button" value="批量删除" class="dataBnt" onclick="multi('delete')" />
+			<div class="page" id="page"><a><!--{$record}--></a><!--{$paginator->getRender($curl, 1)}--></div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function()
+{	
+	$(".dataSet tr:even").addClass('even');	
+	$(".dataSet tr").hover(function(){$(this).addClass('on');},function(){$(this).removeClass('on')});
+	$(".dataSet th.order").click(function(){
+		var name = $(this).attr('name');
+		var order = $(this).attr('order');		
+		$("#order").attr({'name' : 'order[' + name + ']', 'value' : order});
+		$("#searchForm").submit();
+	});
+});
+
+function checkAll(o){
+	if( o.checked == true ){
+		$('input[name="checkbox"]').attr('checked','true');		
+	}else{
+		$('input[name="checkbox"]').removeAttr('checked');		
+	}
+}
+
+function getChecked() {
+	var idArr = new Array();
+	$.each($('.dataSet input[name="checkbox"]:checked'), function(i, n){
+		idArr.push( $(n).val() );
+	});
+	return idArr;
+}
+
+function multi(action)
+{
+	var idArr = getChecked();
+	if(idArr.length < 1) {window.top.art.dialog({'icon' : 'error', 'content' : '请选择数据', resize:false, 'lock':true}); return false;}
+	handle(action, idArr);
+}
+
+function handle(action, id)
+{
+	window.top.art.dialog({'id':'EventDelete', 'content' : '确定要删除吗？', 'lock':true, resize:false, ok:function (){
+		$.ajax({
+			url: '/feedback/ajax',
+			data : {'id' : id, action : action},
+			dataType :'json',
+			type : 'post',
+			success: function (data) {				
+				if(data.state) {icon = 'succeed'; background='#fff0f0'}else{icon = 'succeed'; background='#E2FF7E';}
+				window.top.art.dialog({id: 'Success', title: '课程删除', icon : icon, content:data.message, width:'400px',resize:false, lock:true}, function(){
+					window.top.right.location.reload();
+				});//.time(3);
+			},
+			cache: false
+		}); 
+    },cancel: true});
+}
+function showDetail(msg, id)
+{
+	art.dialog({content : msg,  follow: document.getElementById(id), width:300, title: false});
+}
+</script>
+</body>
+</html>

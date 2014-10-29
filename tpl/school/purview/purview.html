@@ -1,0 +1,177 @@
+<!--{include file="../header.html"}-->
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+
+<style>
+	.privChange i{width:12px;height:12px;display:inline-block; *zoom:1; *display:inline; vertical-align:middle; margin-left:10px;}
+	.privChange i.on{background:url('<!--{$IMG}-->/school/update.png') no-repeat; cursor:pointer;}
+</style>
+<div class="mainContent">
+	<div class="mbx">
+		<a href="javascript:;" onclick="window.top.menuOn('base', 1)">首页</a> > <a href="/purview">权限管理</a> > <a href="/purview">权限管理</a>
+	</div>
+
+	<div class="dataTable">
+		<div class="dataHeader">	
+			<div class="page"><a class="on"><!--{$result|count}-->个</a></div>
+			<input name="add" id="addGroup" type="button" value="新建组" class="dataBnt" />			
+		</div>
+		<div class="dataSet">
+			<table width="100%" cellpadding="0" cellspacing="0" >
+				<thead>
+					<th width="20"><input type="checkbox" name="chkAll" value="1" onclick="checkAll(this)"/></th>
+					<th width="200">组名<i></i></th>
+					<!--<th width="120">人数<i></i></th>-->
+					<th >操作<i></i></th>
+				</thead>
+				<tbody>
+					<!--{foreach from=$result item=item key=key name=result}-->
+					<tr>
+						<td><!--{if $item.school != 0}--><input type="checkbox" name="checkbox" value="<!--{$item.gid}-->" /><!--{/if}--></td>
+						<td <!--{if $item.school != 0}-->class="privChange"<!--{/if}-->><span><!--{$item.name}--></span><i></i></td>										
+						<td>
+							<!--{if $item.school != 0}-->
+							【<a class="high" href="/purview/set?gid=<!--{$item.gid}-->">设置</a>】
+							<!--{if $item.gid != $__SCHOOL__.gid}-->
+							【<a class="high" href="javascript:;" onclick="toDelete(<!--{$item.gid}-->)">删除</a>】
+							<!--{/if}-->
+							<!--{/if}-->
+							<!--{if ($item.gid < 3 && $__SCHOOL__.creator == $__USER__.id) || $item.gid >= 3 }-->
+							【<a class="high" href="javascript:;" onclick="select(<!--{$item.gid}-->);">添加组员</a>】
+							<!--{/if}-->
+							【<a class="high" href="/manager?gid=<!--{$item.gid}-->">查看</a>】
+						</td>
+					</tr>
+					<!--{foreachelse}-->
+					<tr>
+						<td class="high" colspan=7 height=60 align="center">暂无记录</td>						
+					</tr>
+					<!--{/foreach}-->
+				</tbody>
+			</table>
+		</div>
+		<div class="dataFooter" style="margin-top:10px">
+			<!--<input name="delete" id="delete" type="button" value="批量删除" class="dataBnt" />-->
+		</div>
+	</div>
+</div>
+
+
+<script type="text/javascript">
+$(function()
+{
+	$(".dataSet tr:even").addClass('even');	
+	$(".dataSet tr").hover(function(){$(this).addClass('on');},function(){$(this).removeClass('on')});
+	$(".privChange").hover(function(){$(this).find('i').addClass('on');},function(){$(this).find('i').removeClass('on')});
+	$(".privChange i").bind("click", function(){
+		$(".privChange span").each(function(i,obj){$(obj).html($(obj).find('input').val());});
+		var name = $(this).prev('span').text();
+		$(this).prev('span').html('<input type="text" class="input-text" name="name" value="' + name + '" />');
+		$(this).prev('span').find("input").focus();
+		$(this).removeClass('on');
+		
+		$("input[type='text']").bind('blur', function(){			
+			var gid = $(this).parents('tr').find(':checkbox').val();
+			var name= $(this).val();
+			if(name.length  < 1){alert('组名不能为空'); $(this).focus(); return false;}
+			$.post("/purview/ajax",	{name: name, gid : gid, handle : 'rename'}, function(data){
+				// alert("Data Loaded: " + data);
+			});			
+			$(this).parents('span').html(name);
+		});
+	});
+	$("#addGroup").click(function(){
+		art.dialog({id : 'GroupAdd', title:false, lock:false, resize: false, content : $("#addFrom").html(), padding : '0px 10px 10px', fixed : true, follow: document.getElementById('addGroup')});		
+	});	
+	
+});
+
+function select(gid)
+{
+	var selected = <!--{$selected|default:'{}'}-->;
+	var query = {
+		id : selected.join(),
+		offset : 0,
+		// group : 'hide',
+		selected : 'hide',
+		handle : 'add',
+		priv : 0,
+		gid : gid
+	}	
+	art.dialog.open(('/teacher/select').url_build(query), {id: 'selectPanel',title: "选择老师", width : '90%', height: '90%', 'lock' : true, resize:false},function(){});
+}
+
+function render(type, data, action, handle, gid)
+{
+	if(typeof gid != 'string')
+	{
+		gid = 0;
+	}
+	var postData = {		
+		handle : 'add',	
+		group : gid,
+		user : []
+	};	
+	for (key in data)
+	{
+		postData.user.push(data[key].id);
+	}
+	$.post('/manager/ajax', postData, function(data){
+		if(data.state)
+		{			
+			window.top.art.dialog({content : data.message, icon : 'succeed'}, function(){
+				window.top.right.location.reload();
+			});
+			// window.location.reload();
+		}else{
+			art.dialog.alert(data.message);
+		}		
+	}, 'json');	
+}
+
+function add()
+{	
+	var name = $("#name").val();
+	if(name == '') 
+	{
+		window.top.art.dialog.alert('组名不能为空！'); 
+		return false;
+	}
+	$.post('/purview/ajax', {handle : 'add', name : $("#name").val()}, function(data){
+		if(data.state)
+		{
+			art.dialog('GroupAdd').close();
+			window.location.reload();
+		}else{
+			art.dialog.alert(data.message);
+		}
+	}, 'json');
+}
+
+function toDelete(id)
+{
+	art.dialog({id : 'GroupDelete', title:false, resize: false, icon: 'question', content : '删除用户组，组下用户将会被删除！确定要删除吗?'}, function(){
+		$.post('/purview/ajax', {handle : 'delete', gid : id}, function(data){
+			if(data.state)
+			{
+				art.dialog('GroupDelete').close();
+				window.location.reload();
+			}else{
+				art.dialog.alert(data.message);
+			}
+		}, 'json');
+	});
+}
+</script>
+<div id="addFrom" style="display:none">
+	<div class="dataForm" style="padding:10px 0px;">		
+		<form action="/purview/ajax" id="dataForm" name="dataForm" method="post">
+		<input type="hidden" name="handle" value="add"/>		
+			<label>组名称：</label>
+			<input type="text" name="name" id="name" value="" class="input-text" size="20" style="width:126px"/>
+			<input type='button' name="submit" id="formSubmit" class="dataBnt" value="确定" onclick="add()" >			
+		</form>
+	</div>
+</div>
+</body>
+</html>

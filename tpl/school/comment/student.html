@@ -1,0 +1,90 @@
+<!--{include file="../header.html"}-->
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/jscal2.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/border-radius.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/win2k.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/calendar.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/lang/en.js"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+
+<div class="mainContent">
+	<div class="mbx">
+		<span><a href="javascript:;" onclick="window.history.go(-1);">返回</a> >></span>
+		<a href="javascript:;" onclick="window.top.menuOn('base', 1)">首页</a> > <a href="/student">学生管理</a> > <a href="/comment/student">点评记录</a>		
+	</div>
+
+	<div class="searchPanel">
+		<form action="/comment/student" method="get" name="searchForm" id="searchForm" >			
+			<div class="searchForm">
+				<input type="hidden" id="order" name="order[<!--{key($smarty.get.order)}-->]" value="<!--{current($smarty.get.order)}-->" />
+				关键字：<input name="keyword" type="text" value="<!--{$smarty.get.keyword|default:'学生名'}-->" def="学生名" />
+				起始日期：<input name="start" id="start" type="text" value="<!--{$start}-->" class="dateSelect" />
+				<script type="text/javascript">var startCalendar = callCalendar({inputField : 'start', max : '<!--{$smarty.const.DAY}-->'});</script>
+				结束日期：<input name="end" id="end" type="text" value="<!--{$end}-->" class="dateSelect" /><script type="text/javascript">var startCalendar = callCalendar({inputField : 'end',max : '<!--{$smarty.const.DAY}-->'});</script>
+				<!--{$smarty.get.teacher}-->
+				上课老师：<select name="teacher"><option value="">所有老师</option><!--{html_options options=$teachers selected=$smarty.get.teacher}--></select>
+				<input name="search" type="submit" value="搜索" class="searchBnt" />
+			</div>
+		</form>
+	</div>
+
+	<div class="dataTable">
+		<div class="dataHeader">					
+			<div class="page"><a>总：<!--{$record}--></a><!--{$paginator->getRender($curl, 0)}--></div>
+		</div>
+		<div class="dataSet">
+			<table width="100%" cellpadding="0" cellspacing="0" >
+				<thead>
+					<th width="120" name="student" class="order" order="<!--{if key($smarty.get.order) == 'student' && current($smarty.get.order.student)==0}-->1<!--{else}-->0<!--{/if}-->">学生<i></i></th>
+					<th width="120" name="teacher" class="order" order="<!--{if key($smarty.get.order) == 'teacher' && current($smarty.get.order.teacher)==0}-->1<!--{else}-->0<!--{/if}-->">老师名<i></i></th>
+					<th width="180" name="time" class="order" order="<!--{if key($smarty.get.order) == 'time' && current($smarty.get.order.time)==0}-->1<!--{else}-->0<!--{/if}-->">点评时间<i></i></th>
+					<th width="80">回复数</th>
+					<th >内容<i></i></th>
+				</thead>
+				<tbody>
+					<!--{foreach from=$result item=item key=key name=result}-->
+					<tr>
+						<td><!--{$item.student}--></td>
+						<td><!--{$item.teacher}--></td>	
+						<td><!--{$item.create_time}--></td>
+						<td><!--{$item.replies}--></td>						
+						<td title="<!--{$item.content|strip_tags}-->"><a href="/comment/view?id=<!--{$item.id}-->"><!--{$item.content|nl2br|strip_tags|truncate:40:"..."}--></a></td>
+					</tr>
+					<!--{foreachelse}-->
+					<tr>
+						<td class="high" colspan=5 height=60 align="center">暂无记录</td>						
+					</tr>
+					<!--{/foreach}-->
+				</tbody>
+			</table>
+		</div>		
+		<div class="dataFooter" style="margin-top:10px">
+			<div class="page" id="page"><a>总：<!--{$record}--></a><!--{$paginator->getRender($curl, 1)}--></div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function()
+{
+	// $("#searchForm input[name='keyword']").focus();
+	$(".dataSet tr:even").addClass('even');	
+	$(".dataSet tr").hover(function(){$(this).addClass('on');},function(){$(this).removeClass('on')});
+	$("#searchForm input[name='keyword']").focus(function(){var def=$(this).attr('def'); if($(this).val()== def){$(this).val(''); $(this).css('color', '#666');}});
+	$("#searchForm input[name='keyword']").blur(function(){var def=$(this).attr('def'); if($(this).val()== def || $(this).val()==''){$(this).val(def); $(this).css('color', '#DDD');}else{$(this).css('color', '#666');}});
+
+	$(".dataSet th.order").click(function(){
+		var name = $(this).attr('name');
+		var order = $(this).attr('order');		
+		$("#order").attr({'name' : 'order[' + name + ']', 'value' : order});
+		$("#searchForm").submit();
+	});
+	$("#searchForm").submit(function(){
+		if($("#searchForm input[name='keyword']").val() == $("#searchForm input[name='keyword']").attr('def')) $("#searchForm input[name='keyword']").val('');		
+	});
+});
+function showDetail(msg, id)
+{
+	art.dialog({content : msg,  follow: document.getElementById(id), width:300, title: false});
+}
+</script>
+</body>
+</html>

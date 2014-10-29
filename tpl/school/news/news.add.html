@@ -1,0 +1,56 @@
+<!--{include file="../header.html"}-->
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/formValid/style/validator.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidator.min.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/jquery.form.js"></script>
+
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+<style>
+.formItem label {width:60px;}
+</style>
+<body style="padding:0px;">
+<div class="dataForm" style="background:#F1F1F1;padding:10px 10px 25px;margin:0px">		
+	<form action="/news/add" id="dataForm" name="dataForm" method="post">
+	<input type="hidden" name="id" value="<!--{$result.id}-->" />
+	<!--
+	<div class="formItem">
+		<label>标题：</label>
+		<input type="text" name="name" id="name" value="<!{$result.title}>" class="input-text" size="20" style="width:96px"/>
+		<span id="nameTip"></span>
+	</div>
+	-->	
+	<div class="formItem" style="position:relative">
+		<label style="margin-right:2px;vertical-align:top">内容：</label>
+		<textarea name="description" id="description" rows="5" cols="60" class="input-text" style="width:500px;height:140px;resize:none"><!--{$result.description}--></textarea>
+		<!--<span id="wordCount" style="top:134px;left:580px;"><b>300</b>字</span>-->
+		<span id="descriptionTip"></span>
+	</div>
+	<div class="formItem">
+		<label>显示：</label>
+		<input type="checkbox" name="status" id="status" value="1" <!--{if $result.status||!$result}-->checked="checked"<!--{/if}-->/> &nbsp;&nbsp;<font color="blue">是否在客户端显示</span>		
+	</div>
+	<div class="formItem" style="padding-left:80px;padding-top:20px">			
+		<input type="submit" name="submit" id="formSubmit" class="dataBnt" value="确定" />
+		<input type="button" name="reset" class="cancelBnt" value="取消" onclick="window.top.closeAllDialog();"/>
+	</div>
+	</form>
+</div>
+
+<script type="text/javascript">
+$(function(){
+	$.formValidator.initConfig({formID:"dataForm", submitButtonID: 'formSubmit', submitOnce:false, errorFocus:true,wideWord:true,
+		onError:function(msg, obj, errorlist){alert(msg);},
+		onSuccess:function(){}
+	});
+	$("#dataForm").submit(function(){
+		var content = $("#description").val();
+		var status = $("#status").attr('checked');
+		var id = $("input[name='id']").val();		
+		art.dialog.opener.render(content, status, id);
+		return false;
+	});
+});
+</script>
+</body>
+</html>

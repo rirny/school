@@ -1,0 +1,84 @@
+<!--{include file="../header.html"}-->
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/formValid/style/validator.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidator.min.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/jquery.form.js"></script>
+<div class="">
+	<div class="dataForm" style="padding:10px 0px">		
+		<form action="/course/add" id="dataForm" name="dataForm" method="post">
+		<input type="hidden" name="id" value="<!--{$result.id}-->"/>
+		<div class="formItem">
+			<label>课程：</label>
+			<select name="type" id="type"><option value="">请选择科目</option><!--{html_options options=$types selected=$result.course}--></select>
+			<select name="type2" id="type2"><option value="">请选择</option></select>
+			<span id="typeTip"></span>
+		</div>
+		<div class="formItem">
+			<label style="margin-right:2px">课程名称：</label><input type="title" name="title" id="title" value="<!--{$result.title}-->" class="input-text" size="20"/>
+			<span id="textTip"></span>
+		</div>
+		<div class="formItem" style="padding-left:115px;">			
+			<input name="submit" type="submit" id="formSubmit" class="dataBnt" value="发布" />
+			<input type="button" id="cancel" name="cancel" value="取消" class="cancelBnt" />
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+<!--{if $result.pid}-->typeChange(<!--{$result.pid}-->, <!--{$result.type}-->);<!--{/if}-->
+$(function(){
+	$.formValidator.initConfig({formID:"dataForm", submitButtonID: 'formSubmit', submitOnce:true, errorFocus:true,wideWord:true,
+		onError:function(msg, obj, errorlist){},
+		onSuccess:function(){}
+	});
+
+	$("#type").formValidator({tipid : 'typeTip', onShow: "", onFocus:"", defaultValue:'', oncorrect : ""}).functionValidator({fun : function(){
+		if(!$("#type").val()) return false;
+		if($("#type").val() !== "" && $("#type").val() != 10) 
+		{
+			$("#type2").attr('disable', false).unFormValidator(false);
+		}else{
+			$("#type2").attr('disable', true).unFormValidator(true);
+		}
+		return true;
+	}, onError : '科目为必选'});
+	
+	$("#type2").formValidator({tipid : 'typeTip', onShow: "", onFocus:"", oncorrect:"", defaultValue:''}).functionValidator({fun : function(){
+		if($("#type").val() != 10 && !$("#type2").val()) return false;
+		return true;
+	}, onError : '子科目必选'}).unFormValidator(true);
+
+	$("#title").formValidator({onShow:"", onFocus:"标题长度为2-20个字符", defaultValue:''}).inputValidator({min:1,onError: "标题长度为2-20个字符!"}).inputValidator({min:2,max:20,onError:"标题长度为2-20个字符"});
+
+	$("#type").change(function(){		
+		typeChange($(this).val(), 0);
+		var title = $(this).find('option:selected').text();
+		if($(this).val() && title != '其他' && !$("#title").val())
+			$("#title").val(title);
+	});
+
+	$("#type2").change(function(){	
+		var id = $(this).val();
+		var title = $(this).find('option:selected').text();
+		if(id && title != '其他' && ($("#title").val() == '' || $("#title").val() == $("#type").find('option:selected').text())) $("#title").val(title);			
+	});
+
+	$("#cancel").click(function(){window.top.art.dialog({id:'CourseEdit'}).close();});
+
+});
+function typeChange(pid, def)
+{
+	$("#type2 option:gt(0)").remove();
+	if(pid)
+	{		
+		$("#type").val(pid);
+		$.get("/public/get_course_type", {pid : pid}, function(data){
+			$.each(data, function(i,item){				
+				$("#type2").append('<option value="' + i + '">' + item + '</option>');
+				$("#type2").val(def);
+			});
+			$("#type2").focus();
+		}, 'json');
+		
+	}
+}
+</script>

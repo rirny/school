@@ -1,0 +1,693 @@
+<!--{include file="../header.html"}-->
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/jscal2.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/border-radius.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/win2k.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$CSS}-->/school/tabs.css">
+<script type="text/javascript" src="<!--{$JS}-->/calendar/calendar.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/lang/en.js"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+
+<div class="mainContent">
+	<div class="mbx">
+		<span><a href="javascript:;" onclick="window.history.go(-1);">返回</a> >></span>
+		<a href="javascript:;" onclick="window.top.menuOn('base', 1)">首页</a> > <a href="/schedule">教学管理</a> > <a>课程列表</a>		
+	</div>
+	<div class="searchPanel">
+		<form action="/schedule" method="get" name="searchForm" id="searchForm" >			
+			<div class="searchForm">
+				<input type="hidden" id="order" name="order[<!--{key($smarty.get.order)}-->]" value="<!--{current($smarty.get.order)}-->" />
+				关键字：<input name="keyword" type="text" class="input-text" value="<!--{$smarty.get.keyword|default:'课程名'}-->" def="课程名" />				
+				<input name="start" id="start" type="hidden" value="<!--{$extent.start}-->" />
+				<input name="end" id="end" type="hidden" value="<!--{$extent.end}-->" />				
+				<input name="unit" id="unit" type="hidden" value="<!--{$unit}-->" />	
+				<input name="reset" type="reset" value="清除筛选条件" class="searchBnt" />
+				<input name="search" type="submit" value="搜索" class="searchBnt" />
+				<input name="exportBnt" type="button" value="导出" class="searchBnt" />				
+				<!--{if $sid}-->
+					<select name="attend"><option value="">考勤</option><!--{html_options options=$attend_status selected=$smarty.get.attend}--></select>
+					<input type="hidden" name="sid" id="sid" value="<!--{$sid}-->" />
+				<!--{/if}-->
+				<input type="hidden" name="export" id="export" value="0" />
+				
+			</div>
+			<!--div class="searchHandle">
+				<input name="reset" type="reset" value="清除筛选条件" class="searchBnt" />
+				<input name="search" type="submit" value="搜索" class="searchBnt" />
+				<input name="exportBnt" type="button" value="导出" class="searchBnt" />
+			</div-->
+		</form>
+	</div>
+	<div align="center">
+	<div style="width:450px;padding:10px 0px 0px 0px;">
+		<div style="float:left;width:100px;"><input name="prev" id="prev" type="button" value="<!--{if $unit==week}-->上周<!--{else}-->上月<!--{/if}-->" class="dataBnt"  onclick="prev()" /></div>
+		<div style="float:left;width:250px;"><h5><!--{$extent.start}-->—<!--{$extent.end}--></h5></div>
+		<div style="float:left;width:100px;"><input name="next" id="next" type="button" value="<!--{if $unit==week}-->下周<!--{else}-->下月<!--{/if}-->" class="dataBnt"   onclick="next()" /></div>
+	</div>
+	</div>
+	<div style="padding:5px 0px 0px 0px;">
+		<ul id="tabs">
+			<li><a href="#" name="tab1">周</a></li>
+			<li><a href="#" name="tab2">月</a></li>
+		</ul>
+
+		<div id="content"> 
+			<div id="tab1">
+				<div class="dataTable">
+					<div class="dataHeader">
+						<div class="page"><a>总：<!--{$record}--></a></div>
+						<!--input name="eventAdd" type="button" value="开课" class="dataBnt" onclick="javascript:window.location.href='/preset/add'"/-->			
+					</div>
+					<div class="dataSet">
+						<table width="100%" cellpadding="0" cellspacing="0" >
+							<thead>
+								<th width="5"><input type="checkbox" name="chkAll" value="1" onclick="checkAll(this)"/></th>
+								<th width="" name="title" class="order" order="<!--{if key($smarty.get.order) == 'title' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">课程名称<i></i></th>
+								<th width="" name="course" class="order" order="<!--{if key($smarty.get.order) == 'course' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">科目<i></i></th>
+								<th width="">上课日期</th>
+								<th width="" name="time" class="order" order="<!--{if key($smarty.get.order) == 'time' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">上课时间<i></i></th>
+								<th width="">上课老师</th>
+								<!--{if $sid}-->
+									<th width="">上课学生</th>
+								<!--{else}-->
+									<th width="">考勤</th>
+									<th width="">学生人数</th>
+								<!--{/if}-->					
+								<th width="">操作</th>
+							</thead>
+							<tbody>
+								<script type="text/javascript">var result = <!--{$resultObject|default:'{}'}-->;</script>
+								<!--{foreach from=$result item=item key=key name=result}-->					
+								<tr>
+									<td><input type="checkbox" name="checkbox" value="<!--{$item.id}-->" /></td>
+									<td><!--{$item.title}--></td>
+									<td><!--{$item.course}--></td>
+									<td><!--{$item.date}--></td>
+									<td><!--{$item.rule}--></td>
+									<td><!--{$item.teachers.name}--></td>
+									<td><!--{if $item.attended==1}-->已考勤<!--{else}--><font color="red">未考勤</font><!--{/if}--></td>
+									<td><!--{$item.students}--></td>
+									<td>
+											<a href="/schedule/attend?sid=<!--{$item.sid}-->&index=<!--{$item.start}-->&end=<!--{$item.end}-->&times=<!--{$item.times}-->" class="high">考勤</a> 
+											<a href="javascript:;"  class="high" onclick="toChange(<!--{$item.sid}-->,<!--{$item.start}-->,<!--{$item.end}-->,<!--{$item.times}-->)">调课</a>
+											<a href="javascript:;"  onclick="toDelay(<!--{$item.sid}-->,<!--{$item.start}-->,<!--{$item.end}-->,<!--{$item.times}-->)" class="high">顺延</a>
+											<a href="/teacher/select?id=<!--{$item.teachers.id}-->&offset=3&sid=<!--{$item.sid}-->&index=<!--{$item.start}-->&date=<!--{$item.date}-->&title=<!--{$item.title}-->"  class="high">代课</a>
+									</td>
+								</tr>                                                 
+								<!--{foreachelse}-->
+								<tr>
+									<td class="high" colspan=8 height=60 align="center">暂无记录</td>						
+								</tr>
+								<!--{/foreach}-->
+							</tbody>
+						</table>
+					</div>		
+					<div class="dataFooter" style="margin-top:10px">
+						<div class="page" id="page"><a>总：<!--{$record}--></a><!--{$paginator->getRender($curl, 1)}--></div>
+						<!--input name="schedule" id="schedule" type="button" value="批量顺延" class="dataBnt" onclick="multiSchedule()" /-->
+					</div>
+				</div>
+			</div>
+			<div id="tab2">
+				<div class="dataTable">
+					<div class="dataHeader">
+						<div class="page"><a>总：<!--{$record}--></a></div>
+						<!--input name="eventAdd" type="button" value="开课" class="dataBnt" onclick="javascript:window.location.href='/preset/add'"/-->			
+					</div>
+					<div class="dataSet">
+						<table width="100%" cellpadding="0" cellspacing="0" >
+							<thead>
+								<th width="5"><input type="checkbox" name="chkAll" value="1" onclick="checkAll(this)"/></th>
+								<th width="" name="title" class="order" order="<!--{if key($smarty.get.order) == 'title' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">课程名称<i></i></th>
+								<th width="" name="course" class="order" order="<!--{if key($smarty.get.order) == 'course' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">科目<i></i></th>
+								<th width="">上课日期</th>
+								<th width="" name="time" class="order" order="<!--{if key($smarty.get.order) == 'time' && current($smarty.get.order)==0}-->1<!--{else}-->0<!--{/if}-->">上课时间<i></i></th>
+								<th width="">上课老师</th>
+								<!--{if $sid}-->
+									<th width="">上课学生</th>
+								<!--{else}-->
+									<th width="">考勤</th>
+									<th width="">学生人数</th>
+								<!--{/if}-->					
+								<th width="120">操作</th>
+							</thead>
+							<tbody>
+								<script type="text/javascript">var result = <!--{$resultObject|default:'{}'}-->;</script>
+								<!--{foreach from=$result item=item key=key name=result}-->					
+								<tr>
+									<td><input type="checkbox" name="checkbox" value="<!--{$item.id}-->" /></td>
+									<td><!--{$item.title}--></td>
+									<td><!--{$item.course}--></td>
+									<td><!--{$item.date}--></td>
+									<td><!--{$item.rule}--></td>
+									<td><!--{$item.teachers.name}--></td>						
+									<!--{if $sid}-->
+										<td>
+											<!--{$student}-->
+											<!--{if $item.attend==1}-->出勤
+											<!--{elseif $item.absence==1}-->缺勤
+											<!--{elseif $item.leave==1}-->请假
+											<!--{elseif $item.attended == 0}-->未考勤
+										</td>
+										<!--{/if}-->
+									<!--{else}-->
+										<td><!--{if $item.attended==1}-->已考勤<!--{else}--><font color="red">未考勤</font><!--{/if}--></td>
+										<td><!--{$item.students}--></td>
+									<!--{/if}-->
+									<!--{if $sid}-->
+										<td><a href="/schedule/attend" class="high">考勤</a></td>
+									<!--{else}-->
+										<td id="">
+											<a href="/schedule/attend?sid=<!--{$item.sid}-->&index=<!--{$item.start}-->&end=<!--{$item.end}-->&times=<!--{$item.times}-->" class="high">考勤</a>
+											<a href="javascript:;"  onclick="toChange(<!--{$item.sid}-->,<!--{$item.start}-->,<!--{$item.end}-->,<!--{$item.times}-->)" class="high" >调课</a> 
+											<a href="javascript:;"  onclick="toDelay(<!--{$item.sid}-->,<!--{$item.start}-->,<!--{$item.end}-->,<!--{$item.times}-->)" class="high">顺延</a>
+											<a href="/teacher/select?id=<!--{$item.teachers.id}-->&offset=3&sid=<!--{$item.sid}-->&index=<!--{$item.start}-->"  class="high">代课</a>
+										</td>
+									<!--{/if}-->
+								</tr>                                                 
+								<!--{foreachelse}-->
+								<tr>
+									<td class="high" colspan=8 height=60 align="center">暂无记录</td>						
+								</tr>
+								<!--{/foreach}-->
+							</tbody>
+						</table>
+					</div>		
+					<div class="dataFooter" style="margin-top:10px">
+						<div class="page" id="page"><a>总：<!--{$record}--></a><!--{$paginator->getRender($curl, 1)}--></div>
+						<!--input name="schedule" id="schedule" type="button" value="批量顺延" class="dataBnt" onclick="multiDelay()" /-->
+						<!--input name="freeze" id="freeze" type="button" value="批量冻结" class="dataBnt" onclick="multi('freeze')" /-->
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+$(function()
+{
+	window.top.closeAllDialog();
+	$(".dataSet tr:even").addClass('even');	
+	$(".dataSet tr").hover(function(){$(this).addClass('on');},function(){$(this).removeClass('on')});
+	$("#searchForm input[name='keyword']").focus(function(){var def=$(this).attr('def'); if($(this).val()== def){$(this).val(''); $(this).css('color', '#666');}});
+	$("#searchForm input[name='keyword']").blur(function(){var def=$(this).attr('def'); if($(this).val()== def || $(this).val()==''){$(this).val(def); $(this).css('color', '#DDD');}else{$(this).css('color', '#666');}});
+
+	$("#searchForm input[name='student']").focus(function(){var def=$(this).attr('def'); if($(this).val()== def){$(this).val(''); $(this).css('color', '#666');}});
+	$("#searchForm input[name='student']").blur(function(){var def=$(this).attr('def'); if($(this).val()== def || $(this).val()==''){$(this).val(def); $(this).css('color', '#DDD');}else{$(this).css('color', '#666');}});
+	
+	$(".dataSet th.order").click(function(){
+		var name = $(this).attr('name');
+		var order = $(this).attr('order');		
+		$("#order").attr({'name' : 'order[' + name + ']', 'value' : order});
+		$("#searchForm").submit();
+	});
+	
+	$("#updateOption").change(function(){
+		if($(this).val() == 'date') {$("#updateDate").show();}else{$("#updateDate").hide();}
+	});
+
+	$("#searchForm input[type='reset']").click(function(){
+		var keyword = $("input[name='keyword']");
+		$(keyword).val($(keyword).attr('def'));
+		var student = $("input[name='student']");
+		$(student).val($(student).attr('def'));
+		$("select[name='course']").val('');
+		$("select[name='teacher']").val('');
+		$("input[name='start']").val('<!--{$dateStart}-->');
+		$("input[name='end']").val('<!--{$dateEnd}-->');
+		$("#order").attr({'name' : 'order[date]', 'value' : 1});
+		$("#searchForm").submit();
+	});
+
+	//tabs
+    $("#content").find("[id^='tab']").hide(); // Hide all content
+	if($("#unit").val() == 'week')
+	{
+		$("#tabs li:first").attr("id","current"); 
+		$("#content #tab1").fadeIn(); 
+	}
+	else
+	{
+		$("#tabs li").eq(1).attr("id","current"); 
+		$("#content #tab2").fadeIn(); 
+	}
+    
+    $('#tabs a').click(function(e) { 
+        e.preventDefault();
+        if ($(this).closest("li").attr("id") == "current"){ 
+			return;       
+        }
+        else{             
+          $("#content").find("[id^='tab']").hide();
+          $("#tabs li").attr("id",""); 
+          $(this).parent().attr("id","current"); 
+          $('#' + $(this).attr('name')).fadeIn();
+		  if($(this).attr('name') == 'tab2')
+		  {
+			  $("#unit").val('month');
+			  var now = new Date();
+			  var n=now.getDay();
+			  var year = now.getFullYear();
+			  var month = now.getMonth() +1;
+			  var endDay = getMonthDays(year,month);
+			  if(month < 10)
+			  {
+				 month = '0' + month;
+			  }
+			  $("#start").val(year+'-'+  month + '-01');
+			  $("#end").val(year+'-'+  month + '-' + endDay);
+		   }  
+		  else
+		  {
+			 $("#unit").val('week');
+			  var now = new Date();
+			  var week = now.getDay();
+			  var year = now.getFullYear();
+			  var month = now.getMonth() +1;
+			  if(week == 0)
+			 	 week = 7;
+			  var currentDay = now.getDate();
+			  var days = getMonthDays(year,month);
+			  var endDay = currentDay - week + 7;
+			  var startDay = currentDay - week + 1;
+			  var sartMonth = month;
+			  var startYear,startMonth,endMonth,endYear =0;
+
+			  startMonth = endMonth = month;
+			  startYear = endYear =  year; 
+			  if(startDay < 0)
+			  {	
+				  if(month == 1)
+				  {
+					  startMonth = 12;
+					  startYear--;
+				  }
+				 else
+					 startMonth--;
+				  var	prevMonthDay = getMonthDays(startYear,startMonth);
+				  startDay = prevMonthDay - week - startDay;
+			  }
+
+			  if(endDay > days)
+			  {
+				  endDay = endDay - days; 
+				  if((endMonth+1) > 12)
+				  {
+					 endMonth = 1;
+					 endYear += 1;
+				  }
+				  else
+					 endMonth += 1;
+			  }
+
+			  if(startDay < 10)
+				  startDay = '0' + startDay;				
+			  if(endDay < 10)
+				  endDay = '0' + endDay;
+			  if(startMonth < 10)
+				  startMonth = '0' + startMonth;	 
+			  if(endMonth < 10)
+				  endMonth = '0' + endMonth;
+			 $("#start").val(startYear+'-' + startMonth + '-' + startDay);
+			 $("#end").val(endYear+'-'+  endMonth + '-' + endDay);
+		  }
+		  $("#searchForm").submit();
+        }
+    });
+
+	$("#searchForm").submit(function(){		
+		var def = $(this).find("input[name='keyword']").attr('def');
+		var keyword = $(this).find("input[name='keyword']").val();
+		if(def == keyword) $(this).find("input[name='keyword']").val('');
+		var stu_def = $(this).find("input[name='student']").attr('def');
+		var student = $(this).find("input[name='student']").val();
+		if(stu_def == student) $(this).find("input[name='student']").val('');
+		$(this).find("input[name='search']").attr('name', '');
+	});
+
+	$("input[name='exportBnt']").click(function(){
+		//$("#searchForm").attr('action', '/event/export');
+		$("#export").val(1);
+		$("#searchForm").submit();
+		$("#export").val(0);
+	});
+});
+
+
+function toChange(sid,index,end,times)
+{
+	var d = art.dialog({
+		title: false,
+		content: 	'<div class="searchForm">选择日期：<input name="start" id="start" type="text" value="" class="dateSelect" style="width:120px;background-position:116px 3px;"/></div>',
+		width : 300,
+		ok: function () {
+			$.ajax({
+				url: '/schedule/change',
+				data : {sid : sid,index : index ,end:end,times:times,changeDate : $("#start").val()},
+				type : 'post',
+				dataType :'json',
+				success: function (data) {
+					alert(data.message);
+					window.location.reload();
+				},
+				cache: false
+			}); 
+			return true;
+		},
+		cancelValue: '取消',
+		cancel : function(){}
+	});
+	var startCalendar = callCalendar({
+		inputField : 'start', 
+		showTime: true,
+		minuteStep : 5,
+		//time : '',
+		min : '20140101',
+		dateFormat : '%Y-%m-%d %H:%M'
+	});
+	d.show();	
+}
+
+function multiDelay()
+{
+	var idArr = getChecked();
+	if(idArr.length < 1) {window.top.art.dialog({'icon' : 'error', 'content' : '请选择要延期的课程', resize:false, 'lock':true}); return false;}
+	toDelay(idArr,index,end,time);
+}
+
+function toDelay(sid,index,end,times)
+{
+	var d = art.dialog({
+		title: false,
+		content: 	'确定要课程延期？',
+		ok: function () {
+			$.ajax({
+				url: '/schedule/delay',
+				data : {sid : sid,index :index,end:end,times:times},
+				type : 'post',
+				dataType :'json',
+				success: function (data) {
+					alert(data.message);
+					window.location.reload(); 
+				},
+				cache: false
+			}); 
+			return true;
+		},
+		cancelValue: '取消',
+		cancel : function(){}
+	});
+	d.show();	
+}
+
+
+function getMonthDays(year, month){
+	if(!(month < 13 && month > 0) || year == 0)
+		return false;
+	var days;
+	if(month == 1 || month == 3 || month == 5 ||  month == 7 ||  month == 8 ||  month == 10 ||  month == 12)
+		days = 31;
+	else if (month == 2)
+	{
+		if((year%4==0 && year%100!=0)||(year%100==0 && year%400==0))
+			days = 29;
+		else
+			days = 28;
+	}
+	else 
+		days = 30;
+	return days;
+}
+
+function explode(inputstring, separators, includeEmpties) {
+	inputstring = new String(inputstring);
+	separators = new String(separators);
+
+	if(separators == "undefined") {
+		separators = " :;";
+	}
+
+	fixedExplode = new Array(1);
+	currentElement = "";
+	count = 0;
+
+	for(x=0; x < inputstring.length; x++) {
+	  str = inputstring.charAt(x);
+	  if(separators.indexOf(str) != -1) {
+		  if ( ( (includeEmpties <= 0) || (includeEmpties == false)) && (currentElement == "")) {
+		  }
+		  else {
+			  fixedExplode[count] = currentElement;
+			  count++;
+			  currentElement = "";
+		  }
+	  }
+	  else {
+		  currentElement += str;
+	  }
+	}
+
+	if (( ! (includeEmpties <= 0) && (includeEmpties != false)) || (currentElement != "")) {
+		fixedExplode[count] = currentElement;
+	}
+	return fixedExplode;
+}
+
+
+function getPrevWeek(sendDay)
+{
+	var now = new Date();
+	var startAry = new Array();
+	startAry = explode(sendDay,'-');
+	var year = parseInt(startAry[0]);
+	var month = parseInt(startAry[1]);
+	var day = parseInt(startAry[2]);
+	var days = getMonthDays(year,month);
+	var startDay = parseInt(day) - 7;
+	var endDay = parseInt(day) - 1;
+	var startYear,startMonth,endMonth,endYear =0;
+
+	startMonth = endMonth = month;
+	startYear = endYear =  year; 
+
+	if(startDay < 0)
+	{	
+		if(month == 1)
+		{
+			startMonth = 12;
+			startYear--;
+		}
+		else
+			startMonth--;
+		var	prevMonthDay = getMonthDays(startYear,startMonth);
+		startDay = prevMonthDay  + day - 7;
+	}
+	else if(startDay == 0)
+	{
+		if(month == 1)
+		{
+			startMonth = 12;
+			startYear--;
+		}
+		else
+			startMonth--;
+		var	prevMonthDay = getMonthDays(startYear,startMonth);
+		startDay = prevMonthDay;
+	}
+
+	if(endDay < 0)
+	{	
+		if(month == 1)
+		{
+			endMonth = 12;
+			endYear--;
+		}
+		else
+			endMonth--;
+		var	prevMonthDay = getMonthDays(endMonth,endYear);
+		endDay = prevMonthDay;
+
+	}
+	else if(endDay == 0)
+	{
+		if(month == 1)
+		{
+			endMonth = 12;
+			endYear--;
+		}
+		else
+			endMonth--;
+		var	prevMonthDay = getMonthDays(startYear,startMonth);
+		endDay = prevMonthDay;
+	}	
+
+	if(startDay < 10)
+		startDay = '0' + startDay;				
+	if(endDay < 10)
+		endDay = '0' + endDay;
+	if(startMonth < 10)
+		startMonth = '0' + startMonth;	 
+	if(endMonth < 10)
+		endMonth = '0' + endMonth;
+
+	var reAry = new Array();
+	reAry.push(startYear+'-' + startMonth + '-' + startDay);
+	reAry.push(endYear+'-'+  endMonth + '-' + endDay);
+	return reAry;
+}
+
+
+function getNextWeek(sendDay)
+{
+	var now = new Date();
+	var endAry = new Array();
+	endAry = explode(sendDay,'-');
+	var year = parseInt(endAry[0]);
+	var month = parseInt(endAry[1]);
+	var day = parseInt(endAry[2]);
+	var days = getMonthDays(year,month);
+	var startDay = parseInt(day) + 1;
+	var endDay = parseInt(day) + 7;
+	var startYear,startMonth,endMonth,endYear =0;
+
+	startMonth = endMonth = month;
+	startYear = endYear =  year; 
+	 if(endDay > days)
+	 {
+		endDay = endDay - days; 
+		 if((endMonth+1) > 12)
+		 {
+			 endMonth = 1;
+			 endYear += 1;
+		  }
+		  else
+			 endMonth += 1;
+	  }
+	 if(startDay > days)
+	 {
+		startDay = 1; 
+		 if((startMonth+1) > 12)
+		 {
+			 startMonth = 1;
+			 startYear += 1;
+		  }
+		  else
+			 startMonth += 1;
+	  }	
+	if(startDay < 10)
+		startDay = '0' + startDay;				
+	if(endDay < 10)
+		endDay = '0' + endDay;
+	if(startMonth < 10)
+		startMonth = '0' + startMonth;	 
+	if(endMonth < 10)
+		endMonth = '0' + endMonth;
+	var reAry = new Array();
+	reAry.push(startYear+'-' + startMonth + '-' + startDay);
+	reAry.push(endYear+'-'+  endMonth + '-' + endDay);
+
+	return reAry;
+}
+
+function checkAll(o){
+	if( o.checked == true ){
+		$('input[name="checkbox"]').attr('checked','true');		
+	}else{
+		$('input[name="checkbox"]').removeAttr('checked');		
+	}
+}
+
+function getChecked() {
+	var idArr = new Array();
+	$.each($('.dataSet input[name="checkbox"]:checked'), function(i, n){
+		idArr.push( $(n).val() );
+	});
+	return idArr;
+}
+
+
+function prev()
+{
+	var now = new Date(); //当前日期 
+    if($("#unit").val() == 'month')
+	{
+		var end= explode("<!--{$extent.start}-->",'-');
+		var year = parseInt(end[0]);
+		var month = parseInt(end[1]);
+		if(month - 1 < 1)
+		{
+			month = 12;
+			year -= 1;
+		}
+		else
+		{
+			month -= 1;
+		}
+		var endDay = getMonthDays(year,month);
+		if(month < 10)
+		{
+			month = '0' + month;
+		}
+		$("#start").val(year+'-'+  month + '-01');
+		$("#end").val(year+'-'+  month + '-' + endDay);
+	}else{
+		var extent = getPrevWeek("<!--{$extent.start}-->");
+		$("#start").val(extent[0]);
+		$("#end").val(extent[1]);
+	}
+	$("#searchForm").submit();
+}
+
+function next()
+{
+    if($("#unit").val() == 'month')
+	{
+		var end= explode("<!--{$extent.end}-->",'-');
+		var year = parseInt(end[0]);
+		var month = parseInt(end[1]);
+		if(month + 1 >12)
+		{
+			month = 1;
+			year += 1;
+		}
+		else
+		{
+			month +=1;
+		}
+		var endDay = getMonthDays(year,month);
+		if(month < 10)
+		{
+			month = '0' + month;
+		}
+		$("#start").val(year+'-'+  month + '-01');
+		$("#end").val(year+'-'+  month + '-' + endDay);
+	}else{
+		var extent = getNextWeek("<!--{$extent.end}-->");
+		$("#start").val(extent[0]);
+		$("#end").val(extent[1]);		
+	}
+	$("#searchForm").submit();
+}
+
+function StudentShow(id, num)
+{	
+	art.dialog.open('/student/list&module=event&event=' + id, {id: 'studentShow',title: '共' + num + '人', 'width' : 196, 'lock' : false, resize:false, fixed:true, follow: document.getElementById("tableItem" + id)});
+
+	//art.dialog.open('/student/ajax?action=list&module=event&event=' + id, {id : 'GroupAdd', title:false, lock:false, resize: false, content : 'test', padding : '0px 10px 10px', fixed : true, follow: document.getElementById("tableItem" + id)});		
+
+}
+/*function StudentShow(id, num)
+{	
+	// alert("tableItem" + id);
+	art.dialog.open(
+	'/student/ajax?action=list&module=grade&grade=' + id, 
+	{id: id,title: '共' + num + '人', 'width' : 196, 'lock' : false, resize:false, 
+		follow: document.getElementById("tableItem" + id)}, 
+		function(){}, 
+		function(){window.top.location.reload();}
+	);		
+}*/
+</script>
+</body>
+</html>

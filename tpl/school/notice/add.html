@@ -1,0 +1,142 @@
+<!--{include file="../header.html"}-->
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/jscal2.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/border-radius.css"/>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/calendar/win2k.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/calendar.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/calendar/lang/en.js"></script>
+<link rel="stylesheet" type="text/css" href="<!--{$JS}-->/formValid/style/validator.css"/>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidator.min.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/formValid/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<!--{$JS}-->/jquery.form.js"></script>
+
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/artDialog.js?skin=default"></script>
+<script language="javascript" type="text/javascript" src="<!--{$JS}-->/dialog/plugins/iframeTools.source.js"></script>
+
+<div class="mainContent">
+	<div class="mbx">
+		<span><a href="javascript:;" onclick="window.history.go(-1);">返回</a> >></span>
+		<a href="javascript:;" onclick="window.top.menuOn('base', 1)">首页</a> > <a href="/stat">教学工具</a> > <a href="/notice">通知</a> > <a>发送通知</a> 
+	</div>
+	<div class="dataForm" style="background:#F5F5F5;padding:10px 0px">		
+		<form action="/notice/add" id="dataForm" name="dataForm" method="post">		
+		<div class="formItem">			
+			<label>上课老师：</label>
+			<input type="hidden" value="" id="teacher" name="teacher" />
+			<div class="teacherSelected selected"><ul></ul></div>
+			<button type="button" name="selectTeacher" id="selectTeacher" style="margin-left:0px" onclick="toSelect('teacher', 10)">选择老师</button>
+			<span id="teacherTip"></span>
+		</div>
+		<div class="formItem">			
+			<label>上课学生：</label>
+			<input type="hidden" value="" id="student" name="student" />
+			<div class="studentSelected selected"><ul></ul></div>
+			<button type="button" name="selectStudent" id="selectStudent" style="margin-left:0px" onclick="toSelect('student', 50)" >选择学生</button>
+			<span id="studentTip"></span>
+		</div>
+
+		<div class="formItem">
+			<label></label>
+			<input type="hidden" value="" id="user" name="user" />			
+			<span id="userTip" class="onShow">通知对象，请选择老师或学生</span>
+		</div>
+
+		<div class="formItem" style="position:relative;">
+			<label style="margin-right:2px;vertical-align:top">内容：</label>
+			<textarea name="content" id="content" rows="5" cols="60" class="input-text" style="width:400px;height:100px;resize:none"></textarea>			
+			<span id="contentTip"></span>
+			<span id="wordCount" style="left:480px;top:98px;"><b>300</b>字</span>
+		</div>
+
+		<div class="formItem" style="padding-left:102px;">			
+			<input type="submit" name="submit" id="formSubmit" class="dataBnt" value="发布" />
+			<input type="button" name="reset" class="cancelBnt" onclick="window.history.go(-1)" value="取消" />
+		</div>
+		</form>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){	
+
+	$.formValidator.initConfig({formID:"dataForm", submitButtonID: 'formSubmit', submitOnce:true, errorFocus:true,wideWord:true,
+		onError:function(msg, obj, errorlist){},
+		onSuccess:function(){}
+	});
+
+	$("#text").formValidator({onShow:"", onFocus:"标题长度为2-20个字符", defaultValue:''}).inputValidator({min:2,max:20,onError:"标题长度为2-20个字符"});	
+	$("#teacher").formValidator({onShow:"",onFocus:"", onCorrect : ''}).functionValidator({fun : function(){
+		if($(".teacherSelected li").length > 100) return '老师人数不得超过100人';
+		return true;
+	}});
+	$("#student").formValidator({onShow:"",onFocus:"", onCorrect : ''}).functionValidator({fun : function(){
+		if($(".studentSelected li").length > 100) return '学生人数不得超过100人';
+		return true;		
+	}});
+
+	$("#user").formValidator({onShow:"通知对象，请选择老师或学生", onFocus:"通知对象，请选择老师或学生", onError : ''}).functionValidator({fun : function(){
+		var len = $(".selected li").length;
+		if($(".selected li").length < 1) return '通知对象至少1人';
+		if($(".selected li").length > 100) return '通知对象不得超过100人';
+		return true;		
+	}});
+
+	$("button[name='reset']").click(function(){		
+		window.history.go(-1);
+	});
+	$(".selected").find("i").bind('click', function(){$(this).parent('li').remove()});
+	// $("#content").formValidator({onShow:"", onFocus:"通知内容须为5-300字", defaultValue:''}).inputValidator({min:2,max:300, onErrorMin:"通知内容至少为5个字", onErrorMax:'通知内容不可超过300个字'});
+	
+	wordChange(300, $('#content'));
+	$("#content").keyup(function(e){
+		wordChange(300, $(this));		
+	});
+});
+
+function toSelect(type, offset, priv)
+{
+	type = type == 'teacher' ?  'teacher' : 'student';
+	var typeName = '老师';
+	if(type != 'teacher')
+	{
+		typeName = '学生'; type = 'student';
+	}
+	var selected = new Array();	
+	$("input[name='" + type + "[id][]']").each(function(i, obj){
+		selected.push($(obj).val());
+	});	
+	var ajaxUrl = '/' + type + '/select';
+	if(offset > 0 && selected.length > 0)
+	{
+		ajaxUrl += '?id=' +  selected.join() + "&offset=" + offset + (priv ? "&priv=1" : '');
+		if(selected.length >= offset)
+		{
+			window.top.art.dialog({id : 'Error', content : typeName + '人数不能超过' + offset + '人', width: 300, icon : 'Error'}, function(){art.dialog('Error').close();});
+			return false;
+		}
+	}else if(offset){
+		ajaxUrl += "?&offset=" + offset;
+	}
+	art.dialog.open(ajaxUrl, {id: 'selectPanel',title: "选择" + typeName, width : '90%', height: '90%', 'lock' : true, resize:false});
+}
+
+function render(type, data)
+{	
+	type = type == 'teacher' ?  'teacher' : 'student';
+	var panel = $("." + type + "Selected ul");
+	for(key in data)
+	{		
+		if($(panel).find("li input[name='" + type + "[id][]'][value='" + data[key].id + "']").length < 1)
+		{
+			var str = "<li><i></i>";
+			str += '<input type="hidden" name="' + type + '[id][]" value="' + data[key].id + '" />';
+			str += '<input type="hidden" name="' + type + '[name][]" value="' + data[key].name + '" />';
+			str += '<input type="hidden" name="' + type + '[en][]" value="' + data[key].en + '" />';
+			if(type == 'teacher') str += '<input type="hidden" name="' + type + '[priv][]" value="' + data[key].priv + '" />';			
+			str += '<span>' + data[key].name + '</span></li>';
+			$(panel).append(str);
+		}
+	}	
+	$(".teacherSelected").find("i").bind('click', function(){$(this).parent('li').remove()});
+}
+</script>
+</body>
+</html>
